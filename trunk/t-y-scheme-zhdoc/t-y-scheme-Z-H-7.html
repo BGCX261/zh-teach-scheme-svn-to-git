@@ -1,0 +1,256 @@
+ <!doctype html public "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+ <html>
+ <!--
+
+ Generated from t-y-scheme.tex by tex2page, v 20070609
+ (running on MzScheme 4.2.1, unix), 
+ (c) Dorai Sitaram, 
+ http://www.ccs.neu.edu/~dorai/tex2page/tex2page-doc.html
+
+ -->
+ <head>
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ <title>
+ Teach Yourself Scheme in Fixnum Days 中文版
+ </title>
+ <link rel="stylesheet" type="text/css" href="t-y-scheme-Z-S.css" title=default>
+ <meta name="robots" content="index,follow">
+ <meta name=description content="A practical
+ introduction to the programming language Scheme">
+
+ <meta name=author content="Dorai Sitaram">
+
+ <link rev=made href="mailto:dorai @ ccs.neu.edu">
+ </head>
+ <body>
+ <div id=slidecontent>
+ <div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-6.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-8.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+ <p></p>
+ <a name="node_chap_5"></a>
+ <h1 class=chapter>
+ <div class=chapterheading><a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_5">第 5 章 </a></div>
+ <br>
+ <a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_5">词法变量</a></h1>
+ <p><a name="node_idx_268"></a><a name="node_idx_270"></a><a name="node_idx_272"></a>Scheme 的变量具有词法作用域，即，他们只在某些邻近的某段程序文本的形式中可见。到目前为止我们看到的<em>全局</em>（<em>global</em>）变量都无一例外：它们的作用域是整个程序文本，自然也是临近的。</p>
+ <p>
+   我们也已经看到过一些<em>局部</em>（<em>local</em>）变量的例子。这些都是 <code class=scheme><span class=keyword>lambda</span></code> 的参数，它们在每次调用时都有<em>约束</em>（<em>bound</em>），而且它们的作用域就是那个过程体。例如，</p>
+ <p>
+ </p>
+ <pre class=scheme>(<span class=keyword>define</span> <span class=variable>x</span> <span class=selfeval>9</span>)
+ (<span class=keyword>define</span> <span class=variable>add2</span> (<span class=keyword>lambda</span> (<span class=variable>x</span>) (<span class=variable>+</span> <span class=variable>x</span> <span class=selfeval>2</span>)))
+
+ <span class=variable>x</span>        <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>9</span>
+
+ (<span class=variable>add2</span> <span class=selfeval>3</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>5</span>
+ (<span class=variable>add2</span> <span class=variable>x</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>11</span>
+
+ <span class=variable>x</span>        <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>9</span>
+ </pre><p></p>
+ <p>
+ 这里有一个全局 <code class=scheme><span class=variable>x</span></code> 和一个局部 <code class=scheme><span class=variable>x</span></code>，后一个由过程 <code class=scheme><span class=variable>add2</span></code> 引进。全局 <code class=scheme><span class=variable>x</span></code> 总是 <code class=scheme><span class=selfeval>9</span></code>。局部 <code class=scheme><span class=variable>x</span></code> 在第一次调用 <code class=scheme><span class=variable>add2</span></code> 时被约束到 <code class=scheme><span class=selfeval>3</span></code>， 而在第二次调用 <code class=scheme><span class=variable>add2</span></code> 时被约束到全局 <code class=scheme><span class=variable>x</span></code> 的值，即 <code class=scheme><span class=selfeval>9</span></code>。当调用返回时，全局 <code class=scheme><span class=variable>x</span></code> 仍然为 <code class=scheme><span class=selfeval>9</span></code>。</p>
+ <p>
+ 形式 <code class=scheme><span class=keyword>set!</span></code> 能修改变量的约束。</p>
+ <p>
+ </p>
+ <pre class=scheme>(<span class=keyword>set!</span> <span class=variable>x</span> <span class=selfeval>20</span>)
+ </pre><p></p>
+ <p>
+ </p>
+
+ <p class=noindent>将全局 <code class=scheme><span class=variable>x</span></code> 修改为 <code class=scheme><span class=selfeval>20</span></code>，因为 <code class=scheme><span class=variable>x</span></code> 的约束对于 <code class=scheme><span class=keyword>set!</span></code> 是可见的。如果 <code class=scheme><span class=keyword>set!</span></code> 在 <code class=scheme><span class=variable>add2</span></code> 的内部，它将会修改局部的 
+ <code class=scheme><span class=variable>x</span></code>：</p>
+ <p>
+ </p>
+ <pre class=scheme>(<span class=keyword>define</span> <span class=variable>add2</span>
+   (<span class=keyword>lambda</span> (<span class=variable>x</span>)
+     (<span class=keyword>set!</span> <span class=variable>x</span> (<span class=variable>+</span> <span class=variable>x</span> <span class=selfeval>2</span>))
+     <span class=variable>x</span>))
+ </pre><p></p>
+ <p>这里的 <code class=scheme><span class=keyword>set!</span></code> 将局部变量
+ <code class=scheme><span class=variable>x</span></code> 加 <code class=scheme><span class=selfeval>2</span></code>，然后返回局部 <code class=scheme><span class=variable>x</span></code> 的新值。（就效果而言，这个过程和前面那个 
+ <code class=scheme><span class=variable>add2</span></code> 是难以区别的。）我们可以像先前一样调用 <code class=scheme><span class=variable>add2</span></code>：</p>
+ <p>
+ </p>
+ <pre class=scheme>(<span class=variable>add2</span> <span class=variable>x</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>22</span>
+ </pre><p></p>
+ <p>
+ </p>
+
+ <p class=noindent>（记住全局 <code class=scheme><span class=variable>x</span></code> 现在是 <code class=scheme><span class=selfeval>20</span></code>，不是 <code class=scheme><span class=selfeval>9</span></code>！）</p>
+ <p>
+ 在 <code class=scheme><span class=variable>add2</span></code> 内部的 <code class=scheme><span class=keyword>set!</span></code> 只会影响 <code class=scheme><span class=variable>add2</span></code> 使用的局部变量。即使局部变量 <code class=scheme><span class=variable>x</span></code> 是从全局 <code class=scheme><span class=variable>x</span></code> 中得到约束的，后者也不会受 <code class=scheme><span class=keyword>set!</span></code> 的影响的。</p>
+ <p>
+ </p>
+ <pre class=scheme><span class=variable>x</span> <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>20</span>
+ </pre><p></p>
+ <p>
+ 请注意，我们讨论这一切是因为我们使用了同样的标识符来标识全局变量和局部变量。在任何上下文中，一个名为 <code class=scheme><span class=variable>x</span></code> 标识符是指词法上最近的名为 <code class=scheme><span class=variable>x</span></code> 的变量。这将会<em>遮盖</em>任何外部或是全局的 <code class=scheme><span class=variable>x</span></code>。举个例子，在 <code class=scheme><span class=variable>add2</span></code> 中，参数 <code class=scheme><span class=variable>x</span></code> 遮盖了全局 
+ <code class=scheme><span class=variable>x</span></code>。</p>
+ <p>
+ 如果一个过程的参数不遮盖在它附近范围内的变量，那么该过程的过程体就可以获取并修改这些变量。这会产生一些有趣的程序。例如，</p>
+ <p>
+ </p>
+ <pre class=scheme>(<span class=keyword>define</span> <span class=variable>counter</span> <span class=selfeval>0</span>)
+
+ (<span class=keyword>define</span> <span class=variable>bump-counter</span>
+   (<span class=keyword>lambda</span> ()
+     (<span class=keyword>set!</span> <span class=variable>counter</span> (<span class=variable>+</span> <span class=variable>counter</span> <span class=selfeval>1</span>))
+     <span class=variable>counter</span>))
+ </pre><p></p>
+ <p><code class=scheme><span class=variable>bump-counter</span></code> 是一个没有参数的过程（也称为<em>槽</em>（<em>thunk</em>））。它不会引入局部变量，因此不会遮盖任何东西。每次调用它，它修改 <em>全局</em> 变量 <code class=scheme><span class=variable>counter</span></code> &#8212; 将它加 1  &#8212; 并返回它的当前值。下面是对
+ <code class=scheme><span class=variable>bump-counter</span></code> 的连续调用：</p>
+ <p>
+ </p>
+ <pre class=scheme>(<span class=variable>bump-counter</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>1</span>
+ (<span class=variable>bump-counter</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>2</span>
+ (<span class=variable>bump-counter</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>3</span>
+ </pre><p></p>
+ <p>
+ <a name="node_idx_274"></a><a name="node_idx_276"></a></p>
+ <a name="node_sec_5.1"></a>
+ <h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_5.1">5.1&nbsp;&nbsp;<code class=scheme><span class=keyword>let</span></code> 和 <code class=scheme><span class=keyword>let*</span></code></a></h2>
+ <p>局部变量可以不通过显示地创建过程来引入。特殊形式 <code class=scheme><span class=keyword>let</span></code> 引入一个局部变量表以便在内部使用：</p>
+ <p>
+ </p>
+ <pre class=scheme>(<span class=keyword>let</span> ((<span class=variable>x</span> <span class=selfeval>1</span>)
+       (<span class=variable>y</span> <span class=selfeval>2</span>)
+       (<span class=variable>z</span> <span class=selfeval>3</span>))
+   (<span class=variable>list</span> <span class=variable>x</span> <span class=variable>y</span> <span class=variable>z</span>))
+ <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  (<span class=selfeval>1</span> <span class=selfeval>2</span> <span class=selfeval>3</span>)
+ </pre><p></p>
+ <p>
+ </p>
+
+ <p class=noindent>和 <code class=scheme><span class=keyword>lambda</span></code> 一样，在 <code class=scheme><span class=keyword>let</span></code> 中，局部
+ <code class=scheme><span class=variable>x</span></code> (被约束到 <code class=scheme><span class=selfeval>1</span></code>） 遮盖了全局 <code class=scheme><span class=variable>x</span></code> （被约束到 <code class=scheme><span class=selfeval>20</span></code>）。</p>
+ <p>
+ 局部变量初始化 &#8212; <code class=scheme><span class=variable>x</span></code> 为 <code class=scheme><span class=selfeval>1</span></code>；<code class=scheme><span class=variable>y</span></code> 为 <code class=scheme><span class=selfeval>2</span></code>；<code class=scheme><span class=variable>z</span></code> 为 <code class=scheme><span class=selfeval>3</span></code> &#8212; 不被认为是 <code class=scheme><span class=keyword>let</span></code> 的一部分。因此，在初始化中的对 <code class=scheme><span class=variable>x</span></code> 的引用将会指向那个全局的，而不是局部的 <code class=scheme><span class=variable>x</span></code>：</p>
+ <p>
+ </p>
+ <pre class=scheme>(<span class=keyword>let</span> ((<span class=variable>x</span> <span class=selfeval>1</span>)
+       (<span class=variable>y</span> <span class=variable>x</span>))
+   (<span class=variable>+</span> <span class=variable>x</span> <span class=variable>y</span>))
+ <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>21</span>
+ </pre><p></p>
+ <p>
+ </p>
+
+ <p class=noindent>这是因为 <code class=scheme><span class=variable>x</span></code> 被约束到 <code class=scheme><span class=selfeval>1</span></code>，而 <code class=scheme><span class=variable>y</span></code> 被约束到值为<em> <code class=scheme><span class=selfeval>20</span></code> 的全局</em> <code class=scheme><span class=variable>x</span></code>。</p>
+ <p>
+ 有时，让 <code class=scheme><span class=keyword>let</span></code> 的词法变量表按顺序引入是很方便的，使得后面变量的初始化发生在先前的变量的<em>词法范围</em>（<em>lexical scope</em>）内。形式
+ <code class=scheme><span class=keyword>let*</span></code> 就是这样的：</p>
+ <p>
+ </p>
+ <pre class=scheme>(<span class=keyword>let*</span> ((<span class=variable>x</span> <span class=selfeval>1</span>)
+        (<span class=variable>y</span> <span class=variable>x</span>))
+   (<span class=variable>+</span> <span class=variable>x</span> <span class=variable>y</span>))
+ <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>2</span>
+ </pre><p></p>
+ <p>
+ </p>
+
+  <p class=noindent> 在 <code class=scheme><span class=variable>y</span></code> 初始化中的 <code class=scheme><span class=variable>x</span></code> 是指刚好在它上面的那个 <code class=scheme><span class=variable>x</span></code>。这个例子完全等价于 &#8212;
+ 并且事实上方便地简写了 &#8212; 下面这个带有嵌套的 <code class=scheme><span class=keyword>let</span></code> 程序：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>let</span> ((<span class=variable>x</span> <span class=selfeval>1</span>))
+  (<span class=keyword>let</span> ((<span class=variable>y</span> <span class=variable>x</span>))
+    (<span class=variable>+</span> <span class=variable>x</span> <span class=variable>y</span>)))
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>2</span>
+</pre><p></p>
+<p>
+被约束到词法变量的值可以是过程：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>let</span> ((<span class=variable>cons</span> (<span class=keyword>lambda</span> (<span class=variable>x</span> <span class=variable>y</span>) (<span class=variable>+</span> <span class=variable>x</span> <span class=variable>y</span>))))
+  (<span class=variable>cons</span> <span class=selfeval>1</span> <span class=selfeval>2</span>))
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>3</span>
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>在 <code class=scheme><span class=keyword>let</span></code> 内部，词法变量 <code class=scheme><span class=variable>cons</span></code>
+把它的参数相加。而在这之外，<code class=scheme><span class=variable>cons</span></code> 仍被用来创建点对。</p>
+<p>
+<a name="node_idx_278"></a></p>
+<p>
+</p>
+<a name="node_sec_5.2"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_5.2">5.2&nbsp;&nbsp;<code class=scheme><span class=keyword>fluid-let</span></code></a></h2>
+<p></p>
+<p>
+如果一个词法变量没有被遮盖，它在它的整个范围内都是可见的。有时，<em>暂时</em>地设置一个词法变量的值是有用的。为此，我们使用 
+<code class=scheme><span class=keyword>fluid-let</span></code>。<a name="node_call_footnote_Temp_4"></a><sup><small><a href="#node_footnote_Temp_4">1</a></small></sup></p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>fluid-let</span> ((<span class=variable>counter</span> <span class=selfeval>99</span>))
+  (<span class=variable>display</span> (<span class=variable>bump-counter</span>)) (<span class=variable>newline</span>)
+  (<span class=variable>display</span> (<span class=variable>bump-counter</span>)) (<span class=variable>newline</span>)
+  (<span class=variable>display</span> (<span class=variable>bump-counter</span>)) (<span class=variable>newline</span>))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>这和 <code class=scheme><span class=keyword>let</span></code> 相似，但它不会遮盖全局变量 <code class=scheme><span class=variable>counter</span></code>，而是在继续执行 <code class=scheme><span class=keyword>fluid-let</span></code> 之前将其暂时地设置为 <code class=scheme><span class=selfeval>99</span></code>。因此该表达式体中的 <code class=scheme><span class=variable>display</span></code> 产生</p>
+<p>
+</p>
+<pre class=verbatim>100&nbsp;
+101&nbsp;
+102&nbsp;
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent><code class=scheme><span class=keyword>fluid-let</span></code> 表达式计算后，全局 <code class=scheme><span class=variable>counter</span></code> 恢复到在 <code class=scheme><span class=keyword>fluid-let</span></code> 之前的值。</p>
+<p>
+</p>
+<pre class=scheme><span class=variable>counter</span> <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>3</span>
+</pre><p></p>
+<p>
+请注意，<code class=scheme><span class=keyword>fluid-let</span></code> 相比于 <code class=scheme><span class=keyword>let</span></code> 拥有完全不同的效果。<code class=scheme><span class=keyword>fluid-let</span></code> 不会像 <code class=scheme><span class=keyword>let</span></code> 那样引进新的词法变量。它修改已存在的词法变量的约束，并且这个修改在 <code class=scheme><span class=keyword>fluid-let</span></code> 一结束就不再有效了。</p>
+<p>
+为了说清这点，考虑这个程序</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>let</span> ((<span class=variable>counter</span> <span class=selfeval>99</span>))
+  (<span class=variable>display</span> (<span class=variable>bump-counter</span>)) (<span class=variable>newline</span>)
+  (<span class=variable>display</span> (<span class=variable>bump-counter</span>)) (<span class=variable>newline</span>)
+  (<span class=variable>display</span> (<span class=variable>bump-counter</span>)) (<span class=variable>newline</span>))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>它用 <code class=scheme><span class=keyword>let</span></code> 来代替了之前的例子中的 <code class=scheme><span class=keyword>fluid-let</span></code> 。现在输出为</p>
+<p>
+</p>
+<pre class=scheme><span class=selfeval>4</span>
+<span class=selfeval>5</span>
+<span class=selfeval>6</span>
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>即，初始值为 
+  <code class=scheme><span class=selfeval>3</span></code> 的全局 <code class=scheme><span class=variable>counter</span></code>，在每次调用 <code class=scheme><span class=variable>bump-counter</span></code> 时都被更新了。初始值为  <code class=scheme><span class=selfeval>99</span></code> 的新词法变量 <code class=scheme><span class=variable>counter</span></code>，对于调用 
+<code class=scheme><span class=variable>bump-counter</span></code>是没有影响的，因为即使
+<code class=scheme><span class=variable>bump-counter</span></code> 调用是在局部 
+<code class=scheme><span class=variable>counter</span></code> 的范围内的，但 <code class=scheme><span class=variable>bump-counter</span></code> 的过程体没有。后者仍是指全局 <code class=scheme><span class=variable>counter</span></code> 的，而它最终的值是 <code class=scheme><span class=selfeval>6</span></code>。</p>
+<p>
+</p>
+<pre class=scheme><span class=variable>counter</span> <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>6</span>
+</pre><p>
+</p>
+<p>
+</p>
+<div class=footnoterule><hr></div><p></p>
+<div class=footnote>
+  <p><a name="node_footnote_Temp_4"></a><sup><small><a href="#node_call_footnote_Temp_4">1</a></small></sup> <code class=scheme><span class=keyword>fluid-let</span></code> 是非标准的特殊形式。参见 <a href="t-y-scheme-Z-H-10.html#node_sec_8.3">8.3</a> 中 <code class=scheme><span class=keyword>fluid-let</span></code> 在 Scheme 中的一个定义。 </p>
+</div>
+<div class=smallskip></div>
+<p style="margin-top: 0pt; margin-bottom: 0pt">
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-6.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-8.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+</p>
+<p></p>
+</div>
+</body>
+</html>

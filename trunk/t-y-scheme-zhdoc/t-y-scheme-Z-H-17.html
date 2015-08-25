@@ -1,0 +1,357 @@
+<!doctype html public "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!--
+
+Generated from t-y-scheme.tex by tex2page, v 20070609
+(running on MzScheme 4.2.1, unix), 
+(c) Dorai Sitaram, 
+http://www.ccs.neu.edu/~dorai/tex2page/tex2page-doc.html
+
+-->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+Teach Yourself Scheme in Fixnum Days 中文版
+</title>
+<link rel="stylesheet" type="text/css" href="t-y-scheme-Z-S.css" title=default>
+<meta name="robots" content="index,follow">
+<meta name=description content="A practical
+introduction to the programming language Scheme">
+
+<meta name=author content="Dorai Sitaram">
+
+<link rev=made href="mailto:dorai @ ccs.neu.edu">
+</head>
+<body>
+<div id=slidecontent>
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-16.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-18.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+<p></p>
+<a name="node_chap_15"></a>
+<h1 class=chapter>
+<div class=chapterheading><a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_15">第 15 章 </a></div>
+<br>
+<a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_15">engine</a></h1>
+<p><a name="node_idx_474"></a>一个 engine 描述了受控于定时抢占的计算。换而言之，一个 engine 的底层计算是一个普通的作为一个定时抢占器进程运行的 thunk。An engine [<a href="t-y-scheme-Z-H-24.html#node_bib_17">17</a>] represents computation that is
+subject to timed preemption.  In other words, an
+engine&#8217;s underlying computation is an ordinary thunk
+that runs as a timer-preemptable process.</p>
+<p>
+调用 engine 需要 3 个参数：（1）一个时间单位数或是 <em>ticks</em> 数，（2）一个 <em>success</em> 过程，和（3）一个 <em>failure</em> 过程。An engine is called with three arguments: (1) a number
+of time units or <em>ticks</em>, (2) a <em>success</em>
+procedure, and (3) a <em>failure</em> procedure.如果 engine 的计算在分配的 ticks 内完成，则以计算结果和剩余的 ticks 作为参数来调用 <em>success</em> 过程。如果不能的话，则以一个描述未完成部分的新的 engine 作为参数来调用 <em>failure</em> 过程。If the
+engine computation finishes within the allotted <em>ticks</em>, the <em>success</em> procedure is applied to the
+computation result and the remaining ticks.  If the
+engine computation could not finish within the allotted
+<em>ticks</em>, the <em>failure</em> procedure is applied
+to a new engine representing the unfinished portion of
+the engine computation.</p>
+<p>
+例如，考虑一个计算为按顺序打印非负整数的循环的 engine。For example, consider an engine whose underlying
+computation is a loop that printed the nonnegative
+integers in sequence.在即将要被定义的 <code class=scheme><span class="variable">make-engine</span></code> 的帮助下，它的创建如下。<code class=scheme><span class="variable">make-engine</span></code> 以一个描述基本计算的 thunk 为参数被调用，并返回创建的 engine：It is created as follows, with
+the soon-to-be-defined <code class=scheme><span class=variable>make-engine</span></code> procedure.
+<code class=scheme><span class=variable>make-engine</span></code> is called on an argument thunk
+representing the underlying computation, and it
+returns the corresponding engine:</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>printn-engine</span>
+  (<span class=variable>make-engine</span>
+    (<span class=keyword>lambda</span> ()
+      (<span class=keyword>let</span> <span class=variable>loop</span> ((<span class=variable>i</span> <span class=selfeval>0</span>))
+        (<span class=variable>display</span> <span class=variable>i</span>)
+        (<span class=variable>display</span> <span class=selfeval>&quot; &quot;</span>)
+        (<span class=variable>loop</span> (<span class=variable>+</span> <span class=variable>i</span> <span class=selfeval>1</span>))))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>这是对 <code class=scheme><span class="variable">printn-engine</span></code> 的调用：Here is a call to <code class=scheme><span class=variable>printn-engine</span></code>:</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=global>*more*</span> <span class=selfeval>#f</span>)
+(<span class=variable>printn-engine</span> <span class=selfeval>50</span> <span class=variable>list</span> (<span class=keyword>lambda</span> (<span class=variable>ne</span>) (<span class=keyword>set!</span> <span class=global>*more*</span> <span class=variable>ne</span>)))
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>0</span> <span class=selfeval>1</span> <span class=selfeval>2</span> <span class=selfeval>3</span> <span class=selfeval>4</span> <span class=selfeval>5</span> <span class=selfeval>6</span> <span class=selfeval>7</span> <span class=selfeval>8</span> <span class=selfeval>9</span>
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>即，循环打印到某个数（这里为 <code class=scheme><span class="selfeval">9）</span></code>时就因为时钟中断而失败了。但是，我们的 <em>failure</em> 过程将全局变量 <code class=scheme><span class=global>*more*</span></code> 设置为了失败的 engine，我们可以使用这个 engine 来在先前 engine 离开的地方恢复循环。Ie, the loop gets to print upto a certain number
+(here <code class=scheme><span class=selfeval>9</span></code>) and then fails because of the clock
+interrupt.  However, our <em>failure</em> procedure sets
+a global variable called <code class=scheme><span class=global>*more*</span></code> to the failed
+engine, which we can use to resume the loop where the
+previous engine left off:</p>
+<p>
+</p>
+<pre class=scheme>(<span class=global>*more*</span> <span class=selfeval>50</span> <span class=variable>list</span> (<span class=keyword>lambda</span> (<span class=variable>ne</span>) (<span class=keyword>set!</span> <span class=global>*more*</span> <span class=variable>ne</span>)))
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>10</span> <span class=selfeval>11</span> <span class=selfeval>12</span> <span class=selfeval>13</span> <span class=selfeval>14</span> <span class=selfeval>15</span> <span class=selfeval>16</span> <span class=selfeval>17</span> <span class=selfeval>18</span> <span class=selfeval>19</span>
+</pre><p></p>
+<p>
+<a name="node_idx_476"></a></p>
+<p>
+现在，我们将会使用 <code class=scheme><span class="variable">call/cc</span></code> 构造 engine 来捕获那未完成计算的 engine。首先，我们将构造一个单一的或是一个不能包含其他运行的 engine 的 engine。然后我们将会代码推广到能调用其他 engine 的更一般化的<em>嵌套</em>的 engine，或叫 <em>nesters</em>。但不论是哪种情况，我们都需要一个定时器装置或是一个 <em>clock</em>。We will now construct engines using <code class=scheme><span class=variable>call/cc</span></code> to
+capture the unfinished computation of a failing engine.
+First we will construct <em>flat</em> engines, or
+engines whose computation cannot include the running of
+other engines.  We will later generalize the code to
+the more general <em>nestable</em> engines or <em>nesters</em>, which can call other engines.  But in both
+cases, we need a timer mechanism, or a <em>clock</em>.</p>
+<p>
+<a name="node_idx_478"></a></p>
+<p>
+</p>
+<a name="node_sec_15.1"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_15.1">15.1&nbsp;&nbsp;The clock</a></h2>
+<p></p>
+<p>
+我们的 engine 假设全局 clock 或是可中断的计时器会在程序执行时记录其经过的 tick 数。我们还将设定如下的始终接口——如果你的 Scheme 提供任何类型的闹钟机制，则使下面类型的时钟想起来是件小事。（附录 <a href="t-y-scheme-Z-H-23.html#node_chap_D">D</a> 为 Scheme 方言 Guile [<a href="t-y-scheme-Z-H-24.html#node_bib_13">13</a>] 定义了一个时钟。）Our engines assume the presence of a global clock or
+interruptable timer that marks the passage of ticks as
+a program executes.  We will assume the following clock
+interface &#8212; if your Scheme provides any kind of alarm
+mechanism, it should be an easy matter to rig up a
+clock of the following type. (Appendix <a href="t-y-scheme-Z-H-23.html#node_chap_D">D</a>
+defines a clock for the Guile [<a href="t-y-scheme-Z-H-24.html#node_bib_13">13</a>] dialect of
+Scheme.)</p>
+<p>
+<code class=scheme><span class="variable">clock</span></code> 过程的内部状态由两项组成：</p>
+<p>
+（1）剩余的 ticks 数；和</p>
+<p>
+（2）一个在 ticks 用完时被调用的中断处理程序。</p>
+<p>
+<code class=scheme><span class="variable">clock</span></code> 允许下面的操作：</p>
+<p>
+（1）<code class=scheme>(<span class=variable>clock</span> <span class=keyword>'</span><span class=variable>set-handler</span> <span class=variable>h</span>)</code> 设置中断处理程序为 <code class=scheme><span class=variable>h</span></code>。</p>
+<p>
+（2）<code class=scheme>(<span class=variable>clock</span> <span class=keyword>'</span><span class=variable>set</span> <span class=variable>n</span>)</code> 重新设置剩余的 ticks 为 <code class=scheme><span class=variable>n</span></code>，并返回之前的值。</p>
+<p>
+ticks 的取值范围为从非负整数到一个名叫 <code class=scheme><span class=global>*infinity*</span></code> 的原子量。一个带有  <code class=scheme><span class=global>*infinity*</span></code> 的时钟是不会用完的，因此也不会触发中断处理程序。这样的时钟是休眠的或是“已停止的”的时钟。要关闭一个时钟，将它的 ticks 设置为
+<code class=scheme><span class=global>*infinity*</span></code> 。</p>
+<p>
+时钟的处理程序设置为一个 thunk。例如，</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>clock</span> <span class=keyword>'</span><span class=variable>set-handler</span>
+  (<span class=keyword>lambda</span> ()
+    (<span class=variable>error</span> <span class=selfeval>&quot;Say goodnight, cat!&quot;</span>)))
+
+(<span class=variable>clock</span> <span class=keyword>'</span><span class=variable>set</span> <span class=selfeval>9</span>)
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>在 9 个tick 过去后，将会显示一个带有“Say goodnight, cat!”消息的错误。</p>
+<p>
+<a name="node_idx_480"></a></p>
+<a name="node_sec_15.2"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_15.2">15.2&nbsp;&nbsp;单一的 engines</a></h2>
+<p>我们会首先设置时钟的中断处理程序。请注意，处理程序只有在非休眠的时钟用完 tick 后才会被调用。这只在 engine 计算位于失败边沿的期间才发生的，因为只有 engine 设置时钟。We will first set the clock interrupt handler.  Note
+that the handler is invoked only if a non-quiescent
+clock runs out of ticks.  This happens only during
+engine computations that are on the brink of failure,
+for only engines set the clock.</p>
+<p>
+处理程序捕获当前的 continuation，即当前的 failing engine 的剩余的计算。这个 continuation 被发送给另一个 保存在全局的 <code class=scheme><span class="global">*engine-escape*</span></code> 中的 continuation。<code class=scheme><span class="global">*engine-escape*</span></code> 变量保存当前 engine 的退出 continuation。因此时钟处理程序捕获其余的 failing engine 并将其发送到 engine 代码的退出点，这样必须的 failure 动作就可以被执行了。The handler captures the current continuation, which is
+the rest of the computation of the currently failing
+engine.  This continuation is sent to another
+continuation stored in the global <code class=scheme><span class=global>*engine-escape*</span></code>.
+The <code class=scheme><span class=global>*engine-escape*</span></code> variable stores the exit
+continuation of the current engine.  Thus the clock
+handler captures the rest of the failing engine and
+sends it to an exit point in the engine code, so the
+requisite failure action can be taken.</p>
+<p>
+</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=global>*engine-escape*</span> <span class=selfeval>#f</span>)
+(<span class=keyword>define</span> <span class=global>*engine-entrance*</span> <span class=selfeval>#f</span>)
+
+(<span class=variable>clock</span> <span class=keyword>'</span><span class=variable>set-handler</span>
+  (<span class=keyword>lambda</span> ()
+    (<span class=variable>call/cc</span> <span class=global>*engine-escape*</span>)))
+</pre><p>        </p>
+<p>
+现在让我们来看看 engine 内部的代码。如前所说，<code class=scheme><span class="variable">make-engine</span></code> 带有一个 thunk 参数并构造了一个 engine：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>make-engine</span>
+  (<span class=keyword>lambda</span> (<span class=variable>th</span>)
+    (<span class=keyword>lambda</span> (<span class=variable>ticks</span> <span class=variable>success</span> <span class=variable>failure</span>)
+      (<span class=keyword>let*</span> ((<span class=variable>ticks-left</span> <span class=selfeval>0</span>)
+             (<span class=variable>engine-succeeded?</span> <span class=selfeval>#f</span>)
+             (<span class=variable>result</span>
+              (<span class=variable>call/cc</span>
+               (<span class=keyword>lambda</span> (<span class=variable>k</span>)
+                 (<span class=keyword>set!</span> <span class=global>*engine-escape*</span> <span class=variable>k</span>)
+                 (<span class=keyword>let</span> ((<span class=variable>result</span>
+                        (<span class=variable>call/cc</span>
+                         (<span class=keyword>lambda</span> (<span class=variable>k</span>)
+                           (<span class=keyword>set!</span> <span class=global>*engine-entrance*</span> <span class=variable>k</span>)
+                           (<span class=variable>clock</span> <span class=keyword>'</span><span class=variable>set</span> <span class=variable>ticks</span>)
+                           (<span class=keyword>let</span> ((<span class=variable>v</span> (<span class=variable>th</span>)))
+                             (<span class=global>*engine-entrance*</span> <span class=variable>v</span>))))))
+                   (<span class=keyword>set!</span> <span class=variable>ticks-left</span> (<span class=variable>clock</span> <span class=keyword>'</span><span class=variable>set</span> <span class=global>*infinity*</span>))
+                   (<span class=keyword>set!</span> <span class=variable>engine-succeeded?</span> <span class=selfeval>#t</span>)
+                   <span class=variable>result</span>)))))
+        (<span class=keyword>if</span> <span class=variable>engine-succeeded?</span>
+            (<span class=variable>success</span> <span class=variable>result</span> <span class=variable>ticks-left</span>)
+            (<span class=variable>failure</span> 
+             (<span class=variable>make-engine</span> 
+              (<span class=keyword>lambda</span> () 
+                (<span class=variable>result</span> <span class=keyword>'</span><span class=variable>resume</span>)))))))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>首先我们引入了变量 <code class=scheme><span class="variable">ticks-left</span></code> 和 <code class=scheme><span class="variable">engine-succeeded?</span></code>。第一个变量将保存 engine thunk 剩余的 tick。第二个变量为一个标志，它将被用来表明 engine 是否成功了。</p>
+<p>
+然后我们在两个嵌套的
+  <code class=scheme><span class=variable>call/cc</span></code> 调用中运行这个 engine thunk。第一个 
+  <code class=scheme><span class=variable>call/cc</span></code> 捕获 failing engine 会使用的 continuation 以便中止 engine 的计算。这个continuation 被保存在全局 <code class=scheme><span class=global>*engine-escape*</span></code> 中。第二个 <code class=scheme><span class="variable">call/cc</span></code> 在 engine 计算在 tick 时钟内运行完毕的情况下，捕获将被返回值 <code class=scheme><span class="variable">th</span></code> 使用的内部的 continuation。这个 continuation 保存在全局 <code class=scheme><span class="global">*engine-entrance*</span></code> 中。We then run the engine thunk within two nested calls to
+<code class=scheme><span class=variable>call/cc</span></code>.  The first <code class=scheme><span class=variable>call/cc</span></code> captures the
+continuation to be used by a failing engine to abort
+out of its engine computation.  This continuation is
+stored in the global <code class=scheme><span class=global>*engine-escape*</span></code>.  The second
+<code class=scheme><span class=variable>call/cc</span></code> captures an inner continuation that 
+will be used by the return value of the thunk <code class=scheme><span class=variable>th</span></code> if
+it runs to completion.  This continuation is stored
+in the global
+<code class=scheme><span class=global>*engine-entrance*</span></code>.</p>
+<p>
+查看上面的代码，我们发现在捕获了 continuation <code class=scheme><span class="global">*engine-escape*</span></code> 和 <code class=scheme><span class="global">*engine-entrance*</span></code>后，我们设置了这个 engine 时钟的 tick 为分配给它的时间然后运行 thunk <code class=scheme><span class="variable">th</span></code>。如果 <code class=scheme><span class="variable">th</span></code> 成功了，它的值 <code class=scheme><span class="variable">v</span></code> 被送到 continuation <code class=scheme><span class="global">*engine-escape*</span></code> 中，之后时钟停止了，剩余的 tick 也就确定了，同时 <code class=scheme><span class="variable">engine-succeeded?</span></code> 被设置为 true。现在，我们走过了 <code class=scheme><span class="global">*engine-escape*</span></code> continuation，并来到了最后的分配器：因为我们知道 engine 是成功的，所以我们只要将 <code class=scheme><span class="variable">success</span></code> 应用到 计算的结果和剩余的 tick 上。</p>
+<p>
+如果 thunk <code class=scheme><span class="variable">th</span></code> 没有及时的完成，它将经历一次中断。这会调用中断处理程序来捕获当前运行程序的 continuation，并将其发送给 <code class=scheme><span class="global">*engine-escape*</span></code>。  这使 failed-thunk continuation 被保存在外面的那个 <code class=scheme><span class="variable">result</span></code> 变量，现在我们来到了最后的分配器：因为 <code class=scheme><span class="variable">engine-succeeded?</span></code>仍是 false，我们就将 <code class=scheme><span class="variable">failure</span></code> 过程应用到由 <code class=scheme><span class="variable">result</span></code> 构造的新 engine 上。 </p>
+<p>
+请注意，当一个 failed engine 被移除后，它会遍历由最初的 engine 第一次运行时标记的控制路径。然而，因为我们显示地将 continuation 保存在变量 <code class=scheme><span class=global>*engine-entrance*</span></code> 和 <code class=scheme><span class=global>*engine-escape*</span></code> 中，并且我们在执行一个 engine 计算之前总是再次设置它们，因此我们可以保证跳转将总会回到当前执行的 engine 代码处。</p>
+<p>
+<a name="node_idx_482"></a></p>
+<a name="node_sec_15.3"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_15.3">15.3&nbsp;&nbsp;嵌套的 engines</a></h2>
+<p>为了将上面的代码推广到让其适应嵌套类型的 engine，我们需要一个 tick 管理者来管理所有嵌套的 engine 的 tick 分配。</p>
+<p>
+为了运行一个新的 engine（<em>孩子</em>），我们要中断当前的 engine（父亲）。然后我们为孩子 engine 赋予一个合适的 tick。这可能与之前在程序中的设置不一样，因为让孩子 engine 来消费父 engine 剩下的 tick 是不公平的。当孩子 engine 完成后，我们需要更新父 engine 的tick。如果孩子 engine 及时完成了，未用完的 tick 却归还给了父 engine。<em><strong>如果父 engine 因为负担不起而拒绝了</strong></em>，那么如果孩子 engine 失败了，父 engine 也将失败，但必须记住在父 engine 重启时同时用承诺的 tick 来重启孩子 engine。To run a new engine (the <em>child</em>), we need to
+stop the currently engine (the <em>parent</em>).  We
+then need to assign an appropriate number of ticks to
+the child.  This may not be the same as the ticks
+assigned by the program text, because it would be <em>unfair</em> for a child to consume more ticks than its
+parent has left.  After the child completes, we need to
+update the parent&#8217;s ticks.  If the child finished in
+time, any leftover ticks it has revert to the parent.
+If ticks were denied from the child because the parent
+couldn&#8217;t afford it, then if the child fails, the parent
+will fail too, but must remember to restart the child
+with its promised ticks when it (the parent) restarts.</p>
+<p>
+我们也需要 <code class=scheme><span class="keyword">fluid-let</span></code> 来设置全局
+<code class=scheme><span class=global>*engine-escape*</span></code> 和 <code class=scheme><span class=global>*engine-entrance*</span></code>，因为每一个嵌套的 engine 都必须有一对这样的哨兵 continuation。当一 engine 退出时（不论是成功还是失败），<code class=scheme><span class="keyword">fluid-let</span></code>都将保证下一个 engine 的哨兵能接管。We also need to <code class=scheme><span class=keyword>fluid-let</span></code> the globals
+<code class=scheme><span class=global>*engine-escape*</span></code> and <code class=scheme><span class=global>*engine-entrance*</span></code>, because
+each nested engine must have its own pair of these
+sentinel continuations.  As an engine exits (whether
+through success or failure), the <code class=scheme><span class=keyword>fluid-let</span></code> will
+ensure that the next enclosing engine&#8217;s sentinels take
+over.</p>
+<p>
+组合所有东西，嵌套的 engine 的代码看起来如下：Combining all this, the code for nestable engines looks
+as follows:</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>make-engine</span>
+  (<span class=keyword>lambda</span> (<span class=variable>th</span>)
+    (<span class=keyword>lambda</span> (<span class=variable>ticks</span> <span class=variable>s</span> <span class=variable>f</span>)
+      (<span class=keyword>let*</span> ((<span class=variable>parent-ticks</span> 
+              (<span class=variable>clock</span> <span class=keyword>'</span><span class=variable>set</span> <span class=global>*infinity*</span>))
+
+             <span class=comment>;A child can't have more ticks than its parent's</span>
+             <span class=comment>;remaining ticks</span>
+             (<span class=variable>child-available-ticks</span> 
+              (<span class=variable>clock-min</span> <span class=variable>parent-ticks</span> <span class=variable>ticks</span>))
+
+             <span class=comment>;A child's ticks must be counted against the parent</span>
+             <span class=comment>;too</span>
+             (<span class=variable>parent-ticks-left</span>
+              (<span class=variable>clock-minus</span> <span class=variable>parent-ticks</span> <span class=variable>child-available-ticks</span>))
+
+             <span class=comment>;If child was promised more ticks than parent could</span>
+             <span class=comment>;afford, remember how much it was short-changed by</span>
+             (<span class=variable>child-ticks-left</span> 
+              (<span class=variable>clock-minus</span> <span class=variable>ticks</span> <span class=variable>child-available-ticks</span>))
+
+             <span class=comment>;Used below to store ticks left in clock</span>
+             <span class=comment>;if child completes in time</span>
+             (<span class=variable>ticks-left</span> <span class=selfeval>0</span>)
+
+             (<span class=variable>engine-succeeded?</span> <span class=selfeval>#f</span>)
+
+             (<span class=variable>result</span>
+              (<span class=keyword>fluid-let</span> ((<span class=global>*engine-escape*</span> <span class=selfeval>#f</span>)
+                          (<span class=global>*engine-entrance*</span> <span class=selfeval>#f</span>))
+                (<span class=variable>call/cc</span>
+                 (<span class=keyword>lambda</span> (<span class=variable>k</span>)
+                   (<span class=keyword>set!</span> <span class=global>*engine-escape*</span> <span class=variable>k</span>)
+                   (<span class=keyword>let</span> ((<span class=variable>result</span>
+                          (<span class=variable>call/cc</span>
+                           (<span class=keyword>lambda</span> (<span class=variable>k</span>)
+                             (<span class=keyword>set!</span> <span class=global>*engine-entrance*</span> <span class=variable>k</span>)
+                             (<span class=variable>clock</span> <span class=keyword>'</span><span class=variable>set</span> <span class=variable>child-available-ticks</span>)
+
+                             (<span class=keyword>let</span> ((<span class=variable>v</span> (<span class=variable>th</span>)))
+
+                               (<span class=global>*engine-entrance*</span> <span class=variable>v</span>))))))
+                     (<span class=keyword>set!</span> <span class=variable>ticks-left</span>
+                       (<span class=keyword>let</span> ((<span class=variable>n</span> (<span class=variable>clock</span> <span class=keyword>'</span><span class=variable>set</span> <span class=global>*infinity*</span>)))
+                         (<span class=keyword>if</span> (<span class=variable>eqv?</span> <span class=variable>n</span> <span class=global>*infinity*</span>) <span class=selfeval>0</span> <span class=variable>n</span>)))
+                     (<span class=keyword>set!</span> <span class=variable>engine-succeeded?</span> <span class=selfeval>#t</span>)
+                     <span class=variable>result</span>))))))
+
+        <span class=comment>;Parent can reclaim ticks that child didn't need</span>
+        (<span class=keyword>set!</span> <span class=variable>parent-ticks-left</span>
+          (<span class=variable>clock-plus</span> <span class=variable>parent-ticks-left</span> <span class=variable>ticks-left</span>))
+
+        <span class=comment>;This is the true ticks that child has left --</span>
+        <span class=comment>;we include the ticks it was short-changed by</span>
+        (<span class=keyword>set!</span> <span class=variable>ticks-left</span> 
+          (<span class=variable>clock-plus</span> <span class=variable>child-ticks-left</span> <span class=variable>ticks-left</span>))
+
+        <span class=comment>;Restart parent with its remaining ticks</span>
+        (<span class=variable>clock</span> <span class=keyword>'</span><span class=variable>set</span> <span class=variable>parent-ticks-left</span>)
+        <span class=comment>;The rest is now parent computation</span>
+
+        (<span class=keyword>cond</span>
+         <span class=comment>;Child finished in time -- celebrate its success</span>
+         (<span class=variable>engine-succeeded?</span> (<span class=variable>s</span> <span class=variable>result</span> <span class=variable>ticks-left</span>))
+
+         <span class=comment>;Child failed because it ran out of promised time --</span>
+         <span class=comment>;call failure procedure</span>
+         ((<span class=variable>=</span> <span class=variable>ticks-left</span> <span class=selfeval>0</span>)
+          (<span class=variable>f</span> (<span class=variable>make-engine</span> (<span class=keyword>lambda</span> () (<span class=variable>result</span> <span class=keyword>'</span><span class=variable>resume</span>)))))
+
+         <span class=comment>;Child failed because parent didn't have enough time,</span>
+         <span class=comment>;ie, parent failed too.  If so, when parent is</span>
+         <span class=comment>;resumed, its first order of duty is to resume the</span>
+         <span class=comment>;child with its fair amount of ticks</span>
+         (<span class=keyword>else</span>
+          ((<span class=variable>make-engine</span> (<span class=keyword>lambda</span> () (<span class=variable>result</span> <span class=keyword>'</span><span class=variable>resume</span>)))
+           <span class=variable>ticks-left</span> <span class=variable>s</span> <span class=variable>f</span>)))))))
+</pre><p></p>
+<p>
+请注意，我们使用了算术操作
+  <code class=scheme><span class=variable>clock-min</span></code>、<code class=scheme><span class=variable>clock-minus</span></code> 和 <code class=scheme><span class=variable>clock-plus</span></code> 而不是 <code class=scheme><span class=variable>min</span></code>、<code class=scheme><span class=variable>-</span></code> 和 <code class=scheme><span class=variable>+</span></code>。这是因为时钟运算使用的值还包括了 <code class=scheme><span class="global">*infinity*</span></code>。一些 Scheme 方言在它们的算术中<a name="node_call_footnote_Temp_12"></a><sup><small><a href="#node_footnote_Temp_12">1</a></small></sup> 提供了 <code class=scheme><span class="global">*infinity*</span></code> 这个值——如果是这样，你可以使用一般的算术操作。如果不是，定义这些增强的操作也是个很容易的练习的。</p>
+<p>
+</p>
+<p>
+</p>
+<div class=footnoterule><hr></div><p></p>
+<div class=footnote>
+  <p><a name="node_footnote_Temp_12"></a><sup><small><a href="#node_call_footnote_Temp_12">1</a></small></sup> 例如，在 Guile 中，你可以 <code class=scheme>(<span class=keyword>define</span>
+<span class=global>*infinity*</span> (<span class=variable>/</span> <span class=selfeval>1</span> <span class=selfeval>0</span>))</code>。</p>
+</div>
+<div class=smallskip></div>
+<p style="margin-top: 0pt; margin-bottom: 0pt">
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-16.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-18.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+</p>
+<p></p>
+</div>
+</body>
+</html>

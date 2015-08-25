@@ -1,0 +1,186 @@
+<!doctype html public "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!--
+
+Generated from t-y-scheme.tex by tex2page, v 20070609
+(running on MzScheme 4.2.1, unix), 
+(c) Dorai Sitaram, 
+http://www.ccs.neu.edu/~dorai/tex2page/tex2page-doc.html
+
+-->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+Teach Yourself Scheme in Fixnum Days 中文版
+</title>
+<link rel="stylesheet" type="text/css" href="t-y-scheme-Z-S.css" title=default>
+<meta name="robots" content="index,follow">
+<meta name=description content="A practical
+introduction to the programming language Scheme">
+
+<meta name=author content="Dorai Sitaram">
+
+<link rev=made href="mailto:dorai @ ccs.neu.edu">
+</head>
+<body>
+<div id=slidecontent>
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-5.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-7.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+<p></p>
+<a name="node_chap_4"></a>
+<h1 class=chapter>
+<div class=chapterheading><a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_4">第 4 章 </a></div>
+<br>
+<a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_4">条件</a></h1>
+<p><a name="node_idx_250"></a><a name="node_idx_252"></a> 像所有的语言一样，Scheme 提供了<em>条件</em>。  基本的形式是  <code class=scheme><span class=keyword>if</span></code>:</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>if</span> <span class=variable>test-expression</span>
+    <span class=variable>then-branch</span>
+    <span class=variable>else-branch</span>)
+</pre><p></p>
+<p> 如果 <code class=scheme><span class=variable>test-expression</span></code> 求值为真（即除了 <code class=scheme><span class=selfeval>#f</span></code> 的任何值  ），执行 “then”   分支。如果为假， 执行 “else” 分支。  “else” 分支是可选的。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>p</span> <span class=selfeval>80</span>)
+
+(<span class=keyword>if</span> (<span class=variable>&gt;</span> <span class=variable>p</span> <span class=selfeval>70</span>) 
+    <span class=keyword>'</span><span class=variable>safe</span>
+    <span class=keyword>'</span><span class=variable>unsafe</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=variable>safe</span> 
+
+(<span class=keyword>if</span> (<span class=variable>&lt;</span> <span class=variable>p</span> <span class=selfeval>90</span>)
+    <span class=keyword>'</span><span class=variable>low-pressure</span>) <span class=comment>;no ``else'' branch</span>
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=variable>low-pressure</span> 
+</pre><p></p>
+<p>
+  为了方便，Scheme提供了一些其他的条件形式。它们可以被定义成展开为  
+<code class=scheme><span class=keyword>if</span></code> 表达式的宏（<a href="t-y-scheme-Z-H-10.html#node_chap_8">第 8 章 </a>） 。 </p>
+<p>
+<a name="node_idx_254"></a><a name="node_idx_256"></a></p>
+<p>
+</p>
+<a name="node_sec_4.1"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_4.1">4.1&nbsp;&nbsp;<code class=scheme><span class=keyword>when</span></code> 和 <code class=scheme><span class=keyword>unless</span></code></a></h2>
+<p><code class=scheme><span class=keyword>when</span></code> 和 <code class=scheme><span class=keyword>unless</span></code> 在只需要一个基本条件分支（“then” 或者 “else” 分支）时是很方便的。 </p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>when</span> (<span class=variable>&lt;</span> (<span class=variable>pressure</span> <span class=variable>tube</span>) <span class=selfeval>60</span>)
+   (<span class=variable>open-valve</span> <span class=variable>tube</span>)
+   (<span class=variable>attach</span> <span class=variable>floor-pump</span> <span class=variable>tube</span>)
+   (<span class=variable>depress</span> <span class=variable>floor-pump</span> <span class=selfeval>5</span>)
+   (<span class=variable>detach</span> <span class=variable>floor-pump</span> <span class=variable>tube</span>)
+   (<span class=variable>close-valve</span> <span class=variable>tube</span>))
+</pre><p></p>
+<p> 假设 <code class=scheme><span class=variable>tube</span></code> 的 <code class=scheme><span class=variable>pressure</span></code> 小于
+<code class=scheme><span class=selfeval>60</span></code>，这个条件将会连接 <code class=scheme><span class=variable>floor-pump</span></code> 到
+<code class=scheme><span class=variable>tube</span></code> 上并 <code class=scheme><span class=variable>depress</span></code>  <code class=scheme><span class=selfeval>5</span></code> 次。  （<code class=scheme><span class=variable>attach</span></code>
+和 <code class=scheme><span class=variable>depress</span></code> 是一些合适的过程。）</p>
+<p>
+使用 <code class=scheme><span class=keyword>if</span></code> 来写这个程序可能会是：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>if</span> (<span class=variable>&lt;</span> (<span class=variable>pressure</span> <span class=variable>tube</span>) <span class=selfeval>60</span>)
+    (<span class=keyword>begin</span>
+      (<span class=variable>open-valve</span> <span class=variable>tube</span>)
+      (<span class=variable>attach</span> <span class=variable>floor-pump</span> <span class=variable>tube</span>)
+      (<span class=variable>depress</span> <span class=variable>floor-pump</span> <span class=selfeval>5</span>)
+      (<span class=variable>detach</span> <span class=variable>floor-pump</span> <span class=variable>tube</span>)
+      (<span class=variable>close-valve</span> <span class=variable>tube</span>)))
+</pre><p></p>
+<p>
+<a name="node_idx_258"></a></p>
+<p> 注意 <code class=scheme><span class=keyword>when</span></code>   的分支是一个隐式的  <code class=scheme><span class=keyword>begin</span></code> ，而 <code class=scheme><span class=keyword>if</span></code> 则需要显式的 <code class=scheme><span class=keyword>begin</span></code> ，如果 if 的任一分支需要多于一个的形式。 </p>
+<p> 也可以用 <code class=scheme><span class=keyword>unless</span></code> 来实现同样的动作： </p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>unless</span> (<span class=variable>&gt;=</span> (<span class=variable>pressure</span> <span class=variable>tube</span>) <span class=selfeval>60</span>)
+   (<span class=variable>open-valve</span> <span class=variable>tube</span>)
+   (<span class=variable>attach</span> <span class=variable>floor-pump</span> <span class=variable>tube</span>)
+   (<span class=variable>depress</span> <span class=variable>floor-pump</span> <span class=selfeval>5</span>)
+   (<span class=variable>detach</span> <span class=variable>floor-pump</span> <span class=variable>tube</span>)
+   (<span class=variable>close-valve</span> <span class=variable>tube</span>))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent> 不是所有的Scheme都提供了 <code class=scheme><span class=keyword>when</span></code> 和 <code class=scheme><span class=keyword>unless</span></code> 。如果你的Scheme没有，你可以使用宏来定义它们 （参见 <a href="t-y-scheme-Z-H-10.html#node_chap_8">第 8 章</a>）。</p>
+<p>
+<a name="node_idx_260"></a></p>
+<a name="node_sec_4.2"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_4.2">4.2&nbsp;&nbsp;<code class=scheme><span class=keyword>cond</span></code></a></h2>
+<p> 对于嵌套的 <code class=scheme><span class=keyword>if</span></code>   表达式，除了最后一个分支外，其每一个 “else”   分支就相当于一个新的  <code class=scheme><span class=keyword>if</span></code>，  这种情况使用<code class=scheme><span class=keyword>cond</span></code> 是非常方便的。因此，  </p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>if</span> (<span class=variable>char&lt;?</span> <span class=variable>c</span> <span class=selfeval>#\c</span>) <span class=selfeval>-1</span>
+    (<span class=keyword>if</span> (<span class=variable>char=?</span> <span class=variable>c</span> <span class=selfeval>#\c</span>) <span class=selfeval>0</span>
+        <span class=selfeval>1</span>))
+</pre><p></p>
+<p>
+可以用 <code class=scheme><span class=keyword>cond</span></code> 重写为：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>cond</span> ((<span class=variable>char&lt;?</span> <span class=variable>c</span> <span class=selfeval>#\c</span>) <span class=selfeval>-1</span>)
+      ((<span class=variable>char=?</span> <span class=variable>c</span> <span class=selfeval>#\c</span>) <span class=selfeval>0</span>)
+      (<span class=keyword>else</span> <span class=selfeval>1</span>))
+</pre><p></p>
+<p> 因此 <code class=scheme><span class=keyword>cond</span></code> 是一个<em>多路分支</em>的条件。每个从句分支都有一个测试和一个动作。第一个成功的测试将触发与它相关联的动作。最后一个 <code class=scheme><span class=keyword>else</span></code> 从句分支在所有测试都失败时被选择。</p>
+<p><code class=scheme><span class=keyword>cond</span></code> 中的动作都是隐式的 <code class=scheme><span class=keyword>begin</span></code>s。</p>
+<p>
+<a name="node_idx_262"></a></p>
+<a name="node_sec_4.3"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_4.3">4.3&nbsp;&nbsp;<code class=scheme><span class=keyword>case</span></code></a></h2>
+<p><code class=scheme><span class=keyword>cond</span></code> 的一种特殊情形是压缩成 <code class=scheme><span class=keyword>case</span></code> 表达式。这是在所有的测试都是隶属测试时的情形。 </p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>case</span> <span class=variable>c</span>
+  ((<span class=selfeval>#\a</span>) <span class=selfeval>1</span>)
+  ((<span class=selfeval>#\b</span>) <span class=selfeval>2</span>)
+  ((<span class=selfeval>#\c</span>) <span class=selfeval>3</span>)
+  (<span class=keyword>else</span> <span class=selfeval>4</span>))
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>3</span>
+</pre><p></p>
+<p> 那个头部包含c的值的从句将被选择。 </p>
+<p>
+<a name="node_idx_264"></a><a name="node_idx_266"></a></p>
+<a name="node_sec_4.4"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_4.4">4.4&nbsp;&nbsp;<code class=scheme><span class=keyword>and</span></code> 和 <code class=scheme><span class=keyword>or</span></code></a></h2>
+<p> Scheme为布尔 和（“and”） 与或（ “or”） 提过了特殊形式。     （我们在   （ <a href="t-y-scheme-Z-H-4.html#node_sec_2.1.1">2.1.1</a>小节）   已经看到了 Scheme 的布尔非过程  <code class=scheme><span class=variable>not</span></code>。） </p>
+<p><code class=scheme><span class=keyword>and</span></code> 返回一个真值如果它的所有子式都为真，此时实际返回的值其实是最后一个子式的值。如果有任何一个子式的值为假，<code class=scheme><span class=keyword>and</span></code>
+返回 <code class=scheme><span class=selfeval>#f</span></code>.</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>and</span> <span class=selfeval>1</span> <span class=selfeval>2</span>)  <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>2</span>
+(<span class=keyword>and</span> <span class=selfeval>#f</span> <span class=selfeval>1</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#f</span>
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent><code class=scheme><span class=keyword>or</span></code> 返回它的第一个为真的子式的值。如果所有的子式都为假， <code class=scheme><span class=keyword>or</span></code> 返回 <code class=scheme><span class=selfeval>#f</span></code>.</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>or</span> <span class=selfeval>1</span> <span class=selfeval>2</span>)  <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>1</span>
+(<span class=keyword>or</span> <span class=selfeval>#f</span> <span class=selfeval>1</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>1</span>
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent><code class=scheme><span class=keyword>and</span></code> 和 <code class=scheme><span class=keyword>or</span></code> 都是按从左到右的顺序求值的。只要结果可以确定了， <code class=scheme><span class=keyword>and</span></code> 和 <code class=scheme><span class=keyword>or</span></code> 就会忽略剩下的子式。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>and</span> <span class=selfeval>1</span> <span class=selfeval>#f</span> <span class=variable>expression-guaranteed-to-cause-error</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#f</span>
+
+(<span class=keyword>or</span> <span class=selfeval>1</span> <span class=selfeval>#f</span> <span class=variable>expression-guaranteed-to-cause-error</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>1</span>
+</pre><p>
+</p>
+<p>
+</p>
+<div class=smallskip></div>
+<p style="margin-top: 0pt; margin-bottom: 0pt">
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-5.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-7.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+</p>
+<p></p>
+</div>
+</body>
+</html>

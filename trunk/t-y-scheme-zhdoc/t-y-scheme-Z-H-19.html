@@ -1,0 +1,573 @@
+<!doctype html public "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!--
+
+Generated from t-y-scheme.tex by tex2page, v 20070609
+(running on MzScheme 4.2.1, unix), 
+(c) Dorai Sitaram, 
+http://www.ccs.neu.edu/~dorai/tex2page/tex2page-doc.html
+
+-->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+Teach Yourself Scheme in Fixnum Days 中文版
+</title>
+<link rel="stylesheet" type="text/css" href="t-y-scheme-Z-S.css" title=default>
+<meta name="robots" content="index,follow">
+<meta name=description content="A practical
+introduction to the programming language Scheme">
+
+<meta name=author content="Dorai Sitaram">
+
+<link rev=made href="mailto:dorai @ ccs.neu.edu">
+</head>
+<body>
+<div id=slidecontent>
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-18.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-20.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+<p></p>
+<a name="node_chap_17"></a>
+<h1 class=chapter>
+<div class=chapterheading><a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_17">第 17 章 </a></div>
+<br>
+<a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_17">CGI 脚本</a></h1>
+<p><a name="node_idx_486"></a><span style="color: #ff0000">（<strong>警告：</strong> 没有合适的安全措施，CGI 脚本可能会危害你网站的安全。这里展示的脚本是非常简单的例子而且对于实际的 Web 应用不能确保其安全性。）</span></p>
+<p>
+</p>
+<div class=medskip></div>
+<p style="margin-top: 0pt; margin-bottom: 0pt">
+</p>
+<p>
+GCI 脚本  [<a href="t-y-scheme-Z-H-24.html#node_bib_27">27</a>] 位于一个 web 服务器上，并且可以被客户端（浏览器）运行。客户端通过 URL 来获取 CGI 脚本，并得到一个普通的页面。服务端识别出 URL 请求为一个 CGI 脚本，然后执行它。服务器的管理员负责服务器是如何来识别出某些 URL 为脚本的 CGI 的。为了达到这本书的目的，我们将会假设它们被保存在目录 <code class=verbatim>cgi-bin</code> 中。因此，脚本s <code class=verbatim>testcgi.scm</code> 在服务器 <code class=verbatim>www.foo.org</code> 上可以通过 <code class=verbatim>http://www.foo.org/cgi-bin/testcgi.scm</code> 来获取。</p>
+<p>
+服务器运行 CGI 脚本并认为用户不拥有任何有关路径的知识（不管怎么说，这带有很强的主观情感）。因此，相对于普通的 Scheme 脚本，在用 Scheme 写 CGI 脚本时，它的引导行需要更显示化一点。例如，下面一行</p>
+<p>
+</p>
+<pre class=scheme><span class=selfeval>&quot;:&quot;</span><span class=comment>;exec mzscheme -r $0 &quot;$@&quot;</span>
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>隐式地假设有一个 shell（比如 bash）和一个<em>路径</em>，并且 <code class=verbatim>mzscheme</code> 位于那个路径中。而对于 CGI 脚本，我们将需要扩展一下：</p>
+<p>
+</p>
+<pre class=scheme><span class=selfeval>#!/bin/sh</span>
+<span class=selfeval>&quot;:&quot;</span><span class=comment>;exec /usr/local/bin/mzscheme -r $0 &quot;$@&quot;</span>
+</pre><p></p>
+<p>
+这里为 shell 和 Scheme 可执行文件给出了完整的路径名。从 shell 到 Scheme 的控制转换和普通的脚本一样进行。</p>
+<p>
+</p>
+<a name="node_sec_17.1"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_17.1">17.1&nbsp;&nbsp;实例：显示环境变量</a></h2>
+<p>这里有一个 Scheme CGI 脚本的例子，<code class=verbatim>testcgi.scm</code>，它输出一些共同的 CGI 环境变量的设置。这些信息通过一个新创建的页面来浏览。页面中的内容就是简单的 CGI 脚本的标准输出。这就是 CGI 脚本如何来向调用者进行反馈的——通过发送一个新的页面给它们。</p>
+<p>
+请注意，脚本会首先输出下面一行</p>
+<p>
+</p>
+<pre class=verbatim>content-type: text/plain&nbsp;
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent><em>后跟一空行</em>。这是 web 服务器发送页面的标准仪式。这两行并不是实际显示的页面中的一部分。它们是用来通知浏览器即将被发送的页面为 plain（即无标记的） text，因此浏览器可以恰当的显示它。如果我们用 HTML 标记来生成文本，<code class=verbatim>content-type</code> 会是 <code class=verbatim>text/html</code>。</p>
+<p><code class=verbatim>testcgi.scm</code> 脚本：</p>
+<p>
+</p>
+<p>
+</p>
+<pre class=scheme><span class=selfeval>#!/bin/sh</span>
+<span class=selfeval>&quot;:&quot;</span><span class=comment>;exec /usr/local/bin/mzscheme -r $0 &quot;$@&quot;</span>
+
+<span class=comment>;Identify content-type as plain text.</span>
+
+(<span class=variable>display</span> <span class=selfeval>&quot;content-type: text/plain&quot;</span>) (<span class=variable>newline</span>)
+(<span class=variable>newline</span>)
+
+<span class=comment>;Generate a page with the requested info.  This is</span>
+<span class=comment>;done by simply writing to standard output.</span>
+
+(<span class=variable>for-each</span>
+ (<span class=keyword>lambda</span> (<span class=variable>env-var</span>)
+   (<span class=variable>display</span> <span class=variable>env-var</span>)
+   (<span class=variable>display</span> <span class=selfeval>&quot; = &quot;</span>)
+   (<span class=variable>display</span> (<span class=keyword>or</span> (<span class=variable>getenv</span> <span class=variable>env-var</span>) <span class=selfeval>&quot;&quot;</span>))
+   (<span class=variable>newline</span>))
+ <span class=keyword>'</span>(<span class=selfeval>&quot;AUTH_TYPE&quot;</span>
+   <span class=selfeval>&quot;CONTENT_LENGTH&quot;</span>
+   <span class=selfeval>&quot;CONTENT_TYPE&quot;</span>
+   <span class=selfeval>&quot;DOCUMENT_ROOT&quot;</span>
+   <span class=selfeval>&quot;GATEWAY_INTERFACE&quot;</span>
+   <span class=selfeval>&quot;HTTP_ACCEPT&quot;</span>
+   <span class=selfeval>&quot;HTTP_REFERER&quot;</span> <span class=comment>; [sic]</span>
+   <span class=selfeval>&quot;HTTP_USER_AGENT&quot;</span>
+   <span class=selfeval>&quot;PATH_INFO&quot;</span>
+   <span class=selfeval>&quot;PATH_TRANSLATED&quot;</span>
+   <span class=selfeval>&quot;QUERY_STRING&quot;</span>
+   <span class=selfeval>&quot;REMOTE_ADDR&quot;</span>
+   <span class=selfeval>&quot;REMOTE_HOST&quot;</span>
+   <span class=selfeval>&quot;REMOTE_IDENT&quot;</span>
+   <span class=selfeval>&quot;REMOTE_USER&quot;</span>
+   <span class=selfeval>&quot;REQUEST_METHOD&quot;</span>
+   <span class=selfeval>&quot;SCRIPT_NAME&quot;</span>
+   <span class=selfeval>&quot;SERVER_NAME&quot;</span>
+   <span class=selfeval>&quot;SERVER_PORT&quot;</span>
+   <span class=selfeval>&quot;SERVER_PROTOCOL&quot;</span>
+   <span class=selfeval>&quot;SERVER_SOFTWARE&quot;</span>))
+</pre><p></p>
+<p>
+通过在浏览器中打开 <code class=verbatim>testcgi.scm</code> 可以直接调用它。URL 为：</p>
+<p>
+</p>
+<pre class=verbatim>http://www.foo.org/cgi-bin/testcgi.scm&nbsp;
+</pre><p></p>
+<p>
+或者，<code class=verbatim>testcgi.scm</code> 可以以一个链接的形式出现在 HTML 文件中，这样你就可以点击它了。例如，</p>
+<p>
+</p>
+<pre class=verbatim>... To view some common CGI environment variables, click&nbsp;
+&lt;a href=&quot;http://www.foo.org/cgi-bin/testcgi.scm&quot;&gt;here&lt;/a&gt;.&nbsp;
+...&nbsp;
+</pre><p></p>
+<p>
+当 <code class=verbatim>testcgi.scm</code> 被启动时，它会生成一个包含环境变量设置的 plain text 页面。一个输出的例子为：</p>
+<p>
+</p>
+<pre class=verbatim>AUTH_TYPE =&nbsp;
+CONTENT_LENGTH =&nbsp;
+CONTENT_TYPE =&nbsp;
+DOCUMENT_ROOT = /home/httpd/html&nbsp;
+GATEWAY_INTERFACE = CGI/1.1&nbsp;
+HTTP_ACCEPT = image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, */*&nbsp;
+HTTP_REFERER =&nbsp;
+HTTP_USER_AGENT = Mozilla/3.01Gold (X11; I; Linux 2.0.32 i586)&nbsp;
+PATH_INFO =&nbsp;
+PATH_TRANSLATED =&nbsp;
+QUERY_STRING =&nbsp;
+REMOTE_HOST = 127.0.0.1&nbsp;
+REMOTE_ADDR = 127.0.0.1&nbsp;
+REMOTE_IDENT =&nbsp;
+REMOTE_USER =&nbsp;
+REQUEST_METHOD = GET&nbsp;
+SCRIPT_NAME = /cgi-bin/testcgi.scm&nbsp;
+SERVER_NAME = localhost.localdomain&nbsp;
+SERVER_PORT = 80&nbsp;
+SERVER_PROTOCOL = HTTP/1.0&nbsp;
+SERVER_SOFTWARE = Apache/1.2.4&nbsp;
+</pre><p></p>
+<p>
+</p>
+<a name="node_sec_17.2"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_17.2">17.2&nbsp;&nbsp;实例：显示被选中的环境变量</a></h2>
+<p></p>
+<p>
+<code class=verbatim>testcgi.scm</code> 没有从用户那获得任何输入。一个更值得关注的脚本是带有一个来自用户的环境变量参数，并只输出那个变量的设置。为了做到这个，我们需要一个种参数传给 CGI 脚本的机制。HTML 的 tag 就提供了这样的能力。下面是一个用于此目的的 HTML 例子：</p>
+<p>
+</p>
+<pre class=verbatim>&lt;html&gt;&nbsp;
+&lt;head&gt;&nbsp;
+&lt;title&gt;Form for checking environment variables&lt;/title&gt;&nbsp;
+&lt;/head&gt;&nbsp;
+&lt;body&gt;&nbsp;
+&nbsp;
+&lt;form method=get &nbsp;
+      action=&quot;http://www.foo.org/cgi-bin/testcgi2.scm&quot;&gt;&nbsp;
+Enter environment variable: &lt;input type=text name=envvar size=30&gt;&nbsp;
+&lt;p&gt;&nbsp;
+&nbsp;
+&lt;input type=submit&gt;&nbsp;
+&lt;/form&gt;&nbsp;
+&nbsp;
+&lt;/body&gt;&nbsp;
+&lt;/html&gt;&nbsp;
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>用户在文本框中输入想要得到的环境变量名（例如，<code class=verbatim>GATEWAY_INTERFACE</code>），然后点击 submit 按钮。这会使所有在表格中的信息——这里为值是 <code class=verbatim>GATEWAY_INTERFACE</code> 的参数 <code class=verbatim>envvar</code>——被收集并发送给 CGI 脚本 <code class=verbatim>testcgi2.scm</code>。信息可以以两中方式来发送：（1）如果表格的 <code class=verbatim>method=get</code>(默认），信息通过环境变量 <code class=verbatim>QUERY_STRING</code> 来发送；（2）如果表格的 <code class=verbatim>method=post</code>，CGI 脚本可以通过后面的标准输入 port（stdin）来获取信息。我们的表格使用 <code class=verbatim>QUERY_STRING</code>。</p>
+<p><code class=verbatim>testcgi2.scm</code> 将负责从
+<code class=verbatim>QUERY_STRING</code>中获取信息，并相应地输出应答页面。</p>
+<p>
+不论是通过环境变量或是 <code class=verbatim>stdin</code>，发送给 CGI 脚本的信息都格式化成 parameter/argument 序对。对与对之间通过字符 <code class=verbatim>&amp;</code> 分开。在对的内部，parameter 在前，argument 在后，并通过字符 <code class=verbatim>=</code> 分开。在这个例子中，只有一个 parameter/argument 对，即 <code class=verbatim>envvar=GATEWAY_INTERFACE</code>。</p>
+<p>
+脚本 <code class=verbatim>testcgi2.scm</code>：</p>
+<p>
+</p>
+<pre class=scheme><span class=selfeval>#!/bin/sh</span>
+<span class=selfeval>&quot;:&quot;</span><span class=comment>;exec /usr/local/bin/mzscheme -r $0 &quot;$@&quot;</span>
+
+(<span class=variable>display</span> <span class=selfeval>&quot;content-type: text/plain&quot;</span>) (<span class=variable>newline</span>)
+(<span class=variable>newline</span>)
+
+<span class=comment>;string-index returns the leftmost index in string s</span>
+<span class=comment>;that has character c</span>
+
+(<span class=keyword>define</span> <span class=variable>string-index</span>
+  (<span class=keyword>lambda</span> (<span class=variable>s</span> <span class=variable>c</span>)
+    (<span class=keyword>let</span> ((<span class=variable>n</span> (<span class=variable>string-length</span> <span class=variable>s</span>)))
+      (<span class=keyword>let</span> <span class=variable>loop</span> ((<span class=variable>i</span> <span class=selfeval>0</span>))
+        (<span class=keyword>cond</span> ((<span class=variable>&gt;=</span> <span class=variable>i</span> <span class=variable>n</span>) <span class=selfeval>#f</span>)
+              ((<span class=variable>char=?</span> (<span class=variable>string-ref</span> <span class=variable>s</span> <span class=variable>i</span>) <span class=variable>c</span>) <span class=variable>i</span>)
+              (<span class=keyword>else</span> (<span class=variable>loop</span> (<span class=variable>+</span> <span class=variable>i</span> <span class=selfeval>1</span>))))))))
+
+<span class=comment>;split breaks string s into substrings separated by character c</span>
+
+(<span class=keyword>define</span> <span class=variable>split</span>
+  (<span class=keyword>lambda</span> (<span class=variable>c</span> <span class=variable>s</span>)
+    (<span class=keyword>let</span> <span class=variable>loop</span> ((<span class=variable>s</span> <span class=variable>s</span>))
+      (<span class=keyword>if</span> (<span class=variable>string=?</span> <span class=variable>s</span> <span class=selfeval>&quot;&quot;</span>) <span class=keyword>'</span>()
+          (<span class=keyword>let</span> ((<span class=variable>i</span> (<span class=variable>string-index</span> <span class=variable>s</span> <span class=variable>c</span>)))
+            (<span class=keyword>if</span> <span class=variable>i</span> (<span class=variable>cons</span> (<span class=variable>substring</span> <span class=variable>s</span> <span class=selfeval>0</span> <span class=variable>i</span>)
+                        (<span class=variable>loop</span> (<span class=variable>substring</span> <span class=variable>s</span> (<span class=variable>+</span> <span class=variable>i</span> <span class=selfeval>1</span>)
+                                         (<span class=variable>string-length</span> <span class=variable>s</span>))))
+                (<span class=variable>list</span> <span class=variable>s</span>)))))))
+
+(<span class=keyword>define</span> <span class=variable>args</span>
+  (<span class=variable>map</span> (<span class=keyword>lambda</span> (<span class=variable>par-arg</span>)
+         (<span class=variable>split</span> <span class=selfeval>#\=</span> <span class=variable>par-arg</span>))
+       (<span class=variable>split</span> <span class=selfeval>#\&amp;</span> (<span class=variable>getenv</span> <span class=selfeval>&quot;QUERY_STRING&quot;</span>))))
+
+(<span class=keyword>define</span> <span class=variable>envvar</span> (<span class=variable>cadr</span> (<span class=variable>assoc</span> <span class=selfeval>&quot;envvar&quot;</span> <span class=variable>args</span>)))
+
+(<span class=variable>display</span> <span class=variable>envvar</span>)
+(<span class=variable>display</span> <span class=selfeval>&quot; = &quot;</span>)
+(<span class=variable>display</span> (<span class=variable>getenv</span> <span class=variable>envvar</span>))
+
+(<span class=variable>newline</span>)
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>请注意，helper 过程 <code class=scheme><span class="variable">split</span></code> 先使用参数 <code class=verbatim>&amp;</code> 将 <code class=verbatim>QUERY_STRING</code> 分离成  parameter/argument 对。，然后使用参数 <code class=verbatim>=</code> 来分离 parameter
+和 argument。（如果我们是使用了 <code class=verbatim>post</code> 方法而不是 <code class=verbatim>get</code> 方法，我们需要先从标准输入中提取出 parameters 和 arguments。）</p>
+<p><code class=verbatim>&lt;input type=text&gt;</code> 和 <code class=verbatim>&lt;input type=submit&gt;</code>
+只是 HTML 表格中许多不同 <code class=verbatim>input</code> tag 中的两种而已。<code>请查阅</code> [<a href="t-y-scheme-Z-H-24.html#node_bib_27">27</a>] 来获知所有的 <code class=verbatim>input</code> tag。</p>
+<p>
+</p>
+<a name="node_sec_17.3"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_17.3">17.3&nbsp;&nbsp;CGI 脚本 utility</a></h2>
+<p>在上面的例子中，parameter 或是 argument 都不包含任何的 ‘&amp;’ 和 ‘=’。但通常来说，它们可能会包含。为了容纳这样的字符，使它们不会被误认为分隔符，CGI 参数传递机制将所有除了字母、数字和下划线以外的字符为<em>特殊</em>的字符，并以一种编码方式来转换它们。一个空格被编码为‘+’。对于其他特殊的字符，编码为由字符的十六进制代码和一个‘%’组成的 3 个字符的序列。因此，字符序列‘<code class=verbatim>20% + 30% =
+50%, &amp;c.</code>’将编码成</p>
+<p>
+</p>
+<pre class=verbatim>20%25+%2b+30%25+%3d+50%25%2c+%26c%2e&nbsp;
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>（空格变为‘<code class=verbatim>+</code>’； ‘ <code class=verbatim>%</code>’变为‘<code class=verbatim>%25</code>’；‘<code class=verbatim>+</code>’变为‘<code class=verbatim>%2b</code>’；‘<code class=verbatim>=</code>’变为‘<code class=verbatim>3d</code>’；‘<code class=verbatim>,</code>’变为‘<code class=verbatim>%2c</code>’；‘<code class=verbatim>&amp;</code>’变为‘<code class=verbatim>%26</code>’；‘<code class=verbatim>.</code>’变为‘<code class=verbatim>%2e</code>’。）</p>
+<p>
+为了不每次都重新处理获取和解码 CGI 脚本里的数据。可以将一些有用的过程组成一个库文件
+<code class=verbatim>cgi.scm</code>。<code class=verbatim>testcgi2.scm</code> 可以更紧凑地写成</p>
+<p>
+</p>
+<p>
+</p>
+<pre class=scheme><span class=selfeval>#!/bin/sh</span>
+<span class=selfeval>&quot;:&quot;</span><span class=comment>;exec /usr/local/bin/mzscheme -r $0 &quot;$@&quot;</span>
+
+<span class=comment>;Load the cgi utilities</span>
+
+(<span class=variable>load-relatve</span> <span class=selfeval>&quot;cgi.scm&quot;</span>)
+
+(<span class=variable>display</span> <span class=selfeval>&quot;content-type: text/plain&quot;</span>) (<span class=variable>newline</span>)
+(<span class=variable>newline</span>)
+
+<span class=comment>;Read the data input via the form</span>
+
+(<span class=variable>parse-form-data</span>)
+
+<span class=comment>;Get the envvar parameter</span>
+
+(<span class=keyword>define</span> <span class=variable>envvar</span> (<span class=variable>form-data-get/1</span> <span class=selfeval>&quot;envvar&quot;</span>))
+
+<span class=comment>;Display the value of the envvar</span>
+
+(<span class=variable>display</span> <span class=variable>envvar</span>)
+(<span class=variable>display</span> <span class=selfeval>&quot; = &quot;</span>)
+(<span class=variable>display</span> (<span class=variable>getenv</span> <span class=variable>envvar</span>))
+(<span class=variable>newline</span>)
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>这个短些的 CGI 脚本使用了两个在 <code class=verbatim>cgi.scm</code> 中定义的 utility 程序。<code class=scheme><span class=variable>parse-form-data</span></code> 从用户提供的表格中读取数据。数据由 parameters 和与它们相关的值组成。<code class=scheme><span class=variable>form-data-get/1</span></code>  查找与特定的 parameter 相关的值。</p>
+<p>
+<code class=scheme><span class=variable>cgi.scm</span></code> 定义了一个全局的 table <code class=scheme><span class=global>*form-data-table*</span></code> 来存储表格数据。</p>
+<p>
+</p>
+<p>
+</p>
+<pre class=scheme><span class=comment>;Load our table definitions</span>
+
+(<span class=variable>load-relative</span> <span class=selfeval>&quot;table.scm&quot;</span>)
+
+<span class=comment>;Define the *form-data-table*</span>
+
+(<span class=keyword>define</span> <span class=global>*form-data-table*</span> (<span class=variable>make-table</span> <span class=keyword>'</span><span class=variable>equ</span> <span class=variable>string=?</span>))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>使用像 <code class=scheme><span class="variable">parse-form-data</span></code> 这样的一般的方法有一个优点，就是我们可以隐藏使用的方法（<code class=verbatim>get</code> 或 <code class=verbatim>post</code>）的细节。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>parse-form-data</span>
+  (<span class=keyword>lambda</span> ()
+    ((<span class=keyword>if</span> (<span class=variable>string-ci=?</span> (<span class=keyword>or</span> (<span class=variable>getenv</span> <span class=selfeval>&quot;REQUEST_METHOD&quot;</span>) <span class=selfeval>&quot;GET&quot;</span>) <span class=selfeval>&quot;GET&quot;</span>)
+         <span class=variable>parse-form-data-using-query-string</span>
+         <span class=variable>parse-form-data-using-stdin</span>))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>环境变量
+<code class=verbatim>REQUEST_METHOD</code> 记录了使用哪种方法来传输表格数据。如果方法为 <code class=verbatim>GET</code>，那么表格数据发送到另一个环境变量 <code class=verbatim>QUERY_STRING</code> 中并可以通过它来获取。辅助过程
+<code class=scheme><span class=variable>parse-form-data-using-query-string</span></code> 用来分割 <code class=verbatim>QUERY_STRING</code> 中的数据： </p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>parse-form-data-using-query-string</span>
+  (<span class=keyword>lambda</span> ()
+    (<span class=keyword>let</span> ((<span class=variable>query-string</span> (<span class=keyword>or</span> (<span class=variable>getenv</span> <span class=selfeval>&quot;QUERY_STRING&quot;</span>) <span class=selfeval>&quot;&quot;</span>)))
+      (<span class=variable>for-each</span>
+       (<span class=keyword>lambda</span> (<span class=variable>par=arg</span>)
+         (<span class=keyword>let</span> ((<span class=variable>par/arg</span> (<span class=variable>split</span> <span class=selfeval>#\=</span> <span class=variable>par=arg</span>)))
+           (<span class=keyword>let</span> ((<span class=variable>par</span> (<span class=variable>url-decode</span> (<span class=variable>car</span> <span class=variable>par/arg</span>)))
+                 (<span class=variable>arg</span> (<span class=variable>url-decode</span> (<span class=variable>cadr</span> <span class=variable>par/arg</span>))))
+             (<span class=variable>table-put!</span> 
+              <span class=global>*form-data-table*</span> <span class=variable>par</span>
+              (<span class=variable>cons</span> <span class=variable>arg</span> 
+                    (<span class=variable>table-get</span> <span class=global>*form-data-table*</span> <span class=variable>par</span> <span class=keyword>'</span>()))))))
+       (<span class=variable>split</span> <span class=selfeval>#\&amp;</span> <span class=variable>query-string</span>)))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>帮助过程 <code class=scheme><span class=variable>split</span></code>，和它的帮助过程
+<code class=scheme><span class=variable>string-index</span></code>，在&nbsp;<a href="#node_sec_17.2">17.2</a> 节中定义。正如之前指出的那样，到来的数据为由 <code class=verbatim>&amp;</code> 分割的 name-value 序对。在每个对中，先是 name， 然后是字符 =，再是 value。每一个 name-value
+组合被写入到全局
+<code class=scheme><span class=global>*form-data-table*</span></code> table 中。 </p>
+<p>
+</p>
+<p>
+</p>
+
+<p class=noindent> name 和 value 都被编码过的，因此我们需要使用 <code class=scheme><span class=variable>url-decode</span></code> 过程来解码，以便得到实际的值。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>url-decode</span>
+  (<span class=keyword>lambda</span> (<span class=variable>s</span>)
+    (<span class=keyword>let</span> ((<span class=variable>s</span> (<span class=variable>string-&gt;list</span> <span class=variable>s</span>)))
+      (<span class=variable>list-&gt;string</span>
+       (<span class=keyword>let</span> <span class=variable>loop</span> ((<span class=variable>s</span> <span class=variable>s</span>))
+         (<span class=keyword>if</span> (<span class=variable>null?</span> <span class=variable>s</span>) <span class=keyword>'</span>()
+             (<span class=keyword>let</span> ((<span class=variable>a</span> (<span class=variable>car</span> <span class=variable>s</span>)) (<span class=variable>d</span> (<span class=variable>cdr</span> <span class=variable>s</span>)))
+               (<span class=keyword>case</span> <span class=variable>a</span>
+                 ((<span class=selfeval>#\+</span>) (<span class=variable>cons</span> <span class=selfeval>#\space</span> (<span class=variable>loop</span> <span class=variable>d</span>)))
+                 ((<span class=selfeval>#\%</span>) (<span class=variable>cons</span> (<span class=variable>hex-&gt;char</span> (<span class=variable>car</span> <span class=variable>d</span>) (<span class=variable>cadr</span> <span class=variable>d</span>))
+                              (<span class=variable>loop</span> (<span class=variable>cddr</span> <span class=variable>d</span>))))
+                 (<span class=keyword>else</span> (<span class=variable>cons</span> <span class=variable>a</span> (<span class=variable>loop</span> <span class=variable>d</span>)))))))))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>‘<code class=verbatim>+</code>’ 被转换为空格。‘%xy’ 被过程 <code class=scheme><span class="variable">hex-&gt;char</span></code> 转换为 ascii 代码为十六进制数字‘xy’的字符。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>hex-&gt;char</span>
+  (<span class=keyword>lambda</span> (<span class=variable>x</span> <span class=variable>y</span>)
+    (<span class=variable>integer-&gt;char</span>
+     (<span class=variable>string-&gt;number</span> (<span class=variable>string</span> <span class=variable>x</span> <span class=variable>y</span>) <span class=selfeval>16</span>))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>在请求方法为 <code class=verbatim>POST</code> 的情况下，我们还需要一个表格数据解析器。<code class=scheme><span class=variable>parse-form-data-using-stdin</span></code> 正是我们需要的。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>parse-form-data-using-stdin</span>
+  (<span class=keyword>lambda</span> ()
+    (<span class=keyword>let*</span> ((<span class=variable>content-length</span> (<span class=variable>getenv</span> <span class=selfeval>&quot;CONTENT_LENGTH&quot;</span>))
+           (<span class=variable>content-length</span>
+             (<span class=keyword>if</span> <span class=variable>content-length</span>
+                 (<span class=variable>string-&gt;number</span> <span class=variable>content-length</span>) <span class=selfeval>0</span>))
+           (<span class=variable>i</span> <span class=selfeval>0</span>))
+      (<span class=keyword>let</span> <span class=variable>par-loop</span> ((<span class=variable>par</span> <span class=keyword>'</span>()))
+        (<span class=keyword>let</span> ((<span class=variable>c</span> (<span class=variable>read-char</span>)))
+          (<span class=keyword>set!</span> <span class=variable>i</span> (<span class=variable>+</span> <span class=variable>i</span> <span class=selfeval>1</span>))
+          (<span class=keyword>if</span> (<span class=keyword>or</span> (<span class=variable>&gt;</span> <span class=variable>i</span> <span class=variable>content-length</span>)
+                  (<span class=variable>eof-object?</span> <span class=variable>c</span>) (<span class=variable>char=?</span> <span class=variable>c</span> <span class=selfeval>#\=</span>))
+              (<span class=keyword>let</span> <span class=variable>arg-loop</span> ((<span class=variable>arg</span> <span class=keyword>'</span>()))
+                (<span class=keyword>let</span> ((<span class=variable>c</span> (<span class=variable>read-char</span>)))
+                  (<span class=keyword>set!</span> <span class=variable>i</span> (<span class=variable>+</span> <span class=variable>i</span> <span class=selfeval>1</span>))
+                  (<span class=keyword>if</span> (<span class=keyword>or</span> (<span class=variable>&gt;</span> <span class=variable>i</span> <span class=variable>content-length</span>)
+                          (<span class=variable>eof-object?</span> <span class=variable>c</span>) (<span class=variable>char=?</span> <span class=variable>c</span> <span class=selfeval>#\&amp;</span>))
+                      (<span class=keyword>let</span> ((<span class=variable>par</span> (<span class=variable>url-decode</span>
+                                   (<span class=variable>list-&gt;string</span>
+                                     (<span class=variable>reverse!</span> <span class=variable>par</span>))))
+                            (<span class=variable>arg</span> (<span class=variable>url-decode</span>
+                                   (<span class=variable>list-&gt;string</span>
+                                     (<span class=variable>reverse!</span> <span class=variable>arg</span>)))))
+                        (<span class=variable>table-put!</span> <span class=global>*form-data-table*</span> <span class=variable>par</span>
+                          (<span class=variable>cons</span> <span class=variable>arg</span> (<span class=variable>table-get</span> <span class=global>*form-data-table*</span>
+                                      <span class=variable>par</span> <span class=keyword>'</span>())))
+                        (<span class=keyword>unless</span> (<span class=keyword>or</span> (<span class=variable>&gt;</span> <span class=variable>i</span> <span class=variable>content-length</span>)
+                                    (<span class=variable>eof-object?</span> <span class=variable>c</span>))
+                          (<span class=variable>par-loop</span> <span class=keyword>'</span>())))
+                      (<span class=variable>arg-loop</span> (<span class=variable>cons</span> <span class=variable>c</span> <span class=variable>arg</span>)))))
+              (<span class=variable>par-loop</span> (<span class=variable>cons</span> <span class=variable>c</span> <span class=variable>par</span>))))))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent><code class=verbatim>POST</code> 方法通过脚本的
+<code class=verbatim>stdin</code> 来发送表格数据。发送的字符数保存在环境变量 <code class=verbatim>CONTENT_LENGTH</code> 中。<code class=scheme><span class=variable>parse-form-data-using-stdin</span></code> 从 <code class=verbatim>stdin</code> 中读取请求的字符数。像之前一样将数据解码后存于
+<code class=scheme><span class=global>*form-data-table*</span></code> 中。</p>
+<p>
+剩下的就是从 <code class=scheme><span class=global>*form-data-table*</span></code> 中获取特定的 parameter 的值。请注意，那个 table 是用一个表来与每个 parameter 相关联的，这是为了适应一个 parameter 有多个值的情况。<code class=scheme><span class=variable>form-data-get</span></code> 检索与一个参数相关的值。如果只有一个值，则返回包含那个单一的值。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>form-data-get</span>
+  (<span class=keyword>lambda</span> (<span class=variable>k</span>)
+    (<span class=variable>table-get</span> <span class=global>*form-data-table*</span> <span class=variable>k</span> <span class=keyword>'</span>())))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent><code class=scheme><span class=variable>form-data-get/1</span></code> 返回与一个参数相关联的第一个（或是最重要的）那个值。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>form-data-get/1</span>
+  (<span class=keyword>lambda</span> (<span class=variable>k</span> . <span class=variable>default</span>)
+    (<span class=keyword>let</span> ((<span class=variable>vv</span> (<span class=variable>form-data-get</span> <span class=variable>k</span>)))
+      (<span class=keyword>cond</span> ((<span class=variable>pair?</span> <span class=variable>vv</span>) (<span class=variable>car</span> <span class=variable>vv</span>))
+            ((<span class=variable>pair?</span> <span class=variable>default</span>) (<span class=variable>car</span> <span class=variable>default</span>))
+            (<span class=keyword>else</span> <span class=selfeval>&quot;&quot;</span>)))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>到目前为止，我们的例子已经生成了 plain text。一般地，我们还会想要生成一个 HTML 页面。然而，通过组合 HTML 表格和 CGI 脚本来触发一系列的包含表格的 HTML页面是不常见的。将所有与各种不同的表格相关的动作编码进一个单一的 CGI 脚本也是不常见的。无论哪种情况，使用一个 utility 过程来将字符串以 HTML 格式输出都是很有帮助的，即，用 HTML 特定的字符来编码：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>display-html</span>
+  (<span class=keyword>lambda</span> (<span class=variable>s</span> . <span class=variable>o</span>)
+    (<span class=keyword>let</span> ((<span class=variable>o</span> (<span class=keyword>if</span> (<span class=variable>null?</span> <span class=variable>o</span>) (<span class=variable>current-output-port</span>)
+                 (<span class=variable>car</span> <span class=variable>o</span>))))
+      (<span class=keyword>let</span> ((<span class=variable>n</span> (<span class=variable>string-length</span> <span class=variable>s</span>)))
+        (<span class=keyword>let</span> <span class=variable>loop</span> ((<span class=variable>i</span> <span class=selfeval>0</span>))
+          (<span class=keyword>unless</span> (<span class=variable>&gt;=</span> <span class=variable>i</span> <span class=variable>n</span>)
+            (<span class=keyword>let</span> ((<span class=variable>c</span> (<span class=variable>string-ref</span> <span class=variable>s</span> <span class=variable>i</span>)))
+              (<span class=variable>display</span>
+               (<span class=keyword>case</span> <span class=variable>c</span>
+                 ((<span class=selfeval>#\&lt;</span>) <span class=selfeval>&quot;&amp;lt;&quot;</span>)
+                 ((<span class=selfeval>#\&gt;</span>) <span class=selfeval>&quot;&amp;gt;&quot;</span>)
+                 ((<span class=selfeval>#\&quot;</span>) <span class=selfeval>&quot;&amp;quot;&quot;</span>)
+                 ((<span class=selfeval>#\&amp;</span>) <span class=selfeval>&quot;&amp;amp;&quot;</span>)
+                 (<span class=keyword>else</span> <span class=variable>c</span>)) <span class=variable>o</span>)
+              (<span class=variable>loop</span> (<span class=variable>+</span> <span class=variable>i</span> <span class=selfeval>1</span>)))))))))
+</pre><p></p>
+<p>
+</p>
+<a name="node_sec_17.4"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_17.4">17.4&nbsp; 一个 CGI 计算器</a></h2>
+<p>这里有一个 CGI 计算器脚本，<code class=verbatim>cgicalc.scm</code>，其运用了 Scheme 任意精度的计算。</p>
+<p>
+</p>
+<p>
+</p>
+<pre class=scheme><span class=selfeval>#!/bin/sh</span>
+<span class=selfeval>&quot;:&quot;</span><span class=comment>;exec /usr/local/bin/mzscheme -r $0</span>
+
+<span class=comment>;Load the CGI utilities</span>
+(<span class=variable>load-relative</span> <span class=selfeval>&quot;cgi.scm&quot;</span>)
+
+(<span class=keyword>define</span> <span class=variable>uhoh</span> <span class=selfeval>#f</span>)
+
+(<span class=keyword>define</span> <span class=variable>calc-eval</span>
+  (<span class=keyword>lambda</span> (<span class=variable>e</span>)
+    (<span class=keyword>if</span> (<span class=variable>pair?</span> <span class=variable>e</span>)
+        (<span class=variable>apply</span> (<span class=variable>ensure-operator</span> (<span class=variable>car</span> <span class=variable>e</span>))
+               (<span class=variable>map</span> <span class=variable>calc-eval</span> (<span class=variable>cdr</span> <span class=variable>e</span>)))
+        (<span class=variable>ensure-number</span> <span class=variable>e</span>))))
+
+(<span class=keyword>define</span> <span class=variable>ensure-operator</span>
+  (<span class=keyword>lambda</span> (<span class=variable>e</span>)
+    (<span class=keyword>case</span> <span class=variable>e</span>
+      ((<span class=variable>+</span>) <span class=variable>+</span>)
+      ((<span class=variable>-</span>) <span class=variable>-</span>)
+      ((<span class=variable>*</span>) <span class=variable>*</span>)
+      ((<span class=variable>/</span>) <span class=variable>/</span>)
+      ((<span class=variable>**</span>) <span class=variable>expt</span>)
+      (<span class=keyword>else</span> (<span class=variable>uhoh</span> <span class=selfeval>&quot;unpermitted operator&quot;</span>)))))
+
+(<span class=keyword>define</span> <span class=variable>ensure-number</span>
+  (<span class=keyword>lambda</span> (<span class=variable>e</span>)
+    (<span class=keyword>if</span> (<span class=variable>number?</span> <span class=variable>e</span>) <span class=variable>e</span>
+        (<span class=variable>uhoh</span> <span class=selfeval>&quot;non-number&quot;</span>))))
+
+(<span class=keyword>define</span> <span class=variable>print-form</span>
+  (<span class=keyword>lambda</span> ()
+    (<span class=variable>display</span> <span class=selfeval>&quot;&lt;form action=\&quot;&quot;</span>)
+    (<span class=variable>display</span> (<span class=variable>getenv</span> <span class=selfeval>&quot;SCRIPT_NAME&quot;</span>))
+    (<span class=variable>display</span> <span class=selfeval>&quot;\&quot;&gt;
+  Enter arithmetic expression:&lt;br&gt;
+  &lt;input type=textarea name=arithexp&gt;&lt;p&gt;
+  &lt;input type=submit value=\&quot;Evaluate\&quot;&gt;
+  &lt;input type=reset value=\&quot;Clear\&quot;&gt;
+&lt;/form&gt;&quot;</span>)))
+
+(<span class=keyword>define</span> <span class=variable>print-page-begin</span>
+  (<span class=keyword>lambda</span> ()
+    (<span class=variable>display</span> <span class=selfeval>&quot;content-type: text/html
+
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;A Scheme Calculator&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;&quot;</span>)))
+
+(<span class=keyword>define</span> <span class=variable>print-page-end</span>
+  (<span class=keyword>lambda</span> ()
+    (<span class=variable>display</span> <span class=selfeval>&quot;&lt;/body&gt;
+&lt;/html&gt;&quot;</span>)))
+
+(<span class=variable>parse-form-data</span>)
+
+(<span class=variable>print-page-begin</span>)
+
+(<span class=keyword>let</span> ((<span class=variable>e</span> (<span class=variable>form-data-get</span> <span class=selfeval>&quot;arithexp&quot;</span>)))
+  (<span class=keyword>unless</span> (<span class=variable>null?</span> <span class=variable>e</span>)
+    (<span class=keyword>let</span> ((<span class=variable>e1</span> (<span class=variable>car</span> <span class=variable>e</span>)))
+      (<span class=variable>display-html</span> <span class=variable>e1</span>)
+      (<span class=variable>display</span> <span class=selfeval>&quot;&lt;p&gt;
+  =&amp;gt;&amp;nbsp;&amp;nbsp;&quot;</span>)
+      (<span class=variable>display-html</span>
+       (<span class=variable>call/cc</span>
+        (<span class=keyword>lambda</span> (<span class=variable>k</span>)
+          (<span class=keyword>set!</span> <span class=variable>uhoh</span>
+                (<span class=keyword>lambda</span> (<span class=variable>s</span>)
+                  (<span class=variable>k</span> (<span class=variable>string-append</span> <span class=selfeval>&quot;Error: &quot;</span> <span class=variable>s</span>))))
+          (<span class=variable>number-&gt;string</span>
+           (<span class=variable>calc-eval</span> (<span class=variable>read</span> (<span class=variable>open-input-string</span> (<span class=variable>car</span> <span class=variable>e</span>))))))))
+      (<span class=variable>display</span> <span class=selfeval>&quot;&lt;p&gt;&quot;</span>))))
+
+(<span class=variable>print-form</span>)
+(<span class=variable>print-page-end</span>)
+</pre><p></p>
+<p>
+</p>
+<p>
+</p>
+<p>
+</p>
+<p>
+</p>
+<div class=smallskip></div>
+<p style="margin-top: 0pt; margin-bottom: 0pt">
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-18.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-20.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+</p>
+<p></p>
+</div>
+</body>
+</html>

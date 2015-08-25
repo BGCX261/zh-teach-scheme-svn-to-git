@@ -1,0 +1,113 @@
+<!doctype html public "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!--
+
+Generated from t-y-scheme.tex by tex2page, v 20070609
+(running on MzScheme 4.2.1, unix), 
+(c) Dorai Sitaram, 
+http://www.ccs.neu.edu/~dorai/tex2page/tex2page-doc.html
+
+-->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+Teach Yourself Scheme in Fixnum Days 中文版
+</title>
+<link rel="stylesheet" type="text/css" href="t-y-scheme-Z-S.css" title=default>
+<meta name="robots" content="index,follow">
+<meta name=description content="A practical
+introduction to the programming language Scheme">
+
+<meta name=author content="Dorai Sitaram">
+
+<link rev=made href="mailto:dorai @ ccs.neu.edu">
+</head>
+<body>
+<div id=slidecontent>
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-12.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-14.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+<p></p>
+<a name="node_chap_11"></a>
+<h1 class=chapter>
+<div class=chapterheading><a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_11">第 11 章 </a></div>
+<br>
+<a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_11">系统接口</a></h1>
+<p></p>
+<p>
+有用的 Scheme 程序经常需要和底层的操作系统交互。</p>
+<p>
+</p>
+<p>
+</p>
+<a name="node_sec_11.1"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_11.1">11.1&nbsp;&nbsp;检测和删除文件</a></h2>
+<p><a name="node_idx_414"></a><a name="node_idx_416"></a><a name="node_idx_418"></a><a name="node_idx_420"></a><code class=scheme><span class=variable>file-exists?</span></code> 检测它的参数字符串是否为一个文件。<code class=scheme><span class=variable>delete-file</span></code> 删除它的参数指定的文件。这些过程不是 Scheme 标准的一部分，但几乎所有的实现中都包含了。这些过程只在不是目录的文件的情况下才能可靠地执行。（它们在在目录上的行为是与 Scheme 方言相关的。）</p>
+<p>
+<a name="node_idx_422"></a><a name="node_idx_424"></a></p>
+<p>
+<code class=scheme><span class=variable>file-or-directory-modify-seconds</span></code> 返回文件或目录的最后修改时间。时间是按秒从 12 AM GMT， 1 January 1970 算起的。例如，</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>file-or-directory-modify-seconds</span> <span class=selfeval>&quot;hello.scm&quot;</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>893189629</span>
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>假设文件 <code class=verbatim>hello.scm</code> 最后修改时间为 21 April 1998。</p>
+<p>
+</p>
+<a name="node_sec_11.2"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_11.2">11.2&nbsp;&nbsp;调用操作系统命令行</a></h2>
+<p><a name="node_idx_426"></a><code class=scheme><span class=variable>system</span></code> 过程将它的参数以操作系统命令行的方式来执行。<a name="node_call_footnote_Temp_6"></a><sup><small><a href="#node_footnote_Temp_6">1</a></small></sup>   如果命令执行成功即以状态 0 退出，则返回 true，否则返回 false 如果执行失败或是以非 0 的状态退出。命令的任何输出都显示在标准输出上。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>system</span> <span class=selfeval>&quot;ls&quot;</span>) 
+<span class=comment>;lists current directory</span>
+
+(<span class=keyword>define</span> <span class=variable>fname</span> <span class=selfeval>&quot;spot&quot;</span>)
+
+(<span class=variable>system</span> (<span class=variable>string-append</span> <span class=selfeval>&quot;test -f &quot;</span> <span class=variable>fname</span>)) 
+<span class=comment>;tests if file `spot' exists</span>
+
+(<span class=variable>system</span> (<span class=variable>string-append</span> <span class=selfeval>&quot;rm -f &quot;</span> <span class=variable>fname</span>)) 
+<span class=comment>;removes `spot'</span>
+</pre><p></p>
+<p>
+最后两个等价于</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>file-exists?</span> <span class=variable>fname</span>)
+
+(<span class=variable>delete-file</span> <span class=variable>fname</span>)
+</pre><p></p>
+<p>
+</p>
+<a name="node_sec_11.3"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_11.3">11.3&nbsp;&nbsp;环境变量</a></h2>
+<p><a name="node_idx_428"></a><code class=scheme><span class=variable>getenv</span></code> 过程返回操作系统变量的设定值。例如，</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>getenv</span> <span class=selfeval>&quot;HOME&quot;</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>&quot;/home/dorai&quot;</span>
+
+(<span class=variable>getenv</span> <span class=selfeval>&quot;SHELL&quot;</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>&quot;/bin/bash&quot;</span>
+</pre><p></p>
+<p>
+</p>
+<p>
+</p>
+<div class=footnoterule><hr></div><p></p>
+<div class=footnote>
+  <p><a name="node_footnote_Temp_6"></a><sup><small><a href="#node_call_footnote_Temp_6">1</a></small></sup> MzScheme 通过 <code class=verbatim>process</code> 库来提供
+<code class=scheme><span class=variable>system</span></code> 过程。使用 <code class=scheme>(<span class=variable>require</span>
+(<span class=variable>lib</span> <span class=selfeval>&quot;process.ss&quot;</span>))</code> 来加载这个库。</p>
+</div>
+<div class=smallskip></div>
+<p style="margin-top: 0pt; margin-bottom: 0pt">
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-12.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-14.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+</p>
+<p></p>
+</div>
+</body>
+</html>

@@ -1,0 +1,373 @@
+<!doctype html public "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!--
+
+Generated from t-y-scheme.tex by tex2page, v 20070609
+(running on MzScheme 4.2.1, unix), 
+(c) Dorai Sitaram, 
+http://www.ccs.neu.edu/~dorai/tex2page/tex2page-doc.html
+
+-->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+Teach Yourself Scheme in Fixnum Days 中文版
+</title>
+<link rel="stylesheet" type="text/css" href="t-y-scheme-Z-S.css" title=default>
+<meta name="robots" content="index,follow">
+<meta name=description content="A practical
+introduction to the programming language Scheme">
+
+<meta name=author content="Dorai Sitaram">
+
+<link rev=made href="mailto:dorai @ ccs.neu.edu">
+</head>
+<body>
+<div id=slidecontent>
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-9.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-11.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+<p></p>
+<a name="node_chap_8"></a>
+<h1 class=chapter>
+<div class=chapterheading><a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_8">Chapter 8</a></div><br>
+<a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_8">Macro </a></h1>
+<p></p>
+<p>
+  <a name="node_idx_378"></a>用户可以通过定义宏（<em>macros</em>）来构造他们自己的特殊形式。一个宏是一个符号，它有一个<em>变换过程</em>（<em>transformer procedure</em>）和它关联。当 Scheme 遇到一个宏表达式时，&#8212;也就是一个表头是宏的形式时&#8212;，它将宏的变换过程作用在宏表达式的子式中，然后对变换的结果求值。</p>
+<p>一个宏将一个纯文本的代码段落完美地变换成了另外一个代码段。这样的变换对缩短一个也许会经常出现的文本模式是很有帮助的。</p>
+<p>
+</p>
+<p>
+<a name="node_idx_380"></a><a name="node_idx_382"></a></p>
+<p>一个宏的定义需使用特殊形式 <code class=scheme><span class=keyword>define-macro</span></code> （但请参见 &nbsp;<a href="t-y-scheme-Z-H-20.html#node_sec_A.3">A.3</a>）.<a name="node_call_footnote_Temp_5"></a><sup><small><a href="#node_footnote_Temp_5">1</a></small></sup> 例如，如果你的 Scheme 缺乏条件的特殊形式 <code class=scheme><span class=keyword>when</span></code>，你可以定义 <code class=scheme><span class=keyword>when</span></code> 定义为：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define-macro</span> <span class=keyword>when</span>
+  (<span class=keyword>lambda</span> (<span class=variable>test</span> . <span class=variable>branch</span>)
+    (<span class=variable>list</span> <span class=keyword>'</span><span class=keyword>if</span> <span class=variable>test</span>
+      (<span class=variable>cons</span> <span class=keyword>'</span><span class=keyword>begin</span> <span class=variable>branch</span>))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>它定义了一个 <code class=scheme><span class=keyword>when</span></code> 变换过程，能够把一个 <code class=scheme><span class=keyword>when</span></code> 表达式转换成为等价的 <code class=scheme><span class=keyword>if</span></code> 表达式。有了这个宏定义以后， <code class=scheme><span class=keyword>when</span></code> 表达式</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>when</span> (<span class=variable>&lt;</span> (<span class=variable>pressure</span> <span class=variable>tube</span>) <span class=selfeval>60</span>)
+   (<span class=variable>open-valve</span> <span class=variable>tube</span>)
+   (<span class=variable>attach</span> <span class=variable>floor-pump</span> <span class=variable>tube</span>)
+   (<span class=variable>depress</span> <span class=variable>floor-pump</span> <span class=selfeval>5</span>)
+   (<span class=variable>detach</span> <span class=variable>floor-pump</span> <span class=variable>tube</span>)
+   (<span class=variable>close-valve</span> <span class=variable>tube</span>))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>将会被变换成为另外一个表达式，即把 <code class=scheme><span class=keyword>when</span></code> 变换过程作用在 <code class=scheme><span class=keyword>when</span></code> 表达式的子式上：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>apply</span>
+  (<span class=keyword>lambda</span> (<span class=variable>test</span> . <span class=variable>branch</span>)
+    (<span class=variable>list</span> <span class=keyword>'</span><span class=keyword>if</span> <span class=variable>test</span>
+      (<span class=variable>cons</span> <span class=keyword>'</span><span class=keyword>begin</span> <span class=variable>branch</span>)))
+  <span class=keyword>'</span>((<span class=variable>&lt;</span> (<span class=variable>pressure</span> <span class=variable>tube</span>) <span class=selfeval>60</span>)
+      (<span class=variable>open-valve</span> <span class=variable>tube</span>)
+      (<span class=variable>attach</span> <span class=variable>floor-pump</span> <span class=variable>tube</span>)
+      (<span class=variable>depress</span> <span class=variable>floor-pump</span> <span class=selfeval>5</span>)
+      (<span class=variable>detach</span> <span class=variable>floor-pump</span> <span class=variable>tube</span>)
+      (<span class=variable>close-valve</span> <span class=variable>tube</span>)))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>变换过程得到下表</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>if</span> (<span class=variable>&lt;</span> (<span class=variable>pressure</span> <span class=variable>tube</span>) <span class=selfeval>60</span>)
+    (<span class=keyword>begin</span>
+      (<span class=variable>open-valve</span> <span class=variable>tube</span>)
+      (<span class=variable>attach</span> <span class=variable>floor-pump</span> <span class=variable>tube</span>)
+      (<span class=variable>depress</span> <span class=variable>floor-pump</span> <span class=selfeval>5</span>)
+      (<span class=variable>detach</span> <span class=variable>floor-pump</span> <span class=variable>tube</span>)
+      (<span class=variable>close-valve</span> <span class=variable>tube</span>)))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>Scheme 将会对这个表达式求值，如同它对其他求值一样。</p>
+<p>
+<a name="node_idx_384"></a></p>
+<p>作为一个附加的例子，下面是 <code class=scheme><span class=keyword>when</span></code> 的对应过程 <code class=scheme><span class=keyword>unless</span></code> 的宏定义：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define-macro</span> <span class=keyword>unless</span>
+  (<span class=keyword>lambda</span> (<span class=variable>test</span> . <span class=variable>branch</span>)
+    (<span class=variable>list</span> <span class=keyword>'</span><span class=keyword>if</span>
+          (<span class=variable>list</span> <span class=keyword>'</span><span class=variable>not</span> <span class=variable>test</span>)
+          (<span class=variable>cons</span> <span class=keyword>'</span><span class=keyword>begin</span> <span class=variable>branch</span>))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>我们可以在 <code class=scheme><span class=keyword>unless</span></code> 的内部引入 <code class=scheme><span class=keyword>when</span></code> 的定义：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define-macro</span> <span class=keyword>unless</span>
+  (<span class=keyword>lambda</span> (<span class=variable>test</span> . <span class=variable>branch</span>)
+    (<span class=variable>cons</span> <span class=keyword>'</span><span class=keyword>when</span>
+          (<span class=variable>cons</span> (<span class=variable>list</span> <span class=keyword>'</span><span class=variable>not</span> <span class=variable>test</span>) <span class=variable>branch</span>))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>宏展开时可以引用其他的宏。</p>
+<p>
+</p>
+<a name="node_sec_8.1"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_8.1">8.1&nbsp;&nbsp;把宏展开指定为模板</a></h2>
+<p>一个宏变换过程接受一些 s 表达式，然后产生一个被用作某种形式的 s 表达式。通常，它的输出是一个表。在我们的 <code class=scheme><span class=keyword>when</span></code> 例子中，输出表的创建是通过</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>list</span> <span class=keyword>'</span><span class=keyword>if</span> <span class=variable>test</span>
+  (<span class=variable>cons</span> <span class=keyword>'</span><span class=keyword>begin</span> <span class=variable>branch</span>))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>其中 <code class=scheme><span class=variable>test</span></code> 和宏的第一个子式关联，也即</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>&lt;</span> (<span class=variable>pressure</span> <span class=variable>tube</span>) <span class=selfeval>60</span>)
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent><code class=scheme><span class=variable>branch</span></code>  和剩下的子式关联，也即</p>
+<p>
+</p>
+<pre class=scheme>((<span class=variable>open-valve</span> <span class=variable>tube</span>)
+ (<span class=variable>attach</span> <span class=variable>floor-pump</span> <span class=variable>tube</span>)
+ (<span class=variable>depress</span> <span class=variable>floor-pump</span> <span class=selfeval>5</span>)
+ (<span class=variable>detach</span> <span class=variable>floor-pump</span> <span class=variable>tube</span>)
+ (<span class=variable>close-valve</span> <span class=variable>tube</span>))
+</pre><p></p>
+<p>
+<a name="node_idx_386"></a><a name="node_idx_388"></a><a name="node_idx_390"></a></p>
+<p>
+</p>
+
+<p class=noindent>输出表会十分复杂。显然，一个比 <code class=scheme><span class=keyword>when</span></code> 更加费劲的宏会得到一个十分复杂的过程框架。在这种情况下，把宏输出形式指定为一个<em>模板</em>（<em>template</em>），即把宏参数插入到适当位置来得到宏的不同方面的应用会十分方便。Scheme 提供了<em>反引</em>（<em>backquote</em>）语法来指定模板。所以表达式</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>list</span> <span class=keyword>'</span><span class=keyword>IF</span> <span class=variable>test</span>
+  (<span class=variable>cons</span> <span class=keyword>'</span><span class=keyword>BEGIN</span> <span class=variable>branch</span>))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>可以更方便地写为</p>
+<p>
+</p>
+<pre class=scheme><span class=keyword>`</span>(<span class=keyword>IF</span> <span class=keyword>,</span><span class=variable>test</span>
+  (<span class=keyword>BEGIN</span> <span class=keyword>,@</span><span class=variable>branch</span>))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>我们可以把 <code class=scheme><span class=keyword>when</span></code> 宏定义重写为：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define-macro</span> <span class=keyword>when</span>
+  (<span class=keyword>lambda</span> (<span class=variable>test</span> . <span class=variable>branch</span>)
+    <span class=keyword>`</span>(<span class=keyword>IF</span> <span class=keyword>,</span><span class=variable>test</span>
+         (<span class=keyword>BEGIN</span> <span class=keyword>,@</span><span class=variable>branch</span>))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>注意，和以前的表构造不一样，从模板的格式就可看出输出表的形式。反引号（<code class=scheme><span class=keyword>`</span></code>）引出一个表的模板。模板的元素将会<em>逐字</em>（<em>verbatim</em>）出现在结果的表中，<em>除非</em>它们有<em>逗号</em>前缀（“<code class=scheme><span class=keyword>,</span></code>”）或者一个<em>逗号接头</em>（<em>comma-splice</em>）（“<code class=scheme><span class=keyword>,@</span></code>”）。（为了表述方便，我们把模板中需要逐字出现的元素用大写表示。）</p>
+<p>逗号和逗号接头被用于向模板中插入宏参数。逗号插入的是表达式求值后结果。逗号接头插入的是表达式接合后再求值的结果，也即它把最外层的括号去掉了。（这意味着一个用逗号接头引出的表达式<em>一定</em>要是一个表。）</p>
+<p>在我们的例子中，给出了 <code class=scheme><span class=variable>test</span></code> 和 <code class=scheme><span class=variable>branch</span></code> 相联系的值，很容易看出这个模板将会展开成为</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>IF</span> (<span class=variable>&lt;</span> (<span class=variable>pressure</span> <span class=variable>tube</span>) <span class=selfeval>60</span>)
+    (<span class=keyword>BEGIN</span>
+      (<span class=variable>open-valve</span> <span class=variable>tube</span>)
+      (<span class=variable>attach</span> <span class=variable>floor-pump</span> <span class=variable>tube</span>)
+      (<span class=variable>depress</span> <span class=variable>floor-pump</span> <span class=selfeval>5</span>)
+      (<span class=variable>detach</span> <span class=variable>floor-pump</span> <span class=variable>tube</span>)
+      (<span class=variable>close-valve</span> <span class=variable>tube</span>)))
+</pre><p></p>
+<p>
+</p>
+<a name="node_sec_8.2"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_8.2">8.2&nbsp;&nbsp;避免宏内的变量捕获</a></h2>
+<p><a name="node_idx_392"></a>一个两个参数的分离形式 <code class=scheme><span class=keyword>my-or</span></code> 可以定义如下：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define-macro</span> <span class=keyword>my-or</span>
+  (<span class=keyword>lambda</span> (<span class=variable>x</span> <span class=variable>y</span>)
+    <span class=keyword>`</span>(<span class=keyword>if</span> <span class=keyword>,</span><span class=variable>x</span> <span class=keyword>,</span><span class=variable>x</span> <span class=keyword>,</span><span class=variable>y</span>)))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent><code class=scheme><span class=keyword>my-or</span></code> 接受两个参数，然后返回它们中第一个为真的值（即非 <code class=scheme><span class=selfeval>#f</span></code>）。特别地，第二个参数只在第一个为假时才被求值。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>my-or</span> <span class=selfeval>1</span> <span class=selfeval>2</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>1</span>
+
+(<span class=keyword>my-or</span> <span class=selfeval>#f</span> <span class=selfeval>2</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>2</span>
+</pre><p></p>
+<p>这样写 <code class=scheme><span class=keyword>my-or</span></code> 宏有一个问题。如果第一个参数为真，它会重复对此参数求值：一次在 <code class=scheme><span class=keyword>if</span></code> 测试中，一次在“then”分支中。如果第一个参数有副作用，这个宏可能导致不想要的结果，比如：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>my-or</span>
+  (<span class=keyword>begin</span> 
+    (<span class=variable>display</span> <span class=selfeval>&quot;doing first argument&quot;</span>)
+     (<span class=variable>newline</span>)
+     <span class=selfeval>#t</span>)
+  <span class=selfeval>2</span>)
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>打印了 <code class=scheme><span class=selfeval>&quot;doing first argument&quot;</span></code> 两次。</p>
+<p>这可以通过把 <code class=scheme><span class=keyword>if</span></code> 测试的结果存在一个局部变量中来避免：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define-macro</span> <span class=keyword>my-or</span>
+  (<span class=keyword>lambda</span> (<span class=variable>x</span> <span class=variable>y</span>)
+    <span class=keyword>`</span>(<span class=keyword>let</span> ((<span class=variable>temp</span> <span class=keyword>,</span><span class=variable>x</span>))
+       (<span class=keyword>if</span> <span class=variable>temp</span> <span class=variable>temp</span> <span class=keyword>,</span><span class=variable>y</span>))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>这样差不多就行了，除非第二个参数恰好使用了宏中的 <code class=scheme><span class=variable>temp</span></code> 标识。比如：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>temp</span> <span class=selfeval>3</span>)
+
+(<span class=keyword>my-or</span> <span class=selfeval>#f</span> <span class=variable>temp</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#f</span>
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>它当然应该是 3！失败的原因是宏中使用了一个局部变量 <code class=scheme><span class=variable>temp</span></code> 来保存第一个参数（<code class=scheme><span class=selfeval>#f</span></code>）的值，而第二个参数 <code class=scheme><span class=variable>temp</span></code> 变量被宏引入的 <code class=scheme><span class=variable>temp</span></code> <em>捕获</em>（<em>captured</em>）。</p>
+<p>要避免这样的事情，我们需要小心选取宏内的局部变量。我们可以选择古怪的名字，并祈祷没有人能够想到这样的名字。例如：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define-macro</span> <span class=keyword>my-or</span>
+  (<span class=keyword>lambda</span> (<span class=variable>x</span> <span class=variable>y</span>)
+    <span class=keyword>`</span>(<span class=keyword>let</span> ((<span class=variable>+temp</span> <span class=keyword>,</span><span class=variable>x</span>))
+       (<span class=keyword>if</span> <span class=variable>+temp</span> <span class=variable>+temp</span> <span class=keyword>,</span><span class=variable>y</span>))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>不用多说，在 <code class=scheme><span class=variable>+temp</span></code> 没有在宏外被使用的时候这个过程才会生效。这也是需要提醒的一点。</p>
+<p>
+<a name="node_idx_394"></a><a name="node_idx_396"></a></p>
+<p>如果要详述的话，一个更加可靠的的方法是使用产生的变量（<em>generated symbols</em>），它们能保证不会冲突。过程 <code class=scheme><span class=variable>gensym</span></code> 在调用的时候产生一个唯一的变量。下面使用 <code class=scheme><span class=variable>gensym</span></code> 来定义一个安全的 <code class=scheme><span class=keyword>my-or</span></code>：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define-macro</span> <span class=keyword>my-or</span>
+  (<span class=keyword>lambda</span> (<span class=variable>x</span> <span class=variable>y</span>)
+    (<span class=keyword>let</span> ((<span class=variable>temp</span> (<span class=variable>gensym</span>)))
+      <span class=keyword>`</span>(<span class=keyword>let</span> ((<span class=keyword>,</span><span class=variable>temp</span> <span class=keyword>,</span><span class=variable>x</span>))
+         (<span class=keyword>if</span> <span class=keyword>,</span><span class=variable>temp</span> <span class=keyword>,</span><span class=variable>temp</span> <span class=keyword>,</span><span class=variable>y</span>)))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>在这份文档中的宏定义为了保持简洁将不会使用 <code class=scheme><span class=variable>gensym</span></code> 方法。我们将在认为会出现变量捕获的点使用不太杂乱的前缀 <code class=scheme><span class=variable>+</span></code> 的方法。利用上面介绍的方法把这些 <code class=scheme><span class=variable>+</span></code>标识转化为 gensym 的任务将留给聪明的读者来完成。</p>
+<p>
+<a name="node_idx_398"></a></p>
+<p>
+</p>
+<a name="node_sec_8.3"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_8.3">8.3&nbsp;&nbsp;<code class=scheme><span class=keyword>fluid-let</span></code></a></h2>
+<p></p>
+<p>这里有一个更加复杂的宏定义，<code class=scheme><span class=keyword>fluid-let</span></code> （第 <a href="t-y-scheme-Z-H-7.html#node_sec_5.2">5.2</a> 节）
+<code class=scheme><span class=keyword>fluid-let</span></code> 为一系列存在的词变量指定暂时的绑定。当给了一个 <code class=scheme><span class=keyword>fluid-let</span></code> 表达式</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>fluid-let</span> ((<span class=variable>x</span> <span class=selfeval>9</span>) (<span class=variable>y</span> (<span class=variable>+</span> <span class=variable>y</span> <span class=selfeval>1</span>)))
+  (<span class=variable>+</span> <span class=variable>x</span> <span class=variable>y</span>))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>我们希望展开后会成为</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>let</span> ((<span class=variable>OLD-X</span> <span class=variable>x</span>) (<span class=variable>OLD-Y</span> <span class=variable>y</span>))
+  (<span class=keyword>set!</span> <span class=variable>x</span> <span class=selfeval>9</span>)
+  (<span class=keyword>set!</span> <span class=variable>y</span> (<span class=variable>+</span> <span class=variable>y</span> <span class=selfeval>1</span>))
+  (<span class=keyword>let</span> ((<span class=variable>RESULT</span> (<span class=keyword>begin</span> (<span class=variable>+</span> <span class=variable>x</span> <span class=variable>y</span>))))
+    (<span class=keyword>set!</span> <span class=variable>x</span> <span class=variable>OLD-X</span>)
+    (<span class=keyword>set!</span> <span class=variable>y</span> <span class=variable>OLD-Y</span>)
+    <span class=variable>RESULT</span>))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>其中我们希望标识符 <code class=scheme><span class=variable>OLD-X</span></code>，<code class=scheme><span class=variable>OLD-Y</span></code> 和 <code class=scheme><span class=variable>RESULT</span></code> 在 <code class=scheme><span class=keyword>fluid-let</span></code> 形式中不会被捕获。</p>
+<p>下面是如何来实现一个满足我们要求的 <code class=scheme><span class=keyword>fluid-let</span></code> 宏：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define-macro</span> <span class=keyword>fluid-let</span>
+  (<span class=keyword>lambda</span> (<span class=variable>xexe</span> . <span class=variable>body</span>)
+    (<span class=keyword>let</span> ((<span class=variable>xx</span> (<span class=variable>map</span> <span class=variable>car</span> <span class=variable>xexe</span>))
+          (<span class=variable>ee</span> (<span class=variable>map</span> <span class=variable>cadr</span> <span class=variable>xexe</span>))
+          (<span class=variable>old-xx</span> (<span class=variable>map</span> (<span class=keyword>lambda</span> (<span class=variable>ig</span>) (<span class=variable>gensym</span>)) <span class=variable>xexe</span>))
+          (<span class=variable>result</span> (<span class=variable>gensym</span>)))
+      <span class=keyword>`</span>(<span class=keyword>let</span> <span class=keyword>,</span>(<span class=variable>map</span> (<span class=keyword>lambda</span> (<span class=variable>old-x</span> <span class=variable>x</span>) <span class=keyword>`</span>(<span class=keyword>,</span><span class=variable>old-x</span> <span class=keyword>,</span><span class=variable>x</span>)) 
+                  <span class=variable>old-xx</span> <span class=variable>xx</span>)
+         <span class=keyword>,@</span>(<span class=variable>map</span> (<span class=keyword>lambda</span> (<span class=variable>x</span> <span class=variable>e</span>)
+                  <span class=keyword>`</span>(<span class=keyword>set!</span> <span class=keyword>,</span><span class=variable>x</span> <span class=keyword>,</span><span class=variable>e</span>)) 
+                <span class=variable>xx</span> <span class=variable>ee</span>)
+         (<span class=keyword>let</span> ((<span class=keyword>,</span><span class=variable>result</span> (<span class=keyword>begin</span> <span class=keyword>,@</span><span class=variable>body</span>)))
+           <span class=keyword>,@</span>(<span class=variable>map</span> (<span class=keyword>lambda</span> (<span class=variable>x</span> <span class=variable>old-x</span>)
+                    <span class=keyword>`</span>(<span class=keyword>set!</span> <span class=keyword>,</span><span class=variable>x</span> <span class=keyword>,</span><span class=variable>old-x</span>)) 
+                  <span class=variable>xx</span> <span class=variable>old-xx</span>)
+           <span class=keyword>,</span><span class=variable>result</span>)))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>宏的参数是：<code class=scheme><span class=variable>xexe</span></code>，也就是那些 <code class=scheme><span class=keyword>fluid-let</span></code> 引入的包含变量/表达式对的表；和 <code class=scheme><span class=variable>body</span></code>，也就是 <code class=scheme><span class=keyword>fluid-let</span></code> 过程体中的表达式表。在我们的例子中分别为 <code class=scheme>((<span class=variable>x</span> <span class=selfeval>9</span>) (<span class=variable>y</span> (<span class=variable>+</span> <span class=variable>y</span> <span class=selfeval>1</span>)))</code> 和 <code class=scheme>((<span class=variable>+</span> <span class=variable>x</span> <span class=variable>y</span>))</code>。</p>
+<p>宏的过程体引入了一些局部变量：<code class=scheme><span class=variable>xx</span></code> 是从变量/表达式对中提取出来的变量表。<code class=scheme><span class=variable>ee</span></code> 是相应的表达式。<code class=scheme><span class=variable>old-xx</span></code> 是一个存放新标识的表，为 <code class=scheme><span class=variable>xx</span></code> 中每个变量而设。他们用来存放 <code class=scheme><span class=variable>xx</span></code> <em>刚进来</em>的值，所以一旦 <code class=scheme><span class=keyword>fluid-let</span></code> 过程体被求值后，我们可以把 <code class=scheme><span class=variable>xx</span></code> 还原回去。<code class=scheme><span class=variable>result</span></code> 是另一个新的标识符，用来存放 <code class=scheme><span class=keyword>fluid-let</span></code> 过程体的值。在我们的例子中，<code class=scheme><span class=variable>xx</span></code> 是 <code class=scheme>(<span class=variable>x</span> <span class=variable>y</span>)</code>，<code class=scheme><span class=variable>ee</span></code> 是 <code class=scheme>(<span class=selfeval>9</span> (<span class=variable>+</span> <span class=variable>y</span> <span class=selfeval>1</span>))</code>。取决于你系统中的实现，<code class=scheme><span class=variable>gensym</span></code>，<code class=scheme><span class=variable>old-xx</span></code> 可能是 <code class=scheme>(<span class=variable>GEN-63</span> <span class=variable>GEN-64</span>)</code>，而 <code class=scheme><span class=variable>result</span></code> 可能是 <code class=scheme><span class=variable>GEN-65</span></code>。</p>
+<p>对于我们的例子，由宏创建的输出表类似于</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>let</span> ((<span class=variable>GEN-63</span> <span class=variable>x</span>) (<span class=variable>GEN-64</span> <span class=variable>y</span>))
+  (<span class=keyword>set!</span> <span class=variable>x</span> <span class=selfeval>9</span>)
+  (<span class=keyword>set!</span> <span class=variable>y</span> (<span class=variable>+</span> <span class=variable>y</span> <span class=selfeval>1</span>))
+  (<span class=keyword>let</span> ((<span class=variable>GEN-65</span> (<span class=keyword>begin</span> (<span class=variable>+</span> <span class=variable>x</span> <span class=variable>y</span>))))
+    (<span class=keyword>set!</span> <span class=variable>x</span> <span class=variable>GEN-63</span>)
+    (<span class=keyword>set!</span> <span class=variable>y</span> <span class=variable>GEN-64</span>)
+    <span class=variable>GEN-65</span>))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>它满足我们的要求。</p>
+<p>
+</p>
+<p>
+</p>
+<div class=footnoterule><hr></div><p></p>
+<div class=footnote><p><a name="node_footnote_Temp_5"></a><sup><small><a href="#node_call_footnote_Temp_5">1</a></small></sup> MzScheme 通过 <code class=verbatim>defmacro</code> 库提供了 <code class=scheme><span class=keyword>define-macro</span></code>。使用 <code class=scheme>(<span class=variable>require</span> (<span class=variable>lib</span> <span class=selfeval>&quot;defmacro.ss&quot;</span>))</code> 载入这个库。</p>
+</div>
+<div class=smallskip></div>
+<p style="margin-top: 0pt; margin-bottom: 0pt">
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-9.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-11.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+</p>
+<p></p>
+</div>
+</body>
+</html>

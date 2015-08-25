@@ -1,0 +1,464 @@
+<!DOCTYPE html public "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!--
+
+Generated from t-y-scheme.tex by tex2page, v 20070609
+(running on MzScheme 4.2.1, unix), 
+(c) Dorai Sitaram, 
+http://www.ccs.neu.edu/~dorai/tex2page/tex2page-doc.html
+
+-->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+Teach Yourself Scheme in Fixnum Days 中文版
+</title>
+<link rel="stylesheet" type="text/css" href="t-y-scheme-Z-S.css" title=default>
+<meta name="robots" content="index,follow">
+<meta name=description content="A practical
+introduction to the programming language Scheme">
+
+<meta name=author content="Dorai Sitaram">
+
+<link rev=made href="mailto:dorai @ ccs.neu.edu">
+</head>
+<body>
+<div id=slidecontent>
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-13.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-15.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+<p></p>
+<a name="node_chap_12"></a>
+<h1 class=chapter>
+<div class=chapterheading><a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_12">Chapter 12</a></div><br>
+<a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_12">对象和类</a></h1>
+<p><a name="node_idx_430"></a><a name="node_idx_432"></a><a name="node_idx_434"></a><a name="node_idx_436"></a><a name="node_idx_438"></a><a name="node_idx_440"></a>一个<em>类</em>（<em>class</em>）描述了一系列有共性的<em>对象</em>（<em>objects</em>）。类描述的对象称为类的<em>实例</em>（<em>instances</em>）。类指定了实例的<em>槽</em>（<em>slots</em>）的名字，而这些槽的具体值取决于实例。类也指定了能够作用于实例的<em>方法</em>（<em>methods</em>）。槽可以是任意值，但方法必须是过程。</p>
+<p>
+<a name="node_idx_442"></a><a name="node_idx_444"></a></p>
+<p>类是可以继承的。所以，一个类可以是另一个类，也即<em>父类</em>，的<em>子类</em>。一个子类不仅有它自己<em>直接</em>的槽和方法，也继承其父类的槽和方法。如果一个类的槽、方法和父类的有同样的名字，那只留下子类的槽和方法。</em>
+<p>
+</p>
+<p>
+</p>
+<p>
+</p>
+<a name="node_sec_12.1"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_12.1">12.1&nbsp;&nbsp;一个简单的对象系统</a></h2>
+<p><a name="node_idx_446"></a>现在我们来用 Scheme 实现一个基本的对象系统。我们允许一个类只能有一个父类（<em>单继承</em>）。如果我们不想指定一个父类，我们使用 <code class=scheme><span class=selfeval>#t</span></code> 作为一个空父类，它既没有槽也没有方法。<code class=scheme><span class=selfeval>#t</span></code> 的父类当然也就是它自身。</p>
+<p>作为近似实现的系统，较有用的方法是定义一个叫做 <code class=scheme><span class=variable>standard-class</span></code> 的结构。它的域是槽的名字、父类和方法。前两个域我们将分别称为为 <code class=scheme><span class=variable>slots</span></code> 和 <code class=scheme><span class=variable>superclass</span></code>。我们将为方法留出<em>两个</em>域，一个 <code class=scheme><span class=variable>method-names</span></code> 域将会记录类中方法的名字表，另一个 <code class=scheme><span class=variable>method-vector</span></code> 域将会记录类中方法的值的向量。<a name="node_call_footnote_Temp_7"></a><sup><small><a href="#node_footnote_Temp_7">1</a></small></sup>下面是 <code class=scheme><span class=variable>standard-class</span></code> 的定义：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>defstruct</span> <span class=variable>standard-class</span>
+  <span class=variable>slots</span> <span class=variable>superclass</span> <span class=variable>method-names</span> <span class=variable>method-vector</span>)
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>我们可以使用 <code class=scheme><span class=variable>standard-class</span></code> 的构造过程 <code class=scheme><span class=variable>make-standard-class</span></code> 来创建一个新类。例如：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>trivial-bike-class</span>
+  (<span class=variable>make-standard-class</span>
+   <span class=keyword>'</span><span class=variable>superclass</span> <span class=selfeval>#t</span>
+   <span class=keyword>'</span><span class=variable>slots</span> <span class=keyword>'</span>(<span class=variable>frame</span> <span class=variable>parts</span> <span class=variable>size</span>)
+   <span class=keyword>'</span><span class=variable>method-names</span> <span class=keyword>'</span>()
+   <span class=keyword>'</span><span class=variable>method-vector</span> <span class=selfeval>#</span>()))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>这是一个非常简单的类。更复杂的类会有一些重要的父类和方法，它们需要很多标准的初始化工作，而这些工作我们希望藏在类构造过程中完成。所以我们将定义一个叫 <code class=scheme><span class=variable>create-class</span></code> 的类来完成对 <code class=scheme><span class=variable>make-standard-class</span></code> 过程的合理调用。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define-macro</span> <span class=variable>create-class</span>
+  (<span class=keyword>lambda</span> (<span class=variable>superclass</span> <span class=variable>slots</span> . <span class=variable>methods</span>)
+    <span class=keyword>`</span>(<span class=variable>create-class-proc</span>
+      <span class=keyword>,</span><span class=variable>superclass</span>
+      (<span class=variable>list</span> <span class=keyword>,@</span>(<span class=variable>map</span> (<span class=keyword>lambda</span> (<span class=variable>slot</span>) <span class=keyword>`</span><span class=keyword>'</span><span class=keyword>,</span><span class=variable>slot</span>) <span class=variable>slots</span>))
+      (<span class=variable>list</span> <span class=keyword>,@</span>(<span class=variable>map</span> (<span class=keyword>lambda</span> (<span class=variable>method</span>) <span class=keyword>`</span><span class=keyword>'</span><span class=keyword>,</span>(<span class=variable>car</span> <span class=variable>method</span>)) <span class=variable>methods</span>))
+      (<span class=variable>vector</span> <span class=keyword>,@</span>(<span class=variable>map</span> (<span class=keyword>lambda</span> (<span class=variable>method</span>) <span class=keyword>`</span><span class=keyword>,</span>(<span class=variable>cadr</span> <span class=variable>method</span>)) <span class=variable>methods</span>)))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>我们将稍候定义 <code class=scheme><span class=variable>create-class-proc</span></code> 过程。 </p>
+<p>过程 <code class=scheme><span class=variable>make-instance</span></code> 创建了一个类的<em>实例</em>，通过根据类中既定信息产生一个新向量来实现的。实例向量的形式非常简单：它的第一个元素将指向类，剩余的元素即为槽值。<code class=scheme><span class=variable>make-instance</span></code> 的参数是类名，然后是一系列两个一组的元素，这些元素是槽的名字和值。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>make-instance</span>
+  (<span class=keyword>lambda</span> (<span class=variable>class</span> . <span class=variable>slot-value-twosomes</span>)
+
+    <span class=comment>;Find `n', the number of slots in `class'.</span>
+    <span class=comment>;Create an instance vector of length `n + 1',</span>
+    <span class=comment>;because we need one extra element in the instance</span>
+    <span class=comment>;to contain the class.</span>
+
+    (<span class=keyword>let*</span> ((<span class=variable>slotlist</span> (<span class=variable>standard-class.slots</span> <span class=variable>class</span>))
+           (<span class=variable>n</span> (<span class=variable>length</span> <span class=variable>slotlist</span>))
+           (<span class=variable>instance</span> (<span class=variable>make-vector</span> (<span class=variable>+</span> <span class=variable>n</span> <span class=selfeval>1</span>))))
+      (<span class=variable>vector-set!</span> <span class=variable>instance</span> <span class=selfeval>0</span> <span class=variable>class</span>)
+
+      <span class=comment>;Fill each of the slots in the instance</span>
+      <span class=comment>;with the value as specified in the call to</span>
+      <span class=comment>;`make-instance'.</span>
+
+      (<span class=keyword>let</span> <span class=variable>loop</span> ((<span class=variable>slot-value-twosomes</span> <span class=variable>slot-value-twosomes</span>))
+        (<span class=keyword>if</span> (<span class=variable>null?</span> <span class=variable>slot-value-twosomes</span>) <span class=variable>instance</span>
+            (<span class=keyword>let</span> ((<span class=variable>k</span> (<span class=variable>list-position</span> (<span class=variable>car</span> <span class=variable>slot-value-twosomes</span>) 
+                                    <span class=variable>slotlist</span>)))
+              (<span class=variable>vector-set!</span> <span class=variable>instance</span> (<span class=variable>+</span> <span class=variable>k</span> <span class=selfeval>1</span>) 
+                (<span class=variable>cadr</span> <span class=variable>slot-value-twosomes</span>))
+              (<span class=variable>loop</span> (<span class=variable>cddr</span> <span class=variable>slot-value-twosomes</span>))))))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>下面是实例化一个类：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>my-bike</span>
+  (<span class=variable>make-instance</span> <span class=variable>trivial-bike-class</span>
+                 <span class=keyword>'</span><span class=variable>frame</span> <span class=keyword>'</span><span class=variable>cromoly</span>
+                 <span class=keyword>'</span><span class=variable>size</span> <span class=keyword>'</span><span class=selfeval>18.5</span>
+                 <span class=keyword>'</span><span class=variable>parts</span> <span class=keyword>'</span><span class=variable>alivio</span>))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>它把 <code class=scheme><span class=variable>my-bike</span></code> 绑定到了实例上。</p>
+<p>
+</p>
+<pre class=scheme><span class=selfeval>#</span>(<span class=variable>&lt;trivial-bike-class&gt;</span> <span class=variable>cromoly</span> <span class=selfeval>18.5</span> <span class=variable>alivio</span>)
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>其中 <code class=scheme><span class=variable>&lt;trivial-bike-class&gt;</span></code> 是一个 datum （另一种向量）。正如上面定义的那样，它是 <code class=scheme><span class=variable>trivial-bike-class</span></code> 的值。</p>
+<p>过程 <code class=scheme><span class=variable>class-of</span></code> 返回一个实例的类：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>class-of</span>
+  (<span class=keyword>lambda</span> (<span class=variable>instance</span>)
+    (<span class=variable>vector-ref</span> <span class=variable>instance</span> <span class=selfeval>0</span>)))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>它假定了 <code class=scheme><span class=variable>class-of</span></code> 的参数是一个类的实例，也就是它的第一个元素指向 <code class=scheme><span class=variable>standard-class</span></code> 的一个实例。我们也许希望 <code class=scheme><span class=variable>class-of</span></code> 能对任何一种 Scheme 对象返回一个合适的值。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>class-of</span>
+  (<span class=keyword>lambda</span> (<span class=variable>x</span>)
+    (<span class=keyword>if</span> (<span class=variable>vector?</span> <span class=variable>x</span>)
+        (<span class=keyword>let</span> ((<span class=variable>n</span> (<span class=variable>vector-length</span> <span class=variable>x</span>)))
+          (<span class=keyword>if</span> (<span class=variable>&gt;=</span> <span class=variable>n</span> <span class=selfeval>1</span>)
+              (<span class=keyword>let</span> ((<span class=variable>c</span> (<span class=variable>vector-ref</span> <span class=variable>x</span> <span class=selfeval>0</span>)))
+                (<span class=keyword>if</span> (<span class=variable>standard-class?</span> <span class=variable>c</span>) <span class=variable>c</span> <span class=selfeval>#t</span>))
+              <span class=selfeval>#t</span>))
+        <span class=selfeval>#t</span>)))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>那些没有使用 <code class=scheme><span class=variable>standard-class</span></code> 创建的对象的类应当是 <code class=scheme><span class=selfeval>#t</span></code>，也就是空类。</p>
+<p><code class=scheme><span class=variable>slot-value</span></code> 和 <code class=scheme><span class=variable>set!slot-value</span></code> 访问并交换一个类实例的值：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>slot-value</span>
+  (<span class=keyword>lambda</span> (<span class=variable>instance</span> <span class=variable>slot</span>)
+    (<span class=keyword>let*</span> ((<span class=variable>class</span> (<span class=variable>class-of</span> <span class=variable>instance</span>))
+           (<span class=variable>slot-index</span>
+            (<span class=variable>list-position</span> <span class=variable>slot</span> (<span class=variable>standard-class.slots</span> <span class=variable>class</span>))))
+      (<span class=variable>vector-ref</span> <span class=variable>instance</span> (<span class=variable>+</span> <span class=variable>slot-index</span> <span class=selfeval>1</span>)))))
+
+(<span class=keyword>define</span> <span class=variable>set!slot-value</span>
+  (<span class=keyword>lambda</span> (<span class=variable>instance</span> <span class=variable>slot</span> <span class=variable>new-val</span>)
+    (<span class=keyword>let*</span> ((<span class=variable>class</span> (<span class=variable>class-of</span> <span class=variable>instance</span>))
+           (<span class=variable>slot-index</span>
+            (<span class=variable>list-position</span> <span class=variable>slot</span> (<span class=variable>standard-class.slots</span> <span class=variable>class</span>))))
+      (<span class=variable>vector-set!</span> <span class=variable>instance</span> (<span class=variable>+</span> <span class=variable>slot-index</span> <span class=selfeval>1</span>) <span class=variable>new-val</span>))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>我们现在来处理 <code class=scheme><span class=variable>create-class-proc</span></code> 的定义。这个过程接受一个父类、一个槽表、一个方法的表和一个方法向量作为参数，然后调用 <code class=scheme><span class=variable>make-standard-class</span></code>。唯一的小技巧是在给 <code class=scheme><span class=variable>slots</span></code> 域赋值的时候。它不能仅为 <code class=scheme><span class=variable>create-class</span></code> 中提供的槽参数，因为一个类还要包括它父类的槽。我们一定要把提供的槽加到父类的槽中，保证它们不会重复。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>create-class-proc</span>
+  (<span class=keyword>lambda</span> (<span class=variable>superclass</span> <span class=variable>slots</span> <span class=variable>method-names</span> <span class=variable>method-vector</span>)
+    (<span class=variable>make-standard-class</span>
+     <span class=keyword>'</span><span class=variable>superclass</span> <span class=variable>superclass</span>
+     <span class=keyword>'</span><span class=variable>slots</span>
+     (<span class=keyword>let</span> ((<span class=variable>superclass-slots</span> 
+            (<span class=keyword>if</span> (<span class=variable>not</span> (<span class=variable>eqv?</span> <span class=variable>superclass</span> <span class=selfeval>#t</span>))
+                (<span class=variable>standard-class.slots</span> <span class=variable>superclass</span>)
+                <span class=keyword>'</span>())))
+       (<span class=keyword>if</span> (<span class=variable>null?</span> <span class=variable>superclass-slots</span>) <span class=variable>slots</span>
+           (<span class=variable>delete-duplicates</span>
+            (<span class=variable>append</span> <span class=variable>slots</span> <span class=variable>superclass-slots</span>))))
+     <span class=keyword>'</span><span class=variable>method-names</span> <span class=variable>method-names</span>
+     <span class=keyword>'</span><span class=variable>method-vector</span> <span class=variable>method-vector</span>)))
+</pre><p></p>
+<p>
+<a name="node_idx_448"></a></p>
+
+<p class=noindent>对 <code class=scheme><span class=variable>s</span></code> 表调用的 <code class=scheme><span class=variable>delete-duplicates</span></code> 过程返回一个只包括每个 <code class=scheme><span class=variable>s</span></code> 元素<em>最后</em>出现的一项。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>delete-duplicates</span>
+  (<span class=keyword>lambda</span> (<span class=variable>s</span>)
+    (<span class=keyword>if</span> (<span class=variable>null?</span> <span class=variable>s</span>) <span class=variable>s</span>
+        (<span class=keyword>let</span> ((<span class=variable>a</span> (<span class=variable>car</span> <span class=variable>s</span>)) (<span class=variable>d</span> (<span class=variable>cdr</span> <span class=variable>s</span>)))
+          (<span class=keyword>if</span> (<span class=variable>memv</span> <span class=variable>a</span> <span class=variable>d</span>) (<span class=variable>delete-duplicates</span> <span class=variable>d</span>)
+              (<span class=variable>cons</span> <span class=variable>a</span> (<span class=variable>delete-duplicates</span> <span class=variable>d</span>)))))))
+</pre><p></p>
+<p>现在来看看方法的应用。我们在一个实例上通过 <code class=scheme><span class=variable>send</span></code> 来引入方法。<code class=scheme><span class=variable>send</span></code> 的参数是方法的名字，然后是实例，最后是方法本身的参数。因为方法是保存在实例的类里面而不是实例中，<code class=scheme><span class=variable>send</span></code> 将会去实例的类中查找方法。如果方法不存在，它将去类的父类中查找，类似地在父类链中进行：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>send</span>
+  (<span class=keyword>lambda</span> (<span class=variable>method</span> <span class=variable>instance</span> . <span class=variable>args</span>)
+    (<span class=keyword>let</span> ((<span class=keyword>proc</span>
+           (<span class=keyword>let</span> <span class=variable>loop</span> ((<span class=variable>class</span> (<span class=variable>class-of</span> <span class=variable>instance</span>)))
+             (<span class=keyword>if</span> (<span class=variable>eqv?</span> <span class=variable>class</span> <span class=selfeval>#t</span>) (<span class=variable>error</span> <span class=keyword>'</span><span class=variable>send</span>)
+                 (<span class=keyword>let</span> ((<span class=variable>k</span> (<span class=variable>list-position</span> 
+                           <span class=variable>method</span>
+                           (<span class=variable>standard-class.method-names</span> <span class=variable>class</span>))))
+                   (<span class=keyword>if</span> <span class=variable>k</span>
+                       (<span class=variable>vector-ref</span> (<span class=variable>standard-class.method-vector</span> <span class=variable>class</span>) <span class=variable>k</span>)
+                       (<span class=variable>loop</span> (<span class=variable>standard-class.superclass</span> <span class=variable>class</span>))))))))
+      (<span class=variable>apply</span> <span class=keyword>proc</span> <span class=variable>instance</span> <span class=variable>args</span>))))
+</pre><p></p>
+<p>现在我们可以定义一些更有趣的类了：</p>
+<p>
+</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>bike-class</span>
+  (<span class=variable>create-class</span>
+   <span class=selfeval>#t</span>
+   (<span class=variable>frame</span> <span class=variable>size</span> <span class=variable>parts</span> <span class=variable>chain</span> <span class=variable>tires</span>)
+   (<span class=variable>check-fit</span> (<span class=keyword>lambda</span> (<span class=variable>me</span> <span class=variable>inseam</span>)
+                (<span class=keyword>let</span> ((<span class=variable>bike-size</span> (<span class=variable>slot-value</span> <span class=variable>me</span> <span class=keyword>'</span><span class=variable>size</span>))
+                      (<span class=variable>ideal-size</span> (<span class=variable>*</span> <span class=variable>inseam</span> <span class=selfeval>3/5</span>)))
+                  (<span class=keyword>let</span> ((<span class=variable>diff</span> (<span class=variable>-</span> <span class=variable>bike-size</span> <span class=variable>ideal-size</span>)))
+                    (<span class=keyword>cond</span> ((<span class=variable>&lt;=</span> <span class=selfeval>-1</span> <span class=variable>diff</span> <span class=selfeval>1</span>) <span class=keyword>'</span><span class=variable>perfect-fit</span>)
+                          ((<span class=variable>&lt;=</span> <span class=selfeval>-2</span> <span class=variable>diff</span> <span class=selfeval>2</span>) <span class=keyword>'</span><span class=variable>fits-well</span>)
+                          ((<span class=variable>&lt;</span> <span class=variable>diff</span> <span class=selfeval>-2</span>) <span class=keyword>'</span><span class=variable>too-small</span>)
+                          ((<span class=variable>&gt;</span> <span class=variable>diff</span> <span class=selfeval>2</span>) <span class=keyword>'</span><span class=variable>too-big</span>))))))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>这里的 <code class=scheme><span class=variable>bike-class</span></code> 包含一个方法 <code class=scheme><span class=variable>check-fit</span></code>，它接受一个自行车、人的腿长作为参数，然后返回自行车是否符合这样腿长的人的判断。</p>
+<p>我们来重新定义 <code class=scheme><span class=variable>my-bike</span></code>：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>my-bike</span>
+  (<span class=variable>make-instance</span> <span class=variable>bike-class</span>
+                 <span class=keyword>'</span><span class=variable>frame</span> <span class=keyword>'</span><span class=variable>titanium</span> <span class=comment>; I wish</span>
+                 <span class=keyword>'</span><span class=variable>size</span> <span class=selfeval>21</span>
+                 <span class=keyword>'</span><span class=variable>parts</span> <span class=keyword>'</span><span class=variable>ultegra</span>
+                 <span class=keyword>'</span><span class=variable>chain</span> <span class=keyword>'</span><span class=variable>sachs</span>
+                 <span class=keyword>'</span><span class=variable>tires</span> <span class=keyword>'</span><span class=variable>continental</span>))
+</pre><p></p>
+<p>检查它适不适合腿长 32 的人：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>send</span> <span class=keyword>'</span><span class=variable>check-fit</span> <span class=variable>my-bike</span> <span class=selfeval>32</span>)
+</pre><p></p>
+<p>我们可以定义 <code class=scheme><span class=variable>bike-class</span></code> 的子类。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>mtn-bike-class</span>
+  (<span class=variable>create-class</span>
+    <span class=variable>bike-class</span>
+    (<span class=variable>suspension</span>)
+    (<span class=variable>check-fit</span> (<span class=keyword>lambda</span> (<span class=variable>me</span> <span class=variable>inseam</span>)
+                (<span class=keyword>let</span> ((<span class=variable>bike-size</span> (<span class=variable>slot-value</span> <span class=variable>me</span> <span class=keyword>'</span><span class=variable>size</span>))
+                      (<span class=variable>ideal-size</span> (<span class=variable>-</span> (<span class=variable>*</span> <span class=variable>inseam</span> <span class=selfeval>3/5</span>) <span class=selfeval>2</span>)))
+                  (<span class=keyword>let</span> ((<span class=variable>diff</span> (<span class=variable>-</span> <span class=variable>bike-size</span> <span class=variable>ideal-size</span>)))
+                    (<span class=keyword>cond</span> ((<span class=variable>&lt;=</span> <span class=selfeval>-2</span> <span class=variable>diff</span> <span class=selfeval>2</span>) <span class=keyword>'</span><span class=variable>perfect-fit</span>)
+                          ((<span class=variable>&lt;=</span> <span class=selfeval>-4</span> <span class=variable>diff</span> <span class=selfeval>4</span>) <span class=keyword>'</span><span class=variable>fits-well</span>)
+                          ((<span class=variable>&lt;</span> <span class=variable>diff</span> <span class=selfeval>-4</span>) <span class=keyword>'</span><span class=variable>too-small</span>)
+                          ((<span class=variable>&gt;</span> <span class=variable>diff</span> <span class=selfeval>4</span>) <span class=keyword>'</span><span class=variable>too-big</span>))))))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent><code class=scheme><span class=variable>mtn-bike-class</span></code> 增加了一个名叫 <code class=scheme><span class=variable>suspension</span></code> 的槽，然后使用了一个和之前稍有不同的 <code class=scheme><span class=variable>check-fit</span></code>。</p>
+<p>
+</p>
+<p>
+</p>
+<p>
+</p>
+<p>
+</p>
+<p>
+</p>
+<p>
+</p>
+<a name="node_sec_12.2"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_12.2">12.2&nbsp;&nbsp;类也即实例</a></h2>
+<p><a name="node_idx_450"></a>聪明的读者或许发现，类本身看起来好像可以作为另外一些类（称为<em>元类</em>（<em>metaclass</em>），如果你一定要知道的话）。注意所有的类都有一些共同的行为：每个都有槽，一个父类，一个方法名的表，和一个方法向量。<code class=scheme><span class=variable>make-instance</span></code> 看起来可以作为它们俄共享方法。这意味着我们可以通过另外一个类（它自身当然也是一个类的实例）指定这种共同的行为。</p>
+<p>说具体些，我们可以重写我们类的实现方法使得自己可以使用面向对象的方法。这保证了我们不会陷入“鸡和蛋”的难题中。实际上，我们将避免使用 <code class=scheme><span class=variable>class</span></code> 结构和它的附加过程而依赖于剩余的部分把类定义为对象。</p>
+<p>让我们把 <code class=scheme><span class=variable>standard-class</span></code> 定义为把其他类是其实例的类。特殊的是，<code class=scheme><span class=variable>standard-class</span></code> 必须是它自己的一个实例。<code class=scheme><span class=variable>standard-class</span></code> 应该是什么样子的呢？</p>
+<p>我们知道 <code class=scheme><span class=variable>standard-class</span></code> 是一个实例，并且我们使用向量来表示实例。所以它是一个向量，其第一个元素保存了它的类，也即它自己，而它保留的元素是槽的值。我们已经定义了四个所有类必须有的槽，所以 <code class=scheme><span class=variable>standard-class</span></code> 是一个有 5 个元素的向量。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>standard-class</span>
+  (<span class=variable>vector</span> <span class=keyword>'</span><span class=variable>value-of-standard-class-goes-here</span>
+          (<span class=variable>list</span> <span class=keyword>'</span><span class=variable>slots</span>
+                <span class=keyword>'</span><span class=variable>superclass</span>
+                <span class=keyword>'</span><span class=variable>method-names</span>
+                <span class=keyword>'</span><span class=variable>method-vector</span>)
+          <span class=selfeval>#t</span>
+          <span class=keyword>'</span>(<span class=variable>make-instance</span>)
+          (<span class=variable>vector</span> <span class=variable>make-instance</span>)))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>注意 <code class=scheme><span class=variable>standard-class</span></code> 向量并未完全填充：符号 <code class=scheme><span class=variable>value-of-standard-class-goes-here</span></code> 是一个占位的符号。现在我们定义了 <code class=scheme><span class=variable>standard-class</span></code> 值，我们可以用它来定义它自己的类，就是它自己：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>vector-set!</span> <span class=variable>standard-class</span> <span class=selfeval>0</span> <span class=variable>standard-class</span>)
+</pre><p></p>
+<p>注意我们不能再用基于 <code class=scheme><span class=variable>class</span></code> 结构的过程了。我们应该把所有的</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>standard-class?</span> <span class=variable>x</span>)
+(<span class=variable>standard-class.slots</span> <span class=variable>c</span>)
+(<span class=variable>standard-class.superclass</span> <span class=variable>c</span>)
+(<span class=variable>standard-class.method-names</span> <span class=variable>c</span>)
+(<span class=variable>standard-class.method-vector</span> <span class=variable>c</span>)
+(<span class=variable>make-standard-class</span> ...)
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>用下面的来替换。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>and</span> (<span class=variable>vector?</span> <span class=variable>x</span>) (<span class=variable>eqv?</span> (<span class=variable>vector-ref</span> <span class=variable>x</span> <span class=selfeval>0</span>) <span class=variable>standard-class</span>))
+(<span class=variable>vector-ref</span> <span class=variable>c</span> <span class=selfeval>1</span>)
+(<span class=variable>vector-ref</span> <span class=variable>c</span> <span class=selfeval>2</span>)
+(<span class=variable>vector-ref</span> <span class=variable>c</span> <span class=selfeval>3</span>)
+(<span class=variable>vector-ref</span> <span class=variable>c</span> <span class=selfeval>4</span>)
+(<span class=variable>send</span> <span class=keyword>'</span><span class=variable>make-instance</span> <span class=variable>standard-class</span> ...)
+</pre><p></p>
+<p>
+
+</p>
+<p>
+</p>
+<p>
+</p>
+<p>
+<a name="node_idx_452"></a><a name="node_idx_454"></a></p>
+<p>
+</p>
+<a name="node_sec_12.3"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_12.3">12.3&nbsp;&nbsp;多继承</a></h2>
+<p>现在很容易把对象系统修改为允许有多个父类。我们重新定义 <code class=scheme><span class=variable>standard-class</span></code>， 把 <code class=scheme><span class=variable>superclass</span></code> 用 <code class=scheme><span class=variable>class-precedence-list</span></code> 来代替。一个类的 <code class=scheme><span class=variable>class-precedence-list</span></code> 是它的<em>所有</em>父类的表。不只是在使用 <code class=scheme><span class=variable>create-class</span></code> 创建类的时候所指定的父类。它的名字也意味着父类是按照一定次序来排列的。出现在表前面的父类要先于表后面的父类。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>standard-class</span>
+  (<span class=variable>vector</span> <span class=keyword>'</span><span class=variable>value-of-standard-class-goes-here</span>
+          (<span class=variable>list</span> <span class=keyword>'</span><span class=variable>slots</span> <span class=keyword>'</span><span class=variable>class-precedence-list</span> <span class=keyword>'</span><span class=variable>method-names</span> <span class=keyword>'</span><span class=variable>method-vector</span>)
+          <span class=keyword>'</span>()
+          <span class=keyword>'</span>(<span class=variable>make-instance</span>)
+          (<span class=variable>vector</span> <span class=variable>make-instance</span>)))
+</pre><p></p>
+<p>
+</p>
+<p>
+</p>
+
+<p class=noindent>不只是槽表中包含了新的槽，以前的 <code class=scheme><span class=variable>superclass</span></code> 的槽现在也用 <code class=scheme>()</code> 代替了 <code class=scheme><span class=selfeval>#t</span></code>。这是因为 <code class=scheme><span class=variable>standard-class</span></code> 的 <code class=scheme><span class=variable>class-precedence-list</span></code> 必须是一个表。我们本可以让它为 <code class=scheme>(<span class=selfeval>#t</span>)</code>，但是我们不会去提到空类因为它存在于每一个 <code class=scheme><span class=variable>class-precedence-list</span></code> 中。</p>
+<p><code class=scheme><span class=variable>create-class</span></code> 宏也要更改以接受一个直接父类的表而不是一个单独的父类：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define-macro</span> <span class=variable>create-class</span>
+  (<span class=keyword>lambda</span> (<span class=variable>direct-superclasses</span> <span class=variable>slots</span> . <span class=variable>methods</span>)
+    <span class=keyword>`</span>(<span class=variable>create-class-proc</span>
+      (<span class=variable>list</span> <span class=keyword>,@</span>(<span class=variable>map</span> (<span class=keyword>lambda</span> (<span class=variable>su</span>) <span class=keyword>`</span><span class=keyword>,</span><span class=variable>su</span>) <span class=variable>direct-superclasses</span>))
+      (<span class=variable>list</span> <span class=keyword>,@</span>(<span class=variable>map</span> (<span class=keyword>lambda</span> (<span class=variable>slot</span>) <span class=keyword>`</span><span class=keyword>'</span><span class=keyword>,</span><span class=variable>slot</span>) <span class=variable>slots</span>))
+      (<span class=variable>list</span> <span class=keyword>,@</span>(<span class=variable>map</span> (<span class=keyword>lambda</span> (<span class=variable>method</span>) <span class=keyword>`</span><span class=keyword>'</span><span class=keyword>,</span>(<span class=variable>car</span> <span class=variable>method</span>)) <span class=variable>methods</span>))
+      (<span class=variable>vector</span> <span class=keyword>,@</span>(<span class=variable>map</span> (<span class=keyword>lambda</span> (<span class=variable>method</span>) <span class=keyword>`</span><span class=keyword>,</span>(<span class=variable>cadr</span> <span class=variable>method</span>)) <span class=variable>methods</span>))
+      )))
+</pre><p></p>
+<p><code class=scheme><span class=variable>create-class-proc</span></code> 会根据提供的直接父类去计算出类的优先表和类优先表中的槽表：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>create-class-proc</span>
+  (<span class=keyword>lambda</span> (<span class=variable>direct-superclasses</span> <span class=variable>slots</span> <span class=variable>method-names</span> <span class=variable>method-vector</span>)
+    (<span class=keyword>let</span> ((<span class=variable>class-precedence-list</span>
+           (<span class=variable>delete-duplicates</span>
+            (<span class=variable>append-map</span>
+             (<span class=keyword>lambda</span> (<span class=variable>c</span>) (<span class=variable>vector-ref</span> <span class=variable>c</span> <span class=selfeval>2</span>))
+             <span class=variable>direct-superclasses</span>))))
+      (<span class=variable>send</span> <span class=keyword>'</span><span class=variable>make-instance</span> <span class=variable>standard-class</span>
+            <span class=keyword>'</span><span class=variable>class-precedence-list</span> <span class=variable>class-precedence-list</span>
+            <span class=keyword>'</span><span class=variable>slots</span>
+            (<span class=variable>delete-duplicates</span>
+             (<span class=variable>append</span> <span class=variable>slots</span> (<span class=variable>append-map</span>
+                            (<span class=keyword>lambda</span> (<span class=variable>c</span>) (<span class=variable>vector-ref</span> <span class=variable>c</span> <span class=selfeval>1</span>))
+                            <span class=variable>class-precedence-list</span>)))
+            <span class=keyword>'</span><span class=variable>method-names</span> <span class=variable>method-names</span>
+            <span class=keyword>'</span><span class=variable>method-vector</span> <span class=variable>method-vector</span>))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>过程 <code class=scheme><span class=variable>append-map</span></code> 是 <code class=scheme><span class=variable>append</span></code> 和 <code class=scheme><span class=variable>map</span></code> 的组合：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>append-map</span>
+  (<span class=keyword>lambda</span> (<span class=variable>f</span> <span class=variable>s</span>)
+    (<span class=keyword>let</span> <span class=variable>loop</span> ((<span class=variable>s</span> <span class=variable>s</span>))
+      (<span class=keyword>if</span> (<span class=variable>null?</span> <span class=variable>s</span>) <span class=keyword>'</span>()
+          (<span class=variable>append</span> (<span class=variable>f</span> (<span class=variable>car</span> <span class=variable>s</span>))
+                  (<span class=variable>loop</span> (<span class=variable>cdr</span> <span class=variable>s</span>)))))))
+</pre><p></p>
+<p>当在查找一个方法的时候，过程 <code class=scheme><span class=variable>send</span></code> 将会从左至右去查找类优先表。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>send</span>
+  (<span class=keyword>lambda</span> (<span class=variable>method-name</span> <span class=variable>instance</span> . <span class=variable>args</span>)
+    (<span class=keyword>let</span> ((<span class=keyword>proc</span>
+           (<span class=keyword>let</span> ((<span class=variable>class</span> (<span class=variable>class-of</span> <span class=variable>instance</span>)))
+             (<span class=keyword>if</span> (<span class=variable>eqv?</span> <span class=variable>class</span> <span class=selfeval>#t</span>) (<span class=variable>error</span> <span class=keyword>'</span><span class=variable>send</span>)
+                 (<span class=keyword>let</span> <span class=variable>loop</span> ((<span class=variable>class</span> <span class=variable>class</span>)
+                            (<span class=variable>superclasses</span> (<span class=variable>vector-ref</span> <span class=variable>class</span> <span class=selfeval>2</span>)))
+                   (<span class=keyword>let</span> ((<span class=variable>k</span> (<span class=variable>list-position</span> 
+                             <span class=variable>method-name</span>
+                             (<span class=variable>vector-ref</span> <span class=variable>class</span> <span class=selfeval>3</span>))))
+                     (<span class=keyword>cond</span> (<span class=variable>k</span> (<span class=variable>vector-ref</span> 
+                               (<span class=variable>vector-ref</span> <span class=variable>class</span> <span class=selfeval>4</span>) <span class=variable>k</span>))
+                           ((<span class=variable>null?</span> <span class=variable>superclasses</span>) (<span class=variable>error</span> <span class=keyword>'</span><span class=variable>send</span>))
+                           (<span class=keyword>else</span> (<span class=variable>loop</span> (<span class=variable>car</span> <span class=variable>superclasses</span>)
+                                       (<span class=variable>cdr</span> <span class=variable>superclasses</span>))))
+                     ))))))
+      (<span class=variable>apply</span> <span class=keyword>proc</span> <span class=variable>instance</span> <span class=variable>args</span>))))
+</pre><p></p>
+<p>
+</p>
+<p>
+</p>
+<p>
+</p>
+<p>
+
+</p>
+<p>
+</p>
+<div class=footnoterule><hr></div><p></p>
+<div class=footnote><p><a name="node_footnote_Temp_7"></a><sup><small><a href="#node_call_footnote_Temp_7">1</a></small></sup> 理论上，我们可以把方法也定义为槽（槽的值刚好就是过程），有不那么做是有原因的。一个类的实例共享方法，但一般而言槽值是不一样的。也就是说，方法可以包含在类定义中，不需要为每个实例都分配空间但槽值就必须要分配。</p>
+</div>
+<div class=smallskip></div>
+<p style="margin-top: 0pt; margin-bottom: 0pt">
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-13.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-15.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+</p>
+<p></p>
+</div>
+</body>
+</html>

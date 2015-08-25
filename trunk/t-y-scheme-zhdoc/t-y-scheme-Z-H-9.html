@@ -1,0 +1,214 @@
+<!doctype html public "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!--
+
+Generated from t-y-scheme.tex by tex2page, v 20070609
+(running on MzScheme 4.2.1, unix), 
+(c) Dorai Sitaram, 
+http://www.ccs.neu.edu/~dorai/tex2page/tex2page-doc.html
+
+-->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+Teach Yourself Scheme in Fixnum Days 中文版
+</title>
+<link rel="stylesheet" type="text/css" href="t-y-scheme-Z-S.css" title=default>
+<meta name="robots" content="index,follow">
+<meta name=description content="A practical
+introduction to the programming language Scheme">
+
+<meta name=author content="Dorai Sitaram">
+
+<link rev=made href="mailto:dorai @ ccs.neu.edu">
+</head>
+<body>
+<div id=slidecontent>
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-8.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-10.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+<p></p>
+<a name="node_chap_7"></a>
+<h1 class=chapter>
+<div class=chapterheading><a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_7">第 7 章 </a></div>
+<br>
+<a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_7">I/O</a></h1>
+<p><a name="node_idx_320"></a>Scheme 具有让你从一个输入 port 读和向输出 port 写入的输入/输出（I/O）过程。Port可以与控制台、文件或是字符串相关联。</p>
+<p>
+</p>
+<a name="node_sec_7.1"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_7.1">7.1&nbsp;&nbsp;读</a></h2>
+<p>Scheme 的读取过程带有一个可选的输入 port 参数。如果没有指定 port ，则当前的输入 port（通常是控制台）是假定的。</p>
+<p>
+<a name="node_idx_322"></a></p>
+<p>
+读取动作可以是基于字符、行或是 s 表达式。每执行一次读取动作，port 的状态就会改变以便下一次读取动作读取接下来未读取的数据。如果 port 没有更多的数据可读取了，读取过程会返回一个特殊的叫 end-of-file 或是 eof 对象的数据。这个数据是仅有的只适合于谓词 <code class=scheme><span class=variable>eof-object?</span></code> 的值。 </p>
+<p>
+<a name="node_idx_324"></a><a name="node_idx_326"></a><a name="node_idx_328"></a></p>
+<p>
+过程 <code class=scheme><span class=variable>read-char</span></code> 从 port 中读取下一个字符。<code class=scheme><span class=variable>read-line</span></code> 读取下一行，并以字符串返回（不包括最后的换行符）。过程 <code class=scheme><span class=variable>read</span></code> 读取下一个 s 表达式。</p>
+<p>
+</p>
+<a name="node_sec_7.2"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_7.2">7.2&nbsp;&nbsp;写</a></h2>
+<p>Scheme 的写过程带有一个要写的对象和一个可选的输出 port。如果没有指定 port ，则当前的输出 port（通常是控制台）是假定的。</p>
+<p>
+写可以是基于字符或是 s 表达式。</p>
+<p>
+<a name="node_idx_330"></a></p>
+<p>
+过程 <code class=scheme><span class=variable>write-char</span></code> 向输出 port 写入一个字符（不含#\）。</p>
+<p>
+<a name="node_idx_332"></a><a name="node_idx_334"></a><a name="node_idx_336"></a></p>
+<p>
+过程 <code class=scheme><span class=variable>write</span></code> 和 <code class=scheme><span class=variable>display</span></code> 都向 port 写入 s 表达式，不同之处在于：<code class=scheme><span class=variable>write</span></code> 会试图使用机器可处理的格式而 <code class=scheme><span class=variable>display</span></code> 不会。例如，<code class=scheme><span class=variable>write</span></code> 使用双引号来引用字符串和使用#\语法来表示字符。而 <code class=scheme><span class=variable>display</span></code> 不会。</p>
+<p>
+过程 <code class=scheme><span class=variable>newline</span></code> 在输出 port 上开始新的一行。</p>
+<p>
+<a name="node_idx_338"></a><a name="node_idx_340"></a></p>
+<p>
+</p>
+<a name="node_sec_7.3"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_7.3">7.3&nbsp;&nbsp;文件 ports</a></h2>
+<p><a name="node_idx_342"></a><a name="node_idx_344"></a><a name="node_idx_346"></a><a name="node_idx_348"></a>如果 port 正好是标准输入或是标准输出的话，Scheme 的 I/O 过程就不需要一个 port 参数了。但是，如果你明确地需要这些 port，零参数过程 <code class=scheme><span class=variable>current-input-port</span></code> 和
+<code class=scheme><span class=variable>current-output-port</span></code> 给出了这些 port。因此，</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>display</span> <span class=selfeval>9</span>)
+(<span class=variable>display</span> <span class=selfeval>9</span> (<span class=variable>current-output-port</span>))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>拥有相同的行为。</p>
+<p>
+<a name="node_idx_350"></a><a name="node_idx_352"></a></p>
+<p>
+通过打开一个文件，一个 port 可以和文件相关联。过程 <code class=scheme><span class=variable>open-input-file</span></code> 带有一个文件名参数并返回一个和它相关联的新的输入 port。打开一个不存在的输入文件或是打开一个已存在的输出文件都将出错。</p>
+<p>
+<a name="node_idx_354"></a><a name="node_idx_356"></a></p>
+<p>
+你在一个 port 上执行完 I/O 后，你应该使用 <code class=scheme><span class=variable>close-input-port</span></code> 或 <code class=scheme><span class=variable>close-output-port</span></code> 来关闭它。 </p>
+<p>
+在接下来的例子中，假设文件 <code class=verbatim>hello.txt</code> 中有一个单词 <code class=scheme><span class=variable>hello</span></code>。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>i</span> (<span class=variable>open-input-file</span> <span class=selfeval>&quot;hello.txt&quot;</span>))
+
+(<span class=variable>read-char</span> <span class=variable>i</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#\h</span>
+
+(<span class=keyword>define</span> <span class=variable>j</span> (<span class=variable>read</span> <span class=variable>i</span>))
+
+<span class=variable>j</span>
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=variable>ello</span>
+</pre><p></p>
+<p>
+假设文件 <code class=verbatim>greeting.txt</code> 在执行下面的程序之前不存在：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>o</span> (<span class=variable>open-output-file</span> <span class=selfeval>&quot;greeting.txt&quot;</span>))
+
+(<span class=variable>display</span> <span class=selfeval>&quot;hello&quot;</span> <span class=variable>o</span>)
+(<span class=variable>write-char</span> <span class=selfeval>#\space</span> <span class=variable>o</span>)
+(<span class=variable>display</span> <span class=keyword>'</span><span class=variable>world</span> <span class=variable>o</span>)
+(<span class=variable>newline</span> <span class=variable>o</span>)
+
+(<span class=variable>close-output-port</span> <span class=variable>o</span>)
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>文件 <code class=verbatim>greeting.txt</code> 现在将会包含下面的一行：</p>
+<p>
+</p>
+<pre class=verbatim>hello world&nbsp;
+</pre><p></p>
+<p>
+</p>
+<a name="node_sec_7.3.1"></a>
+<h3 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_7.3.1">7.3.1&nbsp;&nbsp;自动打开和关闭的文件 port</a></h3>
+<p><a name="node_idx_358"></a><a name="node_idx_360"></a>Scheme 提供了过程 <code class=scheme><span class=variable>call-with-input-file</span></code> 和
+<code class=scheme><span class=variable>call-with-output-file</span></code> 来管理已打开的 port 并在你使用完时关闭它。</p>
+<p>
+过程 <code class=scheme><span class=variable>call-with-input-file</span></code> 带有一个文件名参数和一个过程。过程被应用到一个打开了文件的 port 上。当过程完成时，在确保 port 已关闭后返回它的结果。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>call-with-input-file</span> <span class=selfeval>&quot;hello.txt&quot;</span>
+  (<span class=keyword>lambda</span> (<span class=variable>i</span>)
+    (<span class=keyword>let*</span> ((<span class=variable>a</span> (<span class=variable>read-char</span> <span class=variable>i</span>))
+           (<span class=variable>b</span> (<span class=variable>read-char</span> <span class=variable>i</span>))
+           (<span class=variable>c</span> (<span class=variable>read-char</span> <span class=variable>i</span>)))
+      (<span class=variable>list</span> <span class=variable>a</span> <span class=variable>b</span> <span class=variable>c</span>))))
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  (<span class=selfeval>#\h</span> <span class=selfeval>#\e</span> <span class=selfeval>#\l</span>)
+</pre><p></p>
+<p>
+过程 <code class=scheme><span class=variable>call-with-output-file</span></code> 完成相似的服务。</p>
+<p>
+<a name="node_idx_362"></a><a name="node_idx_364"></a></p>
+<p>
+</p>
+<a name="node_sec_7.4"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_7.4">7.4&nbsp;&nbsp;字符串 ports</a></h2>
+<p><a name="node_idx_366"></a>将 port 和字符串相关联在许多情况下是很方便的。因此，过程 <code class=scheme><span class=variable>open-input-string</span></code> 将一个 port 和一给定的字符串相关联。在这个 port 上的读过程就会从这个字符串读取：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>i</span> (<span class=variable>open-input-string</span> <span class=selfeval>&quot;hello world&quot;</span>))
+
+(<span class=variable>read-char</span> <span class=variable>i</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#\h</span>
+
+(<span class=variable>read</span> <span class=variable>i</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=variable>ello</span>
+
+(<span class=variable>read</span> <span class=variable>i</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=variable>world</span>
+</pre><p></p>
+<p>
+<a name="node_idx_368"></a></p>
+<p>
+过程 <code class=scheme><span class=variable>open-output-string</span></code> 创建一个最终将会被用作创建一个字符串的输出 port：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>o</span> (<span class=variable>open-output-string</span>))
+
+(<span class=variable>write</span> <span class=keyword>'</span><span class=variable>hello</span> <span class=variable>o</span>)
+(<span class=variable>write-char</span> <span class=selfeval>#\,</span> <span class=variable>o</span>)
+(<span class=variable>display</span> <span class=selfeval>&quot; &quot;</span> <span class=variable>o</span>)
+(<span class=variable>display</span> <span class=selfeval>&quot;world&quot;</span> <span class=variable>o</span>)
+</pre><p></p>
+<p>
+<a name="node_idx_370"></a></p>
+<p>
+现在你可以使用过程 <code class=scheme><span class=variable>get-output-string</span></code> 来获取 port <code class=scheme><span class=variable>o</span></code> 中的字符串：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>get-output-string</span> <span class=variable>o</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>&quot;hello, world&quot;</span>
+</pre><p></p>
+<p>
+字符串 port 不需要被显示地关闭。</p>
+<p>
+<a name="node_idx_372"></a><a name="node_idx_374"></a></p>
+<p>
+</p>
+<a name="node_sec_7.5"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_7.5">7.5&nbsp;&nbsp;加载文件</a></h2>
+<p>我们已经看到过过程 <code class=scheme><span class=variable>load</span></code> 加载包含 Scheme 代码的文件。<em>加载</em> 文件就是按顺序对文件中的所有 Scheme form 求值。<code class=scheme><span class=variable>load</span></code> 中的路径名参数被认为是相对于 Scheme 的当前工作目录的，通常就是调用 Scheme 可执行文件的那个目录。</p>
+<p>
+文件中可以加载其他文件，这在将一个大程序分解为多个文件时是有用的。不幸地是除非给出完整的路径名，否则 
+<code class=scheme><span class=variable>load</span></code> 的路径参数是依赖于 Scheme 的当前目录的。提供完整的路径名并不总是方便的，因为我们需要将程序文件按整体来移动（维持它们的相对路径），可能是移动到不同的机器上。  </p>
+<p>
+<a name="node_idx_376"></a></p>
+<p>
+MzScheme 提供 <code class=scheme><span class=variable>load-relative</span></code> 过程来极大地帮助解决文件的加载。<code class=scheme><span class=variable>load-relative</span></code> 像 <code class=scheme><span class=variable>load</span></code> 一样带有路径名参数。当一个 <code class=scheme><span class=variable>load-relative</span></code> 调用发生在文件 <code class=scheme><span class=variable>foo.scm</span></code> 中时，它的参数的路径被认为是调用文件 <code class=scheme><span class=variable>foo.scm</span></code> 的目录。特别地，这个路径被认为是独立于 Scheme 的当前目录的，并因此允许多文件的程序开发。 </p>
+<p>
+</p>
+<p>
+</p>
+<div class=smallskip></div>
+<p style="margin-top: 0pt; margin-bottom: 0pt">
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-8.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-10.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+</p>
+<p></p>
+</div>
+</body>
+</html>

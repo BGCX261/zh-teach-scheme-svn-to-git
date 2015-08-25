@@ -1,0 +1,177 @@
+<!doctype html public "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!--
+
+Generated from t-y-scheme.tex by tex2page, v 20070609
+(running on MzScheme 4.2.1, unix), 
+(c) Dorai Sitaram, 
+http://www.ccs.neu.edu/~dorai/tex2page/tex2page-doc.html
+
+-->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+Teach Yourself Scheme in Fixnum Days 中文版
+</title>
+<link rel="stylesheet" type="text/css" href="t-y-scheme-Z-S.css" title=default>
+<meta name="robots" content="index,follow">
+<meta name=description content="A practical
+introduction to the programming language Scheme">
+
+<meta name=author content="Dorai Sitaram">
+
+<link rev=made href="mailto:dorai @ ccs.neu.edu">
+</head>
+<body>
+<div id=slidecontent>
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-2.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-4.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+<p></p>
+<a name="node_chap_1"></a>
+<h1 class=chapter>
+<div class=chapterheading><a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_1">Chapter 1</a></div><br>
+<a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_1">进入 Scheme</a></h1>
+<p></p>
+<p>
+<a name="node_idx_8"></a><a name="node_idx_10"></a><a name="node_idx_12"></a> 第一个经典的程序是在控制台输出<code class=scheme><span class=selfeval>&quot;Hello, World!&quot;</span></code>。使用你最喜爱的编辑器，创建一个包含以下内容的 <code class=verbatim>hello.scm</code> 文件</p>
+<p>
+</p>
+<pre class=scheme><span class=comment>;The first program</span>
+
+(<span class=keyword>begin</span>
+  (<span class=variable>display</span> <span class=selfeval>&quot;Hello, World!&quot;</span>)
+  (<span class=variable>newline</span>))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent><a name="node_idx_14"></a>第一行为注释。当 Scheme 看到分号时将忽略掉该行。</p>
+<p>
+<a name="node_idx_16"></a><a name="node_idx_18"></a><a name="node_idx_20"></a><a name="node_idx_22"></a></p>
+<p>
+其中的 <code class=scheme><span class=keyword>begin</span></code> <em>表</em>是 Scheme 用来引入一系列<em>子表</em>的。在这个例子中有两个子表。第一个调用了 <code class=scheme><span class=variable>display</span></code> 过程来输出它的参数（即 <code class=scheme><span class=selfeval>&quot;Hello, World!&quot;</span></code> 字符串）到控制台（或者“标准输出”）。接下来是一个输出换行回车的 <code class=scheme><span class=variable>newline</span></code> 过程。</p>
+<p>
+<a name="node_idx_24"></a><a name="node_idx_26"></a></p>
+<p>
+为了使这个程序跑起来，先启动你的 Scheme 。这通常是通过在操作系统的命令行中键入你的 Scheme 可执行文件名称来完成。例如，对于 MzScheme [<a href="t-y-scheme-Z-H-24.html#node_bib_9">9</a>]，你应该键入</p>
+<p>
+</p>
+<pre class=verbatim>mzscheme&nbsp;
+</pre><p></p>
+<p>
+</p>
+
+<p>
+<a name="node_idx_28"></a><a name="node_idx_30"></a><a name="node_idx_32"></a></p>
+<p>
+这会调用 Scheme 监听器（<em>listener</em>） 来读入（<em>read</em>）你的输入，对其求值（<em>eval</em>uate）并打印（<em>print</em>）结果（如果有的话）。然后等待你的再次输入。因此，这个过程被叫做 <em>read-eval-print</em> 循环（loop）。注意，这和你的操作系统命令行差别不大，命令行也是读入你的命令，执行它，然后等待更多的命令。像操作系统一样，Scheme 监听器有它自己的提示符 &#8212; 通常是 <code class=verbatim>&gt;</code> ，但也可能是其他的。</p>
+<p>
+<a name="node_idx_34"></a></p>
+<p>
+在监听器的提示符下，加载（<em>load</em>）文件 <code class=verbatim>hello.scm</code>。可以通过这样来实现：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>load</span> <span class=selfeval>&quot;hello.scm&quot;</span>)
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>Scheme 将会执行 <code class=verbatim>hello.scm</code> 的内容，即输出后接回车的 <code class=verbatim>Hello, World!</code>。之后，你会看到监听器提示符等待你的再次输入。</p>
+<p>
+由于你有一个如此“热心”的监听器，你并不需要总是将你的程序写入文件，然后再加载它们。有时，特别是当你只想随意探索的时候，直接输入表达式看输出结果会更简单。比如，输入</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>begin</span> (<span class=variable>display</span> <span class=selfeval>&quot;Hello, World!&quot;</span>)
+       (<span class=variable>newline</span>))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>将会得到</p>
+<p>
+</p>
+<pre class=verbatim>Hello, World!&nbsp;
+</pre><p></p>
+<p>事实上，你可以仅仅只键入 <code class=scheme><span class=selfeval>&quot;Hello, World!&quot;</span></code> ，然后你就会得到结果字符串</p>
+<p>
+</p>
+<pre class=scheme><span class=selfeval>&quot;Hello, World!&quot;</span>
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>因为这就是监听器对 <code class=scheme><span class=selfeval>&quot;Hello, World!&quot;</span></code> 求值的结果。</p>
+<p>
+除了第二种方法产生的结果有引号外，以上两个程序还有一个重要的差别。第一个（以 <code class=scheme><span class=keyword>begin</span></code> 开头的）并不对任何东西求值 &#8212; 输出 <code class=verbatim>Hello, World!</code> 是因为 <code class=scheme><span class=variable>display</span></code> 和 <code class=scheme><span class=variable>newline</span></code> 过程的副作用（<em>side-effect</em>）被输出到了标准输出流。在第二个程序中对 <code class=scheme><span class=selfeval>&quot;Hello, World!&quot;</span></code> 式子<em>求值</em>得到了结果，而在这种情况下结果和式子是同一个字符串。</p>
+<p>以后，我们将会使用记号 <code class=scheme><span style="color: teal"><tt><strong>=&gt;</strong></tt></span> </code> 来表示求值。因此</p>
+<p>
+</p>
+<pre class=scheme><span class=variable>E</span> <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=variable>v</span>
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>表示式子 <code class=scheme><span class=variable>E</span></code> 求值得到结果 <code class=scheme><span class=variable>v</span></code>。例如</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>begin</span>
+  (<span class=variable>display</span> <span class=selfeval>&quot;Hello, World!&quot;</span>)
+  (<span class=variable>newline</span>))
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span> 
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>（即为空），即使会因副作用而输出</p>
+<p>
+</p>
+<pre class=verbatim>Hello, World!&nbsp;
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>到标准输出。而另一个</p>
+<p>
+</p>
+<pre class=scheme><span class=selfeval>&quot;Hello, World!&quot;</span>
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>&quot;Hello, World!&quot;</span>
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>无论哪种情况，我们都还在监听器中。要退出就键入</p>
+<p>
+<a name="node_idx_36"></a></p>
+<pre class=scheme>(<span class=variable>exit</span>)
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>这会使你回到操作系统的命令行（正如我们已经知道的，它也是一种监听器）。</p>
+<p>
+监听器对交互式的测试程序和程序片段是很方便的。但它绝对不是必须的。你可以坚持把整个程序写入文件，然后让 Scheme 在不显示监听器的情况下执行它。在 mzScheme 中，你可以在操作系统提示符下输入</p>
+<p>
+</p>
+<pre class=verbatim>mzscheme -r hello.scm&nbsp;
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>这将会输出欢迎信息但不需要你去处理监听器。之后 <code class=verbatim>mzscheme</code> 将会返回到操作系统提示符下。这就好像你直接输入了</p>
+<p>
+</p>
+<pre class=verbatim>echo Hello, World!&nbsp;
+</pre><p></p>
+<p>
+你甚至可以使 <code class=verbatim>hello.scm</code> 看起来像是一条操作系统命令（一个 shell 脚本或者是一个 batch 文件），不过要等到 <a href="t-y-scheme-Z-H-18.html#node_chap_16">16</a> 章再说。</p>
+<p>
+</p>
+<p>
+</p>
+<div class=smallskip></div>
+<p style="margin-top: 0pt; margin-bottom: 0pt">
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-2.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-4.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+</p>
+<p></p>
+</div>
+</body>
+</html>

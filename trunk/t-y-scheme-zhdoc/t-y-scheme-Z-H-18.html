@@ -1,0 +1,216 @@
+<!doctype html public "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!--
+
+Generated from t-y-scheme.tex by tex2page, v 20070609
+(running on MzScheme 4.2.1, unix), 
+(c) Dorai Sitaram, 
+http://www.ccs.neu.edu/~dorai/tex2page/tex2page-doc.html
+
+-->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+Teach Yourself Scheme in Fixnum Days 中文版
+</title>
+<link rel="stylesheet" type="text/css" href="t-y-scheme-Z-S.css" title=default>
+<meta name="robots" content="index,follow">
+<meta name=description content="A practical
+introduction to the programming language Scheme">
+
+<meta name=author content="Dorai Sitaram">
+
+<link rev=made href="mailto:dorai @ ccs.neu.edu">
+</head>
+<body>
+<div id=slidecontent>
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-17.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-19.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+<p></p>
+<a name="node_chap_16"></a>
+<h1 class=chapter>
+<div class=chapterheading><a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_16">Chapter 16</a></div><br>
+<a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_16">Shell 脚本</a></h1>
+<p></p>
+<p><a name="node_idx_484"></a>把想完成的动作写如一个文件也即<em>脚本</em>中，然后像操作系统的 shell 命令一样运行常常是颇为方便的。一些较大型的程序常常提供一种脚本的形式，用户常常创建自己的脚本或者是更改一个脚本来满足特殊的用处。写脚本是最常见的编程任务。对许多用户来说，写脚本是他们曾经做过的唯一的编程。</p>
+<p>像 Unix 和 DOS（Windows 的命令行接口） 之类的操作系统提供了这样的一种脚本机制，但他们的脚本语言都不太完整。通常而言一个脚本只是一系列或是<em>一批</em>用户输入到 shell 提示符的命令。用户在遇到同样或类似任务时必须一条一条地输入同样的 shell 命令，使用脚本可以节约时间。一些脚本语言有一小部分编程的功能如条件和循环，但也只有那些功能。它们对于小型的任务的确足够了，但随着脚本的增加、需求的增加，脚本只能做那些事情，用户就感觉到了需要一个更加完整的编程语言。Scheme 搭配一些操作系统接口使得写脚本变得容易、可维护。</p>
+<p>这一节将讲述在 Scheme 中如何写脚本。因为在众多的 Scheme 方言中有众多的变化，我们集中精力在 MzScheme 方言上。在附录 <a href="t-y-scheme-Z-H-20.html#node_chap_A">A</a> 中列出了用于其他方言时需要做的改变。我们目前也集中在 Unix 操作系统中，附录 <a href="t-y-scheme-Z-H-21.html#node_chap_B">B</a> 相应地处理 DOS。</p>
+<p>
+</p>
+<a name="node_sec_16.1"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_16.1">16.1&nbsp;&nbsp;Hello, World!, again</a></h2>
+<p>我们来创建一个说 hello world 的 Scheme 脚本。说 hello 对传统的脚本语言来说并不是什么难事。然而理解如何把它转化成 Scheme 能够为我们理解更复杂的脚本打下基础。首先，一个传统的 Unix hello 脚本是一个有下面内容的一个文件：</p>
+<p>
+</p>
+<pre class=verbatim>echo Hello, World!&nbsp;
+</pre><p></p>
+<p>它使用 shell 命令 <code class=verbatim>echo</code>。这个脚本能够命名为 <code class=verbatim>hello</code>，做如下操作使其可执行：</p>
+<p>
+</p>
+<pre class=verbatim>chmod +x hello&nbsp;
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>然后把它放在某个 <code class=verbatim>PATH</code> 环境变量的目录中。这之后，任何时候在 shell 提示符下输入</p>
+<p>
+</p>
+<pre class=verbatim>hello&nbsp;
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>用户就可以马上得到结果。</p>
+<p>一个 Scheme 的 hello 脚本将会得到同样的输出使用 Scheme（使用的程序见第 <a href="t-y-scheme-Z-H-3.html#node_chap_1">1</a> 节），但我们的文件需要一些东西来告诉操作系统它要把文件中的命令当作 Scheme 来执行，而不是它默认的脚本语言。Scheme 脚本文件，也叫 <code class=verbatim>hello</code>，如下：</p>
+<p>
+</p>
+<pre class=verbatim>&quot;:&quot;; exec mzscheme -r $0 &quot;$@&quot;&nbsp;
+&nbsp;
+(display &quot;Hello, World!&quot;)&nbsp;
+(newline))&nbsp;
+</pre><p></p>
+<p>第一行以后的就是 Scheme 代码。然而神奇的是第一行使得这些代码变成了脚本。当用户在 Unix 提示符下输入 <code class=verbatim>hello</code>，Unix 将会把文件当作常规文件读入。它碰到的第一个是<code class=verbatim>&quot;:&quot;</code>，即一个 shell 空操作。<code class=verbatim>;</code> 是 shell 命令的分隔符。下一个 shell 命令是 <code class=verbatim>exec</code>。<code class=verbatim>exec</code> 告诉 Unix 把当前的脚本放弃掉转而执行 <code class=verbatim>mzscheme -r $0 &quot;$@&quot;</code>，其中的 <code class=verbatim>$0</code> 参数将会被脚本名代替，<code class=verbatim>&quot;$@&quot;</code> 参数将会被用户传给脚本的参数代替。（本例中没有这个参数。）</p>
+<p>我们现在实际已经把 <code class=verbatim>hello</code> shell 命令转成了一个不一样的 shell 命令，也即</p>
+<p>
+</p>
+<pre class=verbatim>mzscheme -r /whereveritis/hello&nbsp;
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>其中 <code class=verbatim>/whereveritis/hello</code> 是 <code class=verbatim>hello</code> 的路径名。</p>
+<p><code class=verbatim>mzscheme</code> 调用 MzScheme 的可执行文件。<code class=verbatim>-r</code> 选项告诉它，把后面选项之后的参数都存到一个叫 <code class=scheme><span class=variable>argv</span></code> 的向量中（本例中，<code class=scheme><span class=variable>argv</span></code> 是空向量），而把后面的选项当作一个 Scheme 文件马上载入。</p>
+<p>所以 Scheme 脚本会被当作一个 Scheme 文件运行，而 Scheme 文件中的形式将会通过向量 <code class=scheme><span class=variable>argv</span></code> 来访问脚本的原始参数。</p>
+<p>现在 Scheme 必须处理脚本第一行，我们已经知道它是一个<em>传统的</em> shell 脚本。<code class=scheme><span class=selfeval>&quot;:&quot;</span></code> 是一个自求值的字符串，所以没什么用。“<code class=verbatim>;</code>” 表示 Scheme 注释，所以 <code class=verbatim>exec ...</code> 被忽略掉了。文件的余下部分就是 Scheme 代码了。里面的表达式按照顺序求值。在它们求值完毕后，Scheme 将会退出。</p>
+<p>最后，在 shell 提示符下输入 <code class=verbatim>hello</code> 将会得到</p>
+<p>
+</p>
+<pre class=verbatim>Hello, World!&nbsp;
+</pre><p></p>
+<p>
+and return you to the shell prompt.</p>
+<p>
+</p>
+<a name="node_sec_16.2"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_16.2">16.2&nbsp;&nbsp;带参数的脚本</a></h2>
+<p>一个 Scheme 脚本使用 <code class=scheme><span class=variable>argv</span></code> 变量来获取它的参数。例如，下面的脚本输出它的所有参数，每个一行：</p>
+<p>
+</p>
+<pre class=scheme><span class=selfeval>&quot;:&quot;</span><span class=comment>; exec mzscheme -r $0 &quot;$@&quot;</span>
+
+<span class=comment>;Put in argv-count the number of arguments supplied</span>
+
+(<span class=keyword>define</span> <span class=variable>argv-count</span> (<span class=variable>vector-length</span> <span class=variable>argv</span>))
+
+(<span class=keyword>let</span> <span class=variable>loop</span> ((<span class=variable>i</span> <span class=selfeval>0</span>))
+  (<span class=keyword>unless</span> (<span class=variable>&gt;=</span> <span class=variable>i</span> <span class=variable>argv-count</span>)
+    (<span class=variable>display</span> (<span class=variable>vector-ref</span> <span class=variable>argv</span> <span class=variable>i</span>))
+    (<span class=variable>newline</span>)
+    (<span class=variable>loop</span> (<span class=variable>+</span> <span class=variable>i</span> <span class=selfeval>1</span>))))
+</pre><p></p>
+<p>让我们把这个脚本取名为 <code class=verbatim>echoall</code>。调用 <code class=verbatim>echoall 1 2 3</code> 将会显示</p>
+<p>
+</p>
+<pre class=verbatim>1&nbsp;
+2&nbsp;
+3&nbsp;
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>注意脚本名字（<code class=scheme><span class=selfeval>&quot;echoall&quot;</span></code>）<em>没有</em>包含在参数向量中。</p>
+<p>
+</p>
+<a name="node_sec_16.3"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_16.3">16.3&nbsp;&nbsp;示例</a></h2>
+<p>让我们现在来处理一个更加实用的问题。我们需要从一台电脑传输文件到另外一台。唯一的方法是使用一张 3.5 寸软盘作为媒介。我们需要一个叫做 <code class=verbatim>split4floppy</code> 的脚本，它把一个超过 1.44M 的文件分解为软盘大小的块。脚本文件 <code class=verbatim>split4floppy</code> 如下：</p>
+<p>
+</p>
+<pre class=scheme><span class=selfeval>&quot;:&quot;</span><span class=comment>;exec mzscheme -r $0 &quot;$@&quot;</span>
+
+<span class=comment>;floppy-size = number of bytes that will comfortably fit on a</span>
+<span class=comment>;              3.5&quot; floppy</span>
+
+(<span class=keyword>define</span> <span class=variable>floppy-size</span> <span class=selfeval>1440000</span>)
+
+<span class=comment>;split splits the bigfile f into the smaller, floppy-sized</span>
+<span class=comment>;subfiles, viz, subfile-prefix.1, subfile-prefix.2, etc.</span>
+
+(<span class=keyword>define</span> <span class=variable>split</span>
+  (<span class=keyword>lambda</span> (<span class=variable>f</span> <span class=variable>subfile-prefix</span>)
+    (<span class=variable>call-with-input-file</span> <span class=variable>f</span>
+      (<span class=keyword>lambda</span> (<span class=variable>i</span>)
+        (<span class=keyword>let</span> <span class=variable>loop</span> ((<span class=variable>n</span> <span class=selfeval>1</span>))
+          (<span class=keyword>if</span> (<span class=variable>copy-to-floppy-sized-subfile</span> <span class=variable>i</span> <span class=variable>subfile-prefix</span> <span class=variable>n</span>)
+              (<span class=variable>loop</span> (<span class=variable>+</span> <span class=variable>n</span> <span class=selfeval>1</span>))))))))
+
+<span class=comment>;copy-to-floppy-sized-subfile copies the next 1.44 million</span>
+<span class=comment>;bytes (if there are less than that many bytes left, it</span>
+<span class=comment>;copies all of them) from the big file to the nth</span>
+<span class=comment>;subfile.  Returns true if there are bytes left over,</span>
+<span class=comment>;otherwise returns false.</span>
+
+(<span class=keyword>define</span> <span class=variable>copy-to-floppy-sized-subfile</span>
+  (<span class=keyword>lambda</span> (<span class=variable>i</span> <span class=variable>subfile-prefix</span> <span class=variable>n</span>)
+    (<span class=keyword>let</span> ((<span class=variable>nth-subfile</span> (<span class=variable>string-append</span> <span class=variable>subfile-prefix</span> <span class=selfeval>&quot;.&quot;</span>
+                                      (<span class=variable>number-&gt;string</span> <span class=variable>n</span>))))
+      (<span class=keyword>if</span> (<span class=variable>file-exists?</span> <span class=variable>nth-subfile</span>) (<span class=variable>delete-file</span> <span class=variable>nth-subfile</span>))
+      (<span class=variable>call-with-output-file</span> <span class=variable>nth-subfile</span>
+        (<span class=keyword>lambda</span> (<span class=variable>o</span>)
+          (<span class=keyword>let</span> <span class=variable>loop</span> ((<span class=variable>k</span> <span class=selfeval>1</span>))
+            (<span class=keyword>let</span> ((<span class=variable>c</span> (<span class=variable>read-char</span> <span class=variable>i</span>)))
+              (<span class=keyword>cond</span> ((<span class=variable>eof-object?</span> <span class=variable>c</span>) <span class=selfeval>#f</span>)
+                    (<span class=keyword>else</span>
+                     (<span class=variable>write-char</span> <span class=variable>c</span> <span class=variable>o</span>)
+                     (<span class=keyword>if</span> (<span class=variable>&lt;</span> <span class=variable>k</span> <span class=variable>floppy-size</span>)
+                         (<span class=variable>loop</span> (<span class=variable>+</span> <span class=variable>k</span> <span class=selfeval>1</span>))
+                         <span class=selfeval>#t</span>))))))))))
+
+<span class=comment>;bigfile = script's first arg</span>
+<span class=comment>;        = the file that needs splitting</span>
+
+(<span class=keyword>define</span> <span class=variable>bigfile</span> (<span class=variable>vector-ref</span> <span class=variable>argv</span> <span class=selfeval>0</span>))
+
+<span class=comment>;subfile-prefix = script's second arg</span>
+<span class=comment>;               = the basename of the subfiles</span>
+
+(<span class=keyword>define</span> <span class=variable>subfile-prefix</span> (<span class=variable>vector-ref</span> <span class=variable>argv</span> <span class=selfeval>1</span>))
+
+<span class=comment>;Call split, making subfile-prefix.{1,2,3,...} from</span>
+<span class=comment>;bigfile</span>
+
+(<span class=variable>split</span> <span class=variable>bigfile</span> <span class=variable>subfile-prefix</span>)
+</pre><p></p>
+<p>脚本 <code class=verbatim>split4floppy</code> 像下面这样来调用：</p>
+<p>
+</p>
+<pre class=verbatim>split4floppy largefile chunk&nbsp;
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>它把 <code class=verbatim>largefile</code> 分解为子文件 <code class=verbatim>chunk.1</code>，<code class=verbatim>chunk.2</code>， ...，使得每个子文件都恰好在一张软盘上。</p>
+<p>在 <code class=verbatim>chunk.i</code> 已经转到目标电脑后，<code class=verbatim>largefile</code> 文件可以通过把 <code class=verbatim>chunk.i</code> 合到一起来得到。在 Unix 可以使用：</p>
+<p>
+</p>
+<pre class=verbatim>cat chunk.1 chunk.2 ... &gt; largefile&nbsp;
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>DOS 上使用：</p>
+<p>
+</p>
+<pre class=verbatim>copy /b chunk.1+chunk.2+... largefile&nbsp;
+</pre><p></p>
+<p>
+</p>
+<p>
+</p>
+<div class=smallskip></div>
+<p style="margin-top: 0pt; margin-bottom: 0pt">
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-17.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-19.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+</p>
+<p></p>
+</div>
+</body>
+</html>

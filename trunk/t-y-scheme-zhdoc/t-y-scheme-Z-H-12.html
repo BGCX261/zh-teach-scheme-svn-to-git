@@ -1,0 +1,107 @@
+<!doctype html public "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!--
+
+Generated from t-y-scheme.tex by tex2page, v 20070609
+(running on MzScheme 4.2.1, unix), 
+(c) Dorai Sitaram, 
+http://www.ccs.neu.edu/~dorai/tex2page/tex2page-doc.html
+
+-->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+Teach Yourself Scheme in Fixnum Days 中文版
+</title>
+<link rel="stylesheet" type="text/css" href="t-y-scheme-Z-S.css" title=default>
+<meta name="robots" content="index,follow">
+<meta name=description content="A practical
+introduction to the programming language Scheme">
+
+<meta name=author content="Dorai Sitaram">
+
+<link rev=made href="mailto:dorai @ ccs.neu.edu">
+</head>
+<body>
+<div id=slidecontent>
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-11.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-13.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+<p></p>
+<a name="node_chap_10"></a>
+<h1 class=chapter>
+<div class=chapterheading><a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_10">Chapter 10</a></div><br>
+<a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_10">Alists 和 table</a></h1>
+<p><a name="node_idx_406"></a><a name="node_idx_408"></a>一个<em>关联表</em>（<em>association list</em>），或者称为 <em>alist</em>，是 Scheme 的一个特殊形式。表中的每一个元素是一个 cons 结构，这个结构的头称为<em>键</em>（<em>key</em>），尾称为与键关联的<em>值</em>（<em>value</em>）。例如：</p>
+<p>
+</p>
+<pre class=scheme>((<span class=variable>a</span> . <span class=selfeval>1</span>) (<span class=variable>b</span> . <span class=selfeval>2</span>) (<span class=variable>c</span> . <span class=selfeval>3</span>))
+</pre><p></p>
+<p>
+<a name="node_idx_410"></a></p>
+<p>过程 <code class=scheme>(<span class=variable>assv</span> <span class=variable>k</span> <span class=variable>al</span>)</code> 在 alist <code class=scheme><span class=variable>al</span></code> 中找到和 <code class=scheme><span class=variable>k</span></code> 关联的 cons 单元。这个 alist 的键使用谓词 <code class=scheme><span class=variable>eqv?</span></code> 来和指定的 <code class=scheme><span class=variable>k</span></code> 比较。通常而言，我们可能想要不同的谓词来作键的比较。若键是不区分大小的字符串，那谓词 <code class=scheme><span class=variable>eqv?</span></code> 就没用了。</p>
+<p>
+<a name="node_idx_412"></a></p>
+<p>我们现在定义一个叫做 <code class=scheme><span class=variable>table</span></code> 的结构，它是允许用户自定义谓词的 alist 的加强版本。它的域是 <code class=scheme><span class=variable>equ</span></code> 和 <code class=scheme><span class=variable>alist</span></code>。</p>
+<p>
+</p>
+<p>
+</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>defstruct</span> <span class=variable>table</span> (<span class=variable>equ</span> <span class=variable>eqv?</span>) (<span class=variable>alist</span> <span class=keyword>'</span>()))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>（默认的谓词是 <code class=scheme><span class=variable>eqv?</span></code> &#8212; 和一个普通的 alist 一样 &#8212; 并且里面的 alist 初始化为空。）</p>
+<p>我们将使用过程 <code class=scheme><span class=variable>table-get</span></code> 来得到和指定键关联的值（同 cons 单元相对）。<code class=scheme><span class=variable>table-get</span></code> 接受一个 table 和一个键作为参数，紧跟着的是一个可选参数，它作为在键没有找到时的返回值：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>table-get</span>
+  (<span class=keyword>lambda</span> (<span class=variable>tbl</span> <span class=variable>k</span> . <span class=variable>d</span>)
+    (<span class=keyword>let</span> ((<span class=variable>c</span> (<span class=variable>lassoc</span> <span class=variable>k</span> (<span class=variable>table.alist</span> <span class=variable>tbl</span>) (<span class=variable>table.equ</span> <span class=variable>tbl</span>))))
+      (<span class=keyword>cond</span> (<span class=variable>c</span> (<span class=variable>cdr</span> <span class=variable>c</span>))
+            ((<span class=variable>pair?</span> <span class=variable>d</span>) (<span class=variable>car</span> <span class=variable>d</span>))))))
+</pre><p></p>
+<p>在 <code class=scheme><span class=variable>table-get</span></code> 过程中使用的 <code class=scheme><span class=variable>lassoc</span></code> 定义如下：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>lassoc</span>
+  (<span class=keyword>lambda</span> (<span class=variable>k</span> <span class=variable>al</span> <span class=variable>equ?</span>)
+    (<span class=keyword>let</span> <span class=variable>loop</span> ((<span class=variable>al</span> <span class=variable>al</span>))
+      (<span class=keyword>if</span> (<span class=variable>null?</span> <span class=variable>al</span>) <span class=selfeval>#f</span>
+          (<span class=keyword>let</span> ((<span class=variable>c</span> (<span class=variable>car</span> <span class=variable>al</span>)))
+            (<span class=keyword>if</span> (<span class=variable>equ?</span> (<span class=variable>car</span> <span class=variable>c</span>) <span class=variable>k</span>) <span class=variable>c</span>
+                (<span class=variable>loop</span> (<span class=variable>cdr</span> <span class=variable>al</span>))))))))
+</pre><p></p>
+<p><code class=scheme><span class=variable>table-put!</span></code> 过程用于更新一个键的值：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>table-put!</span>
+  (<span class=keyword>lambda</span> (<span class=variable>tbl</span> <span class=variable>k</span> <span class=variable>v</span>)
+    (<span class=keyword>let</span> ((<span class=variable>al</span> (<span class=variable>table.alist</span> <span class=variable>tbl</span>)))
+      (<span class=keyword>let</span> ((<span class=variable>c</span> (<span class=variable>lassoc</span> <span class=variable>k</span> <span class=variable>al</span> (<span class=variable>table.equ</span> <span class=variable>tbl</span>))))
+        (<span class=keyword>if</span> <span class=variable>c</span> (<span class=variable>set-cdr!</span> <span class=variable>c</span> <span class=variable>v</span>)
+            (<span class=variable>set!table.alist</span> <span class=variable>tbl</span> (<span class=variable>cons</span> (<span class=variable>cons</span> <span class=variable>k</span> <span class=variable>v</span>) <span class=variable>al</span>)))))))
+</pre><p></p>
+<p><code class=scheme><span class=variable>table-for-each</span></code> 将给定的过程作用于 table 中的每一个键/值对上</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>table-for-each</span>
+  (<span class=keyword>lambda</span> (<span class=variable>tbl</span> <span class=variable>p</span>)
+    (<span class=variable>for-each</span>
+     (<span class=keyword>lambda</span> (<span class=variable>c</span>)
+       (<span class=variable>p</span> (<span class=variable>car</span> <span class=variable>c</span>) (<span class=variable>cdr</span> <span class=variable>c</span>)))
+     (<span class=variable>table.alist</span> <span class=variable>tbl</span>))))
+</pre><p></p>
+<p>
+</p>
+<p>
+</p>
+<div class=smallskip></div>
+<p style="margin-top: 0pt; margin-bottom: 0pt">
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-11.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-13.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+</p>
+<p></p>
+</div>
+</body>
+</html>

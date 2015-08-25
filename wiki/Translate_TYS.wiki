@@ -1,0 +1,11 @@
+#summary Teach Yourself Scheme in Fixnum Days翻译。
+
+= Introduction =
+
+这个项目是我们的scheme翻译计划，如果你有兴趣，我们热烈欢迎！
+目前我们正在翻译的是<a href="http://www.ccs.neu.edu/home/dorai/t-y-scheme/t-y-scheme.html" target="_blank">Teach Yourself Scheme in Fixnum Days</a>。
+
+
+= Details =
+
+Teach Yourself Scheme in Fixnum Days是我们翻译的第一本scheme英文书籍，scheme的方言很多，针对不同方言的书籍也有不少，我们选择这一本的原因正如该书原作者<a href="http://www.ccs.neu.edu/~dorai">Dorai Sitaram</a>所说的，他的目的就是为了使初学者对scheme语言有一个快速、初步的认识。若想对scheme有一个更具体的认识，请参见<a href="http://community.schemewiki.org/">Community-Scheme-Wiki</a>中的<a href="http://community.schemewiki.org/?scheme-faq">FAQ</a>（这些文档的中文版也许会出现在我们今后的翻译过程中）。

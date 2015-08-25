@@ -1,0 +1,533 @@
+<!doctype html public "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!--
+
+Generated from t-y-scheme.tex by tex2page, v 20070609
+(running on MzScheme 4.2.1, unix), 
+(c) Dorai Sitaram, 
+http://www.ccs.neu.edu/~dorai/tex2page/tex2page-doc.html
+
+-->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+Teach Yourself Scheme in Fixnum Days 中文版
+</title>
+<link rel="stylesheet" type="text/css" href="t-y-scheme-Z-S.css" title=default>
+<meta name="robots" content="index,follow">
+<meta name=description content="A practical
+introduction to the programming language Scheme">
+
+<meta name=author content="Dorai Sitaram">
+
+<link rev=made href="mailto:dorai @ ccs.neu.edu">
+</head>
+<body>
+<div id=slidecontent>
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-14.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-16.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+<p></p>
+<a name="node_chap_13"></a>
+<h1 class=chapter>
+<div class=chapterheading><a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_13">第 13 章 </a></div>
+<br>
+<a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_13">跳转</a></h1>
+<p><a name="node_idx_456"></a>Scheme 的一个显著的特征是它支持跳转或叫<em>非局部控制</em>。特别地，Scheme
+允许程序控制跳转到程序中的<em>任意</em>位置，而不是只能通过条件和过程调用来跳转。Scheme 的非局部控制是一个叫
+<code class=scheme><span class=variable>call-with-current-continuation</span></code> 的过程。我们将会看到它是如何被用来创建各种令人激动的惯用控制语法的。   </p>
+<p>
+</p>
+<a name="node_sec_13.1"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_13.1">13.1&nbsp;&nbsp;<code class=scheme><span class=variable>call-with-current-continuation</span></code></a></h2>
+<p><a name="node_idx_458"></a><a name="node_idx_460"></a>操作 <code class=scheme><span class=variable>call-with-current-continuation</span></code> <em>调用</em> 的参数必须是一个一元过程，参数的值被叫做“<em>current
+continuation</em>”。 如果没有别的意思，这个只说明了这个操作的名字。但是它太长了，所以经常简写成
+<code class=scheme><span class=variable>call/cc</span></code>.<a name="node_call_footnote_Temp_8"></a><sup><small><a href="#node_footnote_Temp_8">1</a></small></sup></p>
+<p>
+在程序执行时的任意点，当前 continuation 是 <em>rest of the
+program</em> 的一种抽象。因此下面的这个程序 The current continuation at any point in the execution
+of a program is an abstraction of the <em>rest of the
+program</em>.  Thus in the program</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>+</span> <span class=selfeval>1</span> (<span class=variable>call/cc</span>
+       (<span class=keyword>lambda</span> (<span class=variable>k</span>)
+         (<span class=variable>+</span> <span class=selfeval>2</span> (<span class=variable>k</span> <span class=selfeval>3</span>)))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>从 
+  <code class=scheme><span class=variable>call/cc</span></code> 应用这个点来看，the rest of the program 就是下面这个带有空缺位置的程序（用 <code class=scheme>[]</code> 代表空缺位置）：the rest of the program, from the point of view of the
+<code class=scheme><span class=variable>call/cc</span></code>-application, is the following
+program-with-a-hole (with <code class=scheme>[]</code> representing the
+hole):</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>+</span> <span class=selfeval>1</span> [])
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>换而言之，这个 continuation 就是一个将  <code class=scheme><span class=selfeval>1</span></code> 加到任何填充到空缺位置的程序。In other words, this continuation is a program that
+will add <code class=scheme><span class=selfeval>1</span></code> to whatever is used to fill its hole.</p>
+<p>
+这就是调用 <code class=scheme><span class=variable>call/cc</span></code> 时的参数。请记住，<code class=scheme><span class=variable>call/cc</span></code> 的参数是过程 This is what the argument of <code class=scheme><span class=variable>call/cc</span></code> is <em>called
+with</em>.  Remember that the argument of <code class=scheme><span class=variable>call/cc</span></code> is
+the procedure</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>lambda</span> (<span class=variable>k</span>)
+  (<span class=variable>+</span> <span class=selfeval>2</span> (<span class=variable>k</span> <span class=selfeval>3</span>)))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>这个过程的过程体将将参数 <code class=scheme><span class=selfeval>3</span></code> 应用到 continuation（现在绑定到参数 <code class=scheme><span class=variable>k</span></code>）。这就是 continuation 向我们展示的它的不平凡的一面。continuation 调用放弃它自己的计算，取而代之的则是保存于 <code class=scheme><span class=variable>k</span></code> 中的 rest of the program！换而言之，过程中那个加
+  <code class=scheme><span class=selfeval>2</span></code> 的部分被丢弃了，并且参数 <code class=scheme><span class=selfeval>3</span></code> 被直接地送到那个空缺位置：This procedure&#8217;s body applies the continuation (bound
+now to the parameter <code class=scheme><span class=variable>k</span></code>) to the argument <code class=scheme><span class=selfeval>3</span></code>.
+This is when the unusual aspect of the continuation
+springs to the fore.  The continuation call abruptly
+abandons its own computation and replaces it with the
+rest of the program saved in <code class=scheme><span class=variable>k</span></code>!  In other words,
+the part of the procedure involving the addition of
+<code class=scheme><span class=selfeval>2</span></code> is jettisoned, and <code class=scheme><span class=variable>k</span></code>&#8217;s argument <code class=scheme><span class=selfeval>3</span></code> is sent
+directly to the program-with-the-hole:</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>+</span> <span class=selfeval>1</span> [])
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>现在程序运行就仅仅是The program now running is simply</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>+</span> <span class=selfeval>1</span> <span class=selfeval>3</span>)
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>它会返回 <code class=scheme><span class=selfeval>4</span></code>。总而言之，which returns <code class=scheme><span class=selfeval>4</span></code>.  In sum,</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>+</span> <span class=selfeval>1</span> (<span class=variable>call/cc</span>
+       (<span class=keyword>lambda</span> (<span class=variable>k</span>)
+         (<span class=variable>+</span> <span class=selfeval>2</span> (<span class=variable>k</span> <span class=selfeval>3</span>)))))
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>4</span>
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>上面所阐述的被称为 <em>escaping</em> continuation，它被用来退出一次计算（这里为计算： <code class=scheme>(<span class=variable>+</span> <span class=selfeval>2</span> [])</code> ）。The above illustrates what is called an <em>escaping</em> continuation, one used to exit out of a
+computation (here: the <code class=scheme>(<span class=variable>+</span> <span class=selfeval>2</span> [])</code> computation).这个是有用的性质，但 Scheme 的 continuation 也可以用来返回到先前被丢弃的上下文，并且可以多次调用它们。This
+is a useful property, but Scheme&#8217;s continuations can
+also be used to return to previously abandoned
+contexts, and indeed to invoke them many times.The
+&#8220;rest of the program&#8221; enshrined in a continuation is
+available whenever and how many ever times we choose to
+recall it, and this is what contributes to the great
+and sometimes confusing versatility of <code class=scheme><span class=variable>call/cc</span></code>.作为一个快速的例子，键入下面的这段程序：As
+a quick example, type the following at the listener:</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>r</span> <span class=selfeval>#f</span>)
+
+(<span class=variable>+</span> <span class=selfeval>1</span> (<span class=variable>call/cc</span>
+       (<span class=keyword>lambda</span> (<span class=variable>k</span>)
+         (<span class=keyword>set!</span> <span class=variable>r</span> <span class=variable>k</span>)
+         (<span class=variable>+</span> <span class=selfeval>2</span> (<span class=variable>k</span> <span class=selfeval>3</span>)))))
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>4</span>
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>像先前一样，后一个表达式返回 <code class=scheme><span class=selfeval>4</span></code>。这个例子和前一个例子的区别在于T我们将 continuation  <code class=scheme><span class=variable>k</span></code> 保存到全局变量 <code class=scheme><span class=variable>r</span></code>了。he latter expression returns <code class=scheme><span class=selfeval>4</span></code> as before.  The
+difference between this use of <code class=scheme><span class=variable>call/cc</span></code> and the
+previous example is that here we also store the
+continuation <code class=scheme><span class=variable>k</span></code> in a global variable <code class=scheme><span class=variable>r</span></code>.</p>
+<p>
+现在，我们在
+  <code class=scheme><span class=variable>r</span></code> 中永久地保存了那个 continuation。如果我们用一个数字来作为参数来调用它，将它会返回那个数字加 1 的结果：Now we have a permanent record of the continuation in
+<code class=scheme><span class=variable>r</span></code>.  If we call it on a number, it will return that
+number incremented by <code class=scheme><span class=selfeval>1</span></code>:</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>r</span> <span class=selfeval>5</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>6</span>
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>请注意，<code class=scheme><span class=variable>r</span></code> 会放弃它自己的 continuation，这可以使用将对
+  <code class=scheme><span class=variable>r</span></code> 的调用嵌入到某个上下文中来很好地解释这点：Note that <code class=scheme><span class=variable>r</span></code> will abandon its own continuation,
+which is better illustrated by embedding the call to
+<code class=scheme><span class=variable>r</span></code> inside some context:</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>+</span> <span class=selfeval>3</span> (<span class=variable>r</span> <span class=selfeval>5</span>))
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>6</span>
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>因此，由 <code class=scheme><span class=variable>call/cc</span></code> 提供的 continuation 称为流产的 continuation。The continuations provided by <code class=scheme><span class=variable>call/cc</span></code> are thus
+<em>abortive</em> continuations.</p>
+<p>
+</p>
+<a name="node_sec_13.2"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_13.2">13.2&nbsp;&nbsp;Escaping continuations</a></h2>
+<p>Escaping continuations 是
+  <code class=scheme><span class=variable>call/cc</span></code> 最简单的用法，并且对于编写过程或是从循环中退出是很有帮助的。考虑过程
+  <code class=scheme><span class=variable>list-product</span></code> ，它带有一个数字的表的参数，并将它们相乘。<code class=scheme><span class=variable>list-product</span></code> 的一个很直观的递归定义为：Escaping continuations are the simplest use of
+<code class=scheme><span class=variable>call/cc</span></code> and are very useful for programming
+procedure or loop exits.  Consider a procedure
+<code class=scheme><span class=variable>list-product</span></code> that takes a list of numbers and
+multiplies them.  A straightforward recursive
+definition for <code class=scheme><span class=variable>list-product</span></code> is:</p>
+<p>
+</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>list-product</span>
+  (<span class=keyword>lambda</span> (<span class=variable>s</span>)
+    (<span class=keyword>let</span> <span class=variable>recur</span> ((<span class=variable>s</span> <span class=variable>s</span>))
+      (<span class=keyword>if</span> (<span class=variable>null?</span> <span class=variable>s</span>) <span class=selfeval>1</span>
+          (<span class=variable>*</span> (<span class=variable>car</span> <span class=variable>s</span>) (<span class=variable>recur</span> (<span class=variable>cdr</span> <span class=variable>s</span>)))))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>这个方案有一个问题。如果表中有一个元素为 <code class=scheme><span class=selfeval>0</span></code>，并且 <code class=scheme><span class=selfeval>0</span></code> 后面还有许多的元素，那么。There is a problem with this solution.  If one of the
+elements in the list is <code class=scheme><span class=selfeval>0</span></code>, and if there are many
+elements after <code class=scheme><span class=selfeval>0</span></code> in the list, then the answer is a
+foregone conclusion.  Yet, the code will have us go
+through many fruitless recursive calls to <code class=scheme><span class=variable>recur</span></code>
+before producing the answer.  This is where an escape
+continuation comes in handy.  Using <code class=scheme><span class=variable>call/cc</span></code>, we can
+rewrite the procedure as:</p>
+<p>
+</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>list-product</span>
+  (<span class=keyword>lambda</span> (<span class=variable>s</span>)
+    (<span class=variable>call/cc</span>
+      (<span class=keyword>lambda</span> (<span class=variable>exit</span>)
+        (<span class=keyword>let</span> <span class=variable>recur</span> ((<span class=variable>s</span> <span class=variable>s</span>))
+          (<span class=keyword>if</span> (<span class=variable>null?</span> <span class=variable>s</span>) <span class=selfeval>1</span>
+              (<span class=keyword>if</span> (<span class=variable>=</span> (<span class=variable>car</span> <span class=variable>s</span>) <span class=selfeval>0</span>) (<span class=variable>exit</span> <span class=selfeval>0</span>)
+                  (<span class=variable>*</span> (<span class=variable>car</span> <span class=variable>s</span>) (<span class=variable>recur</span> (<span class=variable>cdr</span> <span class=variable>s</span>))))))))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>如果遇到了元素 <code class=scheme><span class=selfeval>0</span></code>，则continuation
+  <code class=scheme><span class=variable>exit</span></code> 被调用，因此也避免了对 <code class=scheme><span class=variable>recur</span></code> 的调用。If a <code class=scheme><span class=selfeval>0</span></code> element is encountered, the continuation
+<code class=scheme><span class=variable>exit</span></code> is called with <code class=scheme><span class=selfeval>0</span></code>, thereby avoiding
+further calls to <code class=scheme><span class=variable>recur</span></code>.</p>
+<p>
+</p>
+<a name="node_sec_13.3"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_13.3">13.3&nbsp;&nbsp;Tree matching</a></h2>
+<p>continuation 的一个更复杂的例子是判断两棵树（任意嵌套的点对）是否有同样的边缘，即，在相同的顺序上有相同的元素（或树叶）。例如，A more involved example of continuation usage is the
+problem of determining if two trees (arbitrarily nested
+dotted pairs) have the same <em>fringe</em>, ie, the
+same elements (or <em>leaves</em>) in the same sequence.
+Eg,</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>same-fringe?</span> <span class=keyword>'</span>(<span class=selfeval>1</span> (<span class=selfeval>2</span> <span class=selfeval>3</span>)) <span class=keyword>'</span>((<span class=selfeval>1</span> <span class=selfeval>2</span>) <span class=selfeval>3</span>))
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+
+(<span class=variable>same-fringe?</span> <span class=keyword>'</span>(<span class=selfeval>1</span> <span class=selfeval>2</span> <span class=selfeval>3</span>) <span class=keyword>'</span>(<span class=selfeval>1</span> (<span class=selfeval>3</span> <span class=selfeval>2</span>)))
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#f</span>
+</pre><p></p>
+<p>
+解决之道是将树变“平”然后检查结果是否匹配。The purely functional approach is to flatten both trees
+and check if the results match.</p>
+<p>
+</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>same-fringe?</span>
+  (<span class=keyword>lambda</span> (<span class=variable>tree1</span> <span class=variable>tree2</span>)
+    (<span class=keyword>let</span> <span class=variable>loop</span> ((<span class=variable>ftree1</span> (<span class=variable>flatten</span> <span class=variable>tree1</span>))
+               (<span class=variable>ftree2</span> (<span class=variable>flatten</span> <span class=variable>tree2</span>)))
+      (<span class=keyword>cond</span> ((<span class=keyword>and</span> (<span class=variable>null?</span> <span class=variable>ftree1</span>) (<span class=variable>null?</span> <span class=variable>ftree2</span>)) <span class=selfeval>#t</span>)
+            ((<span class=keyword>or</span> (<span class=variable>null?</span> <span class=variable>ftree1</span>) (<span class=variable>null?</span> <span class=variable>ftree2</span>)) <span class=selfeval>#f</span>)
+            ((<span class=variable>eqv?</span> (<span class=variable>car</span> <span class=variable>ftree1</span>) (<span class=variable>car</span> <span class=variable>ftree2</span>))
+             (<span class=variable>loop</span> (<span class=variable>cdr</span> <span class=variable>ftree1</span>) (<span class=variable>cdr</span> <span class=variable>ftree2</span>)))
+            (<span class=keyword>else</span> <span class=selfeval>#f</span>)))))
+
+(<span class=keyword>define</span> <span class=variable>flatten</span>
+  (<span class=keyword>lambda</span> (<span class=variable>tree</span>)
+    (<span class=keyword>cond</span> ((<span class=variable>null?</span> <span class=variable>tree</span>) <span class=keyword>'</span>())
+          ((<span class=variable>pair?</span> (<span class=variable>car</span> <span class=variable>tree</span>))
+           (<span class=variable>append</span> (<span class=variable>flatten</span> (<span class=variable>car</span> <span class=variable>tree</span>))
+                   (<span class=variable>flatten</span> (<span class=variable>cdr</span> <span class=variable>tree</span>))))
+          (<span class=keyword>else</span>
+           (<span class=variable>cons</span> (<span class=variable>car</span> <span class=variable>tree</span>)
+                 (<span class=variable>flatten</span> (<span class=variable>cdr</span> <span class=variable>tree</span>)))))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>然而，这个方法遍历了整棵树来使树变“平”，然后再一直找下去直到找到不同的元素。However, this traverses the trees completely to flatten
+them, and then again till it finds non-matching
+elements.此外，即使是最好的变“平”算法，它也需要和树叶一样多的 <code class=scheme><span class=variable>cons</span></code>。（破坏地修改输入的树不是好的选择。）  Furthermore, even the best flattening
+algorithms will require <code class=scheme><span class=variable>cons</span></code>es equal to the total
+number of leaves.  (Destructively modifying the input
+trees is not an option.)</p>
+<p>
+我们可以使用 <code class=scheme><span class=variable>call/cc</span></code> 来解决这个问题并且不需要不必要的遍历和任何 <code class=scheme><span class=variable>cons</span></code>。We can use <code class=scheme><span class=variable>call/cc</span></code> to solve the problem without
+needless traversal and without any <code class=scheme><span class=variable>cons</span></code>ing.  Each
+tree is mapped to a <em>generator</em>, a procedure with
+internal state that successively produces the leaves of
+the tree in the left-to-right order that they occur in
+the tree.</p>
+<p>
+</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>tree-&gt;generator</span>
+  (<span class=keyword>lambda</span> (<span class=variable>tree</span>)
+    (<span class=keyword>let</span> ((<span class=variable>caller</span> <span class=keyword>'</span><span class=variable>*</span>))
+      (<span class=keyword>letrec</span>
+          ((<span class=variable>generate-leaves</span>
+            (<span class=keyword>lambda</span> ()
+              (<span class=keyword>let</span> <span class=variable>loop</span> ((<span class=variable>tree</span> <span class=variable>tree</span>))
+                (<span class=keyword>cond</span> ((<span class=variable>null?</span> <span class=variable>tree</span>) <span class=keyword>'</span><span class=variable>skip</span>)
+                      ((<span class=variable>pair?</span> <span class=variable>tree</span>)
+                       (<span class=variable>loop</span> (<span class=variable>car</span> <span class=variable>tree</span>))
+                       (<span class=variable>loop</span> (<span class=variable>cdr</span> <span class=variable>tree</span>)))
+                      (<span class=keyword>else</span>
+                       (<span class=variable>call/cc</span>
+                        (<span class=keyword>lambda</span> (<span class=variable>rest-of-tree</span>)
+                          (<span class=keyword>set!</span> <span class=variable>generate-leaves</span>
+                            (<span class=keyword>lambda</span> ()
+                              (<span class=variable>rest-of-tree</span> <span class=keyword>'</span><span class=variable>resume</span>)))
+                          (<span class=variable>caller</span> <span class=variable>tree</span>))))))
+              (<span class=variable>caller</span> <span class=keyword>'</span>()))))
+		(<span class=keyword>lambda</span> ()
+          (<span class=variable>call/cc</span>
+           (<span class=keyword>lambda</span> (<span class=variable>k</span>)
+             (<span class=keyword>set!</span> <span class=variable>caller</span> <span class=variable>k</span>)
+             (<span class=variable>generate-leaves</span>))))))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>当一个生成器由调用 <code class=scheme><span class=variable>tree-&gt;generator</span></code> 创建后,它会在
+  <code class=scheme><span class=variable>caller</span></code> 中保存它的调用的 continuation，这样它就可以知道当找到一个树叶时向谁发送这个树叶。When a generator created by <code class=scheme><span class=variable>tree-&gt;generator</span></code> is
+called, it will store the continuation of its call in
+<code class=scheme><span class=variable>caller</span></code>, so that it can know who to send the leaf to
+when it finds it.然后他调用一个内部的过程 <code class=scheme><span class=variable>generate-leaves</span></code> 来循环的从树的左边遍历到右边。  It then calls an internal procedure
+called <code class=scheme><span class=variable>generate-leaves</span></code> which runs a loop traversing
+the tree from left to right.当一个循环遇到一树叶，它会使用   <code class=scheme><span class=variable>caller</span></code> 来返回则个树叶并将其作为这个生成器的结果，但同时它会在变量 <code class=scheme><span class=variable>generate-leaves</span></code> 中记住并保存剩余的循环（作为 <code class=scheme><span class=variable>call/cc</span></code> continuation 被捕获）。下一次这个生成器被调用时，循环将在从它之前离开的地方被恢复，这样它就可以继续遍历下一个树叶。When the loop encounters
+a leaf, it will use <code class=scheme><span class=variable>caller</span></code> to return the leaf as
+the generator&#8217;s result, but it will remember to store
+the rest of the loop (captured as a <code class=scheme><span class=variable>call/cc</span></code>
+continuation) in the <code class=scheme><span class=variable>generate-leaves</span></code> variable.  The
+next time the generator is called, the loop is resumed
+where it left off so it can hunt for the next leaf.</p>
+<p>
+请注意，在循环结束之后 <code class=scheme><span class=variable>generate-leaves</span></code> 所作的最后一件事是返回一个空表给<code class=scheme><span class=variable>caller</span></code>。因为空表不是一个有效的叶子的值，所以我们可以使用它来告诉生成器没有叶子需要生成了。Note that the last thing <code class=scheme><span class=variable>generate-leaves</span></code> does,
+after the loop is done, is to return the empty list to
+the
+<code class=scheme><span class=variable>caller</span></code>.  Since the empty list is not a valid leaf
+value, we can use it to tell that the generator has
+no more leaves to generate.</p>
+<p>
+过程 <code class=scheme><span class=variable>same-fringe?</span></code> 将它的每一个树参数送到一个生成器中，然后分别地调用这两个生成器。只要一找到两个不匹配的叶子，就返回 false。The procedure <code class=scheme><span class=variable>same-fringe?</span></code> maps each of its tree
+arguments to a generator, and then calls these two
+generators alternately.  It announces failure as soon
+as two non-matching leaves are found:</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>same-fringe?</span>
+  (<span class=keyword>lambda</span> (<span class=variable>tree1</span> <span class=variable>tree2</span>)
+    (<span class=keyword>let</span> ((<span class=variable>gen1</span> (<span class=variable>tree-&gt;generator</span> <span class=variable>tree1</span>))
+          (<span class=variable>gen2</span> (<span class=variable>tree-&gt;generator</span> <span class=variable>tree2</span>)))
+      (<span class=keyword>let</span> <span class=variable>loop</span> ()
+        (<span class=keyword>let</span> ((<span class=variable>leaf1</span> (<span class=variable>gen1</span>))
+              (<span class=variable>leaf2</span> (<span class=variable>gen2</span>)))
+          (<span class=keyword>if</span> (<span class=variable>eqv?</span> <span class=variable>leaf1</span> <span class=variable>leaf2</span>)
+              (<span class=keyword>if</span> (<span class=variable>null?</span> <span class=variable>leaf1</span>) <span class=selfeval>#t</span> (<span class=variable>loop</span>))
+              <span class=selfeval>#f</span>))))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>很容易看到，树至多只被遍历了一次，而且万一不匹配，遍历至多只展开到最左边的不匹配处。这里没有使用 <code class=scheme><span class=variable>cons</span></code>。 It is easy to see that the trees are traversed at most
+once, and in case of mismatch, the traversals extend
+only upto the leftmost mismatch.  <code class=scheme><span class=variable>cons</span></code> is not used.</p>
+<p>
+<a name="node_idx_462"></a><a name="node_idx_464"></a></p>
+<p>
+</p>
+<a name="node_sec_13.4"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_13.4">13.4&nbsp;&nbsp;Coroutines</a></h2>
+<p>上面使用的生成器是有趣的过程概念的推广。The generators used above are interesting
+generalizations of the procedure concept.每次生成器被调用时，它恢复它的计算并在它有结果时返回给调用者，但是只有在在内部保存了它的 continuation 的情况下生成器才能再次被恢复。Each time
+the generator is called, it resumes its computation,
+and when it has a result for its caller returns it, but
+only after storing its continuation in an internal
+variable so the generator can be resumed again.  我靠可以进一步推究生成器，以便让它们互相地恢复彼此、在它们自己当中来回地发发送结果。We can
+generalize generators further, so that they can
+mutually resume each other, sending results back and
+forth amongst themselves.这样的程序叫做<em>协同程序</em>  &nbsp;[<a href="t-y-scheme-Z-H-24.html#node_bib_18">18</a>]。Such procedures are called
+<em>coroutines</em>&nbsp;[<a href="t-y-scheme-Z-H-24.html#node_bib_18">18</a>].</p>
+<p>
+我们将看到一个一元的协同程序，它的过程体包含 <code class=scheme><span class=variable>resume</span></code> 调用。We will view a coroutine as a unary procedure, whose
+body can contain <code class=scheme><span class=variable>resume</span></code> calls. <code class=scheme><span class=variable>resume</span></code>  是一个二元过程，协同程序使用它和一个转移值来恢复另一个协同程序。宏 <code class=scheme><span class=keyword>coroutine</span></code> 用来定义具有给定参数名称和过程体的协同程序。<code class=scheme><span class=variable>resume</span></code> is a
+two-argument procedure used by a coroutine to resume
+another coroutine with a transfer value.  The macro <code class=scheme><span class=keyword>coroutine</span></code>
+defines such a coroutine procedure, given a variable name for 
+the coroutine&#8217;s initial argument, and the body of the coroutine.</p>
+<p>
+</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define-macro</span> <span class=keyword>coroutine</span>
+  (<span class=keyword>lambda</span> (<span class=variable>x</span> . <span class=variable>body</span>)
+    <span class=keyword>`</span>(<span class=keyword>letrec</span> ((<span class=variable>+local-control-state</span>
+               (<span class=keyword>lambda</span> (<span class=keyword>,</span><span class=variable>x</span>) <span class=keyword>,@</span><span class=variable>body</span>))
+              (<span class=variable>resume</span>
+               (<span class=keyword>lambda</span> (<span class=variable>c</span> <span class=variable>v</span>)
+                 (<span class=variable>call/cc</span>
+                  (<span class=keyword>lambda</span> (<span class=variable>k</span>)
+                    (<span class=keyword>set!</span> <span class=variable>+local-control-state</span> <span class=variable>k</span>)
+                    (<span class=variable>c</span> <span class=variable>v</span>))))))
+       (<span class=keyword>lambda</span> (<span class=variable>v</span>)
+         (<span class=variable>+local-control-state</span> <span class=variable>v</span>)))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>调用这个宏会创建一个一元的协同程序（叫 A）。A call of this macro creates a coroutine procedure
+(let&#8217;s call it <em>A</em>) that can be called with one
+argument.A 有一个内部变量
+<code class=scheme><span class=variable>+local-control-state</span></code> ，它可以在任意点来保存协同程序余下的计算。 <em>A</em> has an internal variable called
+<code class=scheme><span class=variable>+local-control-state</span></code> that stores, at any point, the
+remaining computation of the coroutine.   最开始这个变量为整个协同程序的计算。Initially
+this is the entire coroutine computation.  当
+<code class=scheme><span class=variable>resume</span></code> 被调用时——即，调用另一个协同程序 B——当前的协同程序就会更新它的
+<code class=scheme><span class=variable>+local-control-state</span></code> 为它自己剩余的计算并停止自己，然后跳到 <code class=scheme><span class=variable>resume</span></code> 的协同程序 B。When
+<code class=scheme><span class=variable>resume</span></code> is called &#8212; ie, invoking another coroutine
+<em>B</em> &#8212; the current coroutine will update its
+<code class=scheme><span class=variable>+local-control-state</span></code> value to the rest of itself,
+stop itself, and then jump to the <code class=scheme><span class=variable>resume</span></code>d coroutine
+<em>B</em>.  当协同程序 A 在后来的某个点上被 <code class=scheme><span class=variable>resume</span></code> 了，它的计算将会继续从保存在 <code class=scheme><span class=variable>+local-control-state</span></code> 的 continuation 开始执行。When coroutine <em>A</em> is itself <code class=scheme><span class=variable>resume</span></code>d at
+some later point, its computation will proceed from the
+continuation stored in its <code class=scheme><span class=variable>+local-control-state</span></code>.</p>
+<p>
+</p>
+<p>
+</p>
+<a name="node_sec_13.4.1"></a>
+<h3 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_13.4.1">13.4.1&nbsp;&nbsp;带有协同程序的树-匹配</a></h3>
+<p>树-匹配通过协同程序可以进一步地简化。Tree-matching is further simplified using coroutines.
+匹配过程被编码为一个协同程序，它依赖于另外两个分别提供叶子的协同程序T：he matching process is coded as a coroutine that
+depends on two other coroutines to supply the leaves of
+the respective trees:</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>make-matcher-coroutine</span>
+  (<span class=keyword>lambda</span> (<span class=variable>tree-cor-1</span> <span class=variable>tree-cor-2</span>)
+    (<span class=keyword>coroutine</span> <span class=variable>dont-need-an-init-arg</span>
+      (<span class=keyword>let</span> <span class=variable>loop</span> ()
+        (<span class=keyword>let</span> ((<span class=variable>leaf1</span> (<span class=variable>resume</span> <span class=variable>tree-cor-1</span> <span class=keyword>'</span><span class=variable>get-a-leaf</span>))
+              (<span class=variable>leaf2</span> (<span class=variable>resume</span> <span class=variable>tree-cor-2</span> <span class=keyword>'</span><span class=variable>get-a-leaf</span>)))
+          (<span class=keyword>if</span> (<span class=variable>eqv?</span> <span class=variable>leaf1</span> <span class=variable>leaf2</span>)
+              (<span class=keyword>if</span> (<span class=variable>null?</span> <span class=variable>leaf1</span>) <span class=selfeval>#t</span> (<span class=variable>loop</span>))
+              <span class=selfeval>#f</span>))))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>叶子-生成器协同程序记住向谁发送它们的叶子：The leaf-generator coroutines remember who to send
+their leaves to:</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>make-leaf-gen-coroutine</span>
+  (<span class=keyword>lambda</span> (<span class=variable>tree</span> <span class=variable>matcher-cor</span>)
+    (<span class=keyword>coroutine</span> <span class=variable>dont-need-an-init-arg</span>
+      (<span class=keyword>let</span> <span class=variable>loop</span> ((<span class=variable>tree</span> <span class=variable>tree</span>))
+        (<span class=keyword>cond</span> ((<span class=variable>null?</span> <span class=variable>tree</span>) <span class=keyword>'</span><span class=variable>skip</span>)
+              ((<span class=variable>pair?</span> <span class=variable>tree</span>)
+               (<span class=variable>loop</span> (<span class=variable>car</span> <span class=variable>tree</span>))
+               (<span class=variable>loop</span> (<span class=variable>cdr</span> <span class=variable>tree</span>)))
+              (<span class=keyword>else</span>
+               (<span class=variable>resume</span> <span class=variable>matcher-cor</span> <span class=variable>tree</span>))))
+      (<span class=variable>resume</span> <span class=variable>matcher-cor</span> <span class=keyword>'</span>()))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>现在 <code class=scheme><span class=variable>same-fringe?</span></code> 过程几乎可以写成这样 The <code class=scheme><span class=variable>same-fringe?</span></code> procedure can now <em>almost</em>
+be written as</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>same-fringe?</span>
+  (<span class=keyword>lambda</span> (<span class=variable>tree1</span> <span class=variable>tree2</span>)
+    (<span class=keyword>letrec</span> ((<span class=variable>tree-cor-1</span>
+              (<span class=variable>make-leaf-gen-coroutine</span>
+               <span class=variable>tree1</span>
+               <span class=variable>matcher-cor</span>))
+             (<span class=variable>tree-cor-2</span>
+              (<span class=variable>make-leaf-gen-coroutine</span>
+               <span class=variable>tree2</span>
+               <span class=variable>matcher-cor</span>))
+             (<span class=variable>matcher-cor</span>
+              (<span class=variable>make-matcher-coroutine</span>
+               <span class=variable>tree-cor-1</span>
+               <span class=variable>tree-cor-2</span>)))
+      (<span class=variable>matcher-cor</span> <span class=keyword>'</span><span class=variable>start-ball-rolling</span>))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>不幸地是，Scheme 的 <code class=scheme><span class=keyword>letrec</span></code> 只有在它所引入的词法变量的引用包裹于 <code class=scheme><span class=keyword>lambda</span></code> 中时才能解决变量间的相互引用。因此程序为：Unfortunately, Scheme&#8217;s <code class=scheme><span class=keyword>letrec</span></code> can resolve
+mutually recursive references amongst the lexical
+variables it introduces <em>only</em> if such variable
+references are wrapped inside a <code class=scheme><span class=keyword>lambda</span></code>.  And so we
+write:</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>same-fringe?</span>
+  (<span class=keyword>lambda</span> (<span class=variable>tree1</span> <span class=variable>tree2</span>)
+    (<span class=keyword>letrec</span> ((<span class=variable>tree-cor-1</span>
+              (<span class=variable>make-leaf-gen-coroutine</span>
+               <span class=variable>tree1</span>
+               (<span class=keyword>lambda</span> (<span class=variable>v</span>) (<span class=variable>matcher-cor</span> <span class=variable>v</span>))))
+             (<span class=variable>tree-cor-2</span>
+              (<span class=variable>make-leaf-gen-coroutine</span>
+               <span class=variable>tree2</span>
+               (<span class=keyword>lambda</span> (<span class=variable>v</span>) (<span class=variable>matcher-cor</span> <span class=variable>v</span>))))
+             (<span class=variable>matcher-cor</span>
+              (<span class=variable>make-matcher-coroutine</span>
+               (<span class=keyword>lambda</span> (<span class=variable>v</span>) (<span class=variable>tree-cor-1</span> <span class=variable>v</span>))
+               (<span class=keyword>lambda</span> (<span class=variable>v</span>) (<span class=variable>tree-cor-2</span> <span class=variable>v</span>)))))
+      (<span class=variable>matcher-cor</span> <span class=keyword>'</span><span class=variable>start-ball-rolling</span>))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>请注意， <code class=scheme><span class=variable>call/cc</span></code> 没有在这个重写的 <code class=scheme><span class=variable>same-fringe?</span></code> 中直接出现。所有的 continuation 都由 <code class=scheme><span class="keyword">coroutine</span></code> 宏帮我们处理了。Note that <code class=scheme><span class=variable>call/cc</span></code> is not called directly at all in
+this rewrite of <code class=scheme><span class=variable>same-fringe?</span></code>.  All the continuation
+manipulation is handled for us by the
+<code class=scheme><span class=keyword>coroutine</span></code> macro.</p>
+<p>
+</p>
+<div class=footnoterule><hr></div><p></p>
+<div class=footnote>
+  <p><a name="node_footnote_Temp_8"></a><sup><small><a href="#node_call_footnote_Temp_8">1</a></small></sup> 如果你的 Scheme 还没有这个缩写，在你的初始化代码中包含
+    <code class=scheme>(<span class=keyword>define</span> <span class=variable>call/cc</span> <span class=variable>call-with-current-continuation</span>)</code>。</p>
+</div>
+<div class=smallskip></div>
+<p style="margin-top: 0pt; margin-bottom: 0pt">
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-14.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-16.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+</p>
+<p></p>
+</div>
+</body>
+</html>

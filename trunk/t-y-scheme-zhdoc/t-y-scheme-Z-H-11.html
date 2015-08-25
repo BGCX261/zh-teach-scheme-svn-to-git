@@ -1,0 +1,199 @@
+<!doctype html public "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!--
+
+Generated from t-y-scheme.tex by tex2page, v 20070609
+(running on MzScheme 4.2.1, unix), 
+(c) Dorai Sitaram, 
+http://www.ccs.neu.edu/~dorai/tex2page/tex2page-doc.html
+
+-->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+Teach Yourself Scheme in Fixnum Days 中文版
+</title>
+<link rel="stylesheet" type="text/css" href="t-y-scheme-Z-S.css" title=default>
+<meta name="robots" content="index,follow">
+<meta name=description content="A practical
+introduction to the programming language Scheme">
+
+<meta name=author content="Dorai Sitaram">
+
+<link rev=made href="mailto:dorai @ ccs.neu.edu">
+</head>
+<body>
+<div id=slidecontent>
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-10.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-12.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+<p></p>
+<a name="node_chap_9"></a>
+<h1 class=chapter>
+<div class=chapterheading><a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_9">第 9 章 </a></div>
+<br>
+<a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_9">结构</a></h1>
+<p><a name="node_idx_400"></a>Data that are naturally grouped are called <em>structures</em>.  我们可以使用 Scheme 的复合数据类型，例如 vector 或是 list 来表示结构。例如，比方说我们正在处理和一棵（植物学的）树相关的聚合数据。这个数据中的每个元素或是域可能是：height，girth，age，leaf-shape和leaf-color，共5个域。这样的数据可以用 5 个元素的 vector 来表示。其中的域可以用
+<code class=scheme><span class=variable>vector-ref</span></code> 来获取和用 <code class=scheme><span class=variable>vector-set!</span></code> 来修改。尽管如此，我们并不想背负记住哪个索引是和哪个域相关的这个负担。那样做是吃力不讨好并且易出错的行为，尤其是如果域随时间的变化而减少或增加的话。</p>
+<p>
+<a name="node_idx_402"></a><a name="node_idx_404"></a></p>
+<p>
+因此我们将使用 Scheme 宏 <code class=scheme><span class=keyword>defstruct</span></code> 来定义一个数据结构类型，其本质是一个 vector，但是和一套合适的过程相关联后可以创建这个结构的实例并获取和修改它的域。因此，我们的 <code class=scheme><span class=variable>tree</span></code>
+结构可以定义成：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>defstruct</span> <span class=variable>tree</span> <span class=variable>height</span> <span class=variable>girth</span> <span class=variable>age</span> <span class=variable>leaf-shape</span> <span class=variable>leaf-color</span>)
+</pre><p></p>
+<p>
+这给出了一个名为
+<code class=scheme><span class=variable>make-tree</span></code> 的构造器过程；每个域的获取器过程
+<code class=scheme><span class=variable>tree.height</span></code>，<code class=scheme><span class=variable>tree.girth</span></code> 等等；和每个域的修改器过程 <code class=scheme><span class=variable>set!tree.height</span></code>，<code class=scheme><span class=variable>set!tree.girth</span></code> 等等。构造器的使用如下：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>coconut</span> 
+  (<span class=variable>make-tree</span> <span class=keyword>'</span><span class=variable>height</span> <span class=selfeval>30</span>
+             <span class=keyword>'</span><span class=variable>leaf-shape</span> <span class=keyword>'</span><span class=variable>frond</span>
+             <span class=keyword>'</span><span class=variable>age</span> <span class=selfeval>5</span>))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>构造器的参数以对的形式出现，一个域名后面跟着它的初始值。域的出现没有次序，并且可以不出现，也就是域的值是未定义的。</p>
+<p>
+获取器过程的调用如下：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>tree.height</span> <span class=variable>coconut</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>30</span>
+(<span class=variable>tree.leaf-shape</span> <span class=variable>coconut</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=variable>frond</span>
+(<span class=variable>tree.girth</span> <span class=variable>coconut</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=variable>&lt;undefined&gt;</span>
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent><code class=scheme><span class=variable>tree.girth</span></code> 获取器返回一个未定义的值，因为我们没有为
+<code class=scheme><span class=variable>coconut</span></code> <code class=scheme><span class=variable>tree</span></code> 的  <code class=scheme><span class=variable>girth</span></code> 域设定值。 </p>
+<p>
+修改器过程的调用如下：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>set!tree.height</span> <span class=variable>coconut</span> <span class=selfeval>40</span>)
+(<span class=variable>set!tree.girth</span> <span class=variable>coconut</span> <span class=selfeval>10</span>)
+</pre><p></p>
+<p>
+现在如果我们使用相关的获取器获取这些域的话，我们会得到新的值：If </p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>tree.height</span> <span class=variable>coconut</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>40</span>
+(<span class=variable>tree.girth</span> <span class=variable>coconut</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>10</span>
+</pre><p></p>
+<p>
+</p>
+<a name="node_sec_9.1"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_9.1">9.1&nbsp;&nbsp;默认的初始值</a></h2>
+<p>与其在每次实例化时给定初始值，我们可以在定义结构时给定一些初始值。因此，我们可以分别假设 <code class=scheme><span class=variable>leaf-shape</span></code>
+和 <code class=scheme><span class=variable>leaf-color</span></code> 默认为 <code class=scheme><span class=variable>frond</span></code> 和
+<code class=scheme><span class=variable>green</span></code> 。我们可以通过提供显示的初始值来覆盖这些默认值，或是在结构实例创建后使用域的修改器来修改。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>defstruct</span> <span class=variable>tree</span> <span class=variable>height</span> <span class=variable>girth</span> <span class=variable>age</span>
+                (<span class=variable>leaf-shape</span> <span class=keyword>'</span><span class=variable>frond</span>)
+                (<span class=variable>leaf-color</span> <span class=keyword>'</span><span class=variable>green</span>))
+
+(<span class=keyword>define</span> <span class=variable>palm</span> (<span class=variable>make-tree</span> <span class=keyword>'</span><span class=variable>height</span> <span class=selfeval>60</span>))
+
+(<span class=variable>tree.height</span> <span class=variable>palm</span>) 
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>60</span>
+
+(<span class=variable>tree.leaf-shape</span> <span class=variable>palm</span>) 
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=variable>frond</span>
+
+(<span class=keyword>define</span> <span class=variable>plantain</span> 
+  (<span class=variable>make-tree</span> <span class=keyword>'</span><span class=variable>height</span> <span class=selfeval>7</span>
+             <span class=keyword>'</span><span class=variable>leaf-shape</span> <span class=keyword>'</span><span class=variable>sheet</span>))
+
+(<span class=variable>tree.height</span> <span class=variable>plantain</span>) 
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>7</span>
+
+(<span class=variable>tree.leaf-shape</span> <span class=variable>plantain</span>) 
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=variable>sheet</span>
+
+(<span class=variable>tree.leaf-color</span> <span class=variable>plantain</span>) 
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=variable>green</span>
+</pre><p></p>
+<p>
+</p>
+<a name="node_sec_9.2"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_9.2">9.2&nbsp;&nbsp;<code class=scheme><span class=keyword>defstruct</span></code> 定义</a></h2>
+<p><code class=scheme><span class=keyword>defstruct</span></code> 的宏定义如下：</p>
+<p>
+</p>
+<p>
+</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define-macro</span> <span class=keyword>defstruct</span>
+  (<span class=keyword>lambda</span> (<span class=variable>s</span> . <span class=variable>ff</span>)
+    (<span class=keyword>let</span> ((<span class=variable>s-s</span> (<span class=variable>symbol-&gt;string</span> <span class=variable>s</span>)) (<span class=variable>n</span> (<span class=variable>length</span> <span class=variable>ff</span>)))
+      (<span class=keyword>let*</span> ((<span class=variable>n+1</span> (<span class=variable>+</span> <span class=variable>n</span> <span class=selfeval>1</span>))
+             (<span class=variable>vv</span> (<span class=variable>make-vector</span> <span class=variable>n+1</span>)))
+        (<span class=keyword>let</span> <span class=variable>loop</span> ((<span class=variable>i</span> <span class=selfeval>1</span>) (<span class=variable>ff</span> <span class=variable>ff</span>))
+          (<span class=keyword>if</span> (<span class=variable>&lt;=</span> <span class=variable>i</span> <span class=variable>n</span>)
+            (<span class=keyword>let</span> ((<span class=variable>f</span> (<span class=variable>car</span> <span class=variable>ff</span>)))
+              (<span class=variable>vector-set!</span> <span class=variable>vv</span> <span class=variable>i</span> 
+                (<span class=keyword>if</span> (<span class=variable>pair?</span> <span class=variable>f</span>) (<span class=variable>cadr</span> <span class=variable>f</span>) <span class=keyword>'</span>(<span class=keyword>if</span> <span class=selfeval>#f</span> <span class=selfeval>#f</span>)))
+              (<span class=variable>loop</span> (<span class=variable>+</span> <span class=variable>i</span> <span class=selfeval>1</span>) (<span class=variable>cdr</span> <span class=variable>ff</span>)))))
+        (<span class=keyword>let</span> ((<span class=variable>ff</span> (<span class=variable>map</span> (<span class=keyword>lambda</span> (<span class=variable>f</span>) (<span class=keyword>if</span> (<span class=variable>pair?</span> <span class=variable>f</span>) (<span class=variable>car</span> <span class=variable>f</span>) <span class=variable>f</span>))
+                       <span class=variable>ff</span>)))
+          <span class=keyword>`</span>(<span class=keyword>begin</span>
+             (<span class=keyword>define</span> <span class=keyword>,</span>(<span class=variable>string-&gt;symbol</span> 
+                       (<span class=variable>string-append</span> <span class=selfeval>&quot;make-&quot;</span> <span class=variable>s-s</span>))
+               (<span class=keyword>lambda</span> <span class=variable>fvfv</span>
+                 (<span class=keyword>let</span> ((<span class=variable>st</span> (<span class=variable>make-vector</span> <span class=keyword>,</span><span class=variable>n+1</span>)) (<span class=variable>ff</span> <span class=keyword>'</span><span class=keyword>,</span><span class=variable>ff</span>))
+                   (<span class=variable>vector-set!</span> <span class=variable>st</span> <span class=selfeval>0</span> <span class=keyword>'</span><span class=keyword>,</span><span class=variable>s</span>)
+                   <span class=keyword>,@</span>(<span class=keyword>let</span> <span class=variable>loop</span> ((<span class=variable>i</span> <span class=selfeval>1</span>) (<span class=variable>r</span> <span class=keyword>'</span>()))
+                       (<span class=keyword>if</span> (<span class=variable>&gt;=</span> <span class=variable>i</span> <span class=variable>n+1</span>) <span class=variable>r</span>
+                           (<span class=variable>loop</span> (<span class=variable>+</span> <span class=variable>i</span> <span class=selfeval>1</span>)
+                                 (<span class=variable>cons</span> <span class=keyword>`</span>(<span class=variable>vector-set!</span> <span class=variable>st</span> <span class=keyword>,</span><span class=variable>i</span> 
+                                          <span class=keyword>,</span>(<span class=variable>vector-ref</span> <span class=variable>vv</span> <span class=variable>i</span>))
+                                       <span class=variable>r</span>))))
+                   (<span class=keyword>let</span> <span class=variable>loop</span> ((<span class=variable>fvfv</span> <span class=variable>fvfv</span>))
+                     (<span class=keyword>if</span> (<span class=variable>not</span> (<span class=variable>null?</span> <span class=variable>fvfv</span>))
+                         (<span class=keyword>begin</span>
+                           (<span class=variable>vector-set!</span> <span class=variable>st</span> 
+                               (<span class=variable>+</span> (<span class=variable>list-position</span> (<span class=variable>car</span> <span class=variable>fvfv</span>) <span class=variable>ff</span>)
+                                  <span class=selfeval>1</span>)
+                             (<span class=variable>cadr</span> <span class=variable>fvfv</span>))
+                           (<span class=variable>loop</span> (<span class=variable>cddr</span> <span class=variable>fvfv</span>)))))
+                   <span class=variable>st</span>)))
+             <span class=keyword>,@</span>(<span class=keyword>let</span> <span class=variable>loop</span> ((<span class=variable>i</span> <span class=selfeval>1</span>) (<span class=variable>procs</span> <span class=keyword>'</span>()))
+                 (<span class=keyword>if</span> (<span class=variable>&gt;=</span> <span class=variable>i</span> <span class=variable>n+1</span>) <span class=variable>procs</span>
+                     (<span class=variable>loop</span> (<span class=variable>+</span> <span class=variable>i</span> <span class=selfeval>1</span>)
+                           (<span class=keyword>let</span> ((<span class=variable>f</span> (<span class=variable>symbol-&gt;string</span>
+                                     (<span class=variable>list-ref</span> <span class=variable>ff</span> (<span class=variable>-</span> <span class=variable>i</span> <span class=selfeval>1</span>)))))
+                             (<span class=variable>cons</span>
+                              <span class=keyword>`</span>(<span class=keyword>define</span> <span class=keyword>,</span>(<span class=variable>string-&gt;symbol</span> 
+                                         (<span class=variable>string-append</span>
+                                          <span class=variable>s-s</span> <span class=selfeval>&quot;.&quot;</span> <span class=variable>f</span>))
+                                 (<span class=keyword>lambda</span> (<span class=variable>x</span>) (<span class=variable>vector-ref</span> <span class=variable>x</span> <span class=keyword>,</span><span class=variable>i</span>)))
+                              (<span class=variable>cons</span>
+                               <span class=keyword>`</span>(<span class=keyword>define</span> <span class=keyword>,</span>(<span class=variable>string-&gt;symbol</span>
+                                          (<span class=variable>string-append</span> 
+                                           <span class=selfeval>&quot;set!&quot;</span> <span class=variable>s-s</span> <span class=selfeval>&quot;.&quot;</span> <span class=variable>f</span>))
+                                  (<span class=keyword>lambda</span> (<span class=variable>x</span> <span class=variable>v</span>) 
+                                    (<span class=variable>vector-set!</span> <span class=variable>x</span> <span class=keyword>,</span><span class=variable>i</span> <span class=variable>v</span>)))
+                               <span class=variable>procs</span>))))))
+             (<span class=keyword>define</span> <span class=keyword>,</span>(<span class=variable>string-&gt;symbol</span> (<span class=variable>string-append</span> <span class=variable>s-s</span> <span class=selfeval>&quot;?&quot;</span>))
+               (<span class=keyword>lambda</span> (<span class=variable>x</span>)
+                 (<span class=keyword>and</span> (<span class=variable>vector?</span> <span class=variable>x</span>)
+                      (<span class=variable>eqv?</span> (<span class=variable>vector-ref</span> <span class=variable>x</span> <span class=selfeval>0</span>) <span class=keyword>'</span><span class=keyword>,</span><span class=variable>s</span>))))))))))
+</pre><p></p>
+<p>
+</p>
+<p>
+</p>
+<div class=smallskip></div>
+<p style="margin-top: 0pt; margin-bottom: 0pt">
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-10.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-12.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+</p>
+<p></p>
+</div>
+</body>
+</html>

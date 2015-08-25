@@ -1,0 +1,214 @@
+<!doctype html public "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!--
+
+Generated from t-y-scheme.tex by tex2page, v 20070609
+(running on MzScheme 4.2.1, unix), 
+(c) Dorai Sitaram, 
+http://www.ccs.neu.edu/~dorai/tex2page/tex2page-doc.html
+
+-->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+Teach Yourself Scheme in Fixnum Days 中文版
+</title>
+<link rel="stylesheet" type="text/css" href="t-y-scheme-Z-S.css" title=default>
+<meta name="robots" content="index,follow">
+<meta name=description content="A practical
+introduction to the programming language Scheme">
+
+<meta name=author content="Dorai Sitaram">
+
+<link rev=made href="mailto:dorai @ ccs.neu.edu">
+</head>
+<body>
+<div id=slidecontent>
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-7.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-9.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+<p></p>
+<a name="node_chap_6"></a>
+<h1 class=chapter>
+<div class=chapterheading><a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_6">Chapter 6</a></div><br>
+<a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_6">递归</a></h1>
+<p><a name="node_idx_280"></a><a name="node_idx_282"></a>一个过程中可以包含对其它过程的调用，不只是它自己：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>factorial</span>
+  (<span class=keyword>lambda</span> (<span class=variable>n</span>)
+    (<span class=keyword>if</span> (<span class=variable>=</span> <span class=variable>n</span> <span class=selfeval>0</span>) <span class=selfeval>1</span>
+        (<span class=variable>*</span> <span class=variable>n</span> (<span class=variable>factorial</span> (<span class=variable>-</span> <span class=variable>n</span> <span class=selfeval>1</span>))))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>这个递归（<em>recursive</em>）过程计算一个数的<em>阶乘</em>。当这个数字是 <code class=scheme><span class=selfeval>0</span></code> 的时候，结果是 <code class=scheme><span class=selfeval>1</span></code>。对其它的数字 <code class=scheme><span class=variable>n</span></code>，这个过程调用自己来计算 <code class=scheme><span class=variable>n</span> <span class=variable>-</span> <span class=selfeval>1</span></code> 的阶乘，再用 <code class=scheme><span class=variable>n</span></code> 乘以得出的结果，然后返回乘积的值。</p>
+<p>互递归的过程也是可行的。下面这个用来判断奇数偶数的谓词就互相调用：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>is-even?</span>
+  (<span class=keyword>lambda</span> (<span class=variable>n</span>)
+    (<span class=keyword>if</span> (<span class=variable>=</span> <span class=variable>n</span> <span class=selfeval>0</span>) <span class=selfeval>#t</span>
+        (<span class=variable>is-odd?</span> (<span class=variable>-</span> <span class=variable>n</span> <span class=selfeval>1</span>)))))
+
+(<span class=keyword>define</span> <span class=variable>is-odd?</span>
+  (<span class=keyword>lambda</span> (<span class=variable>n</span>)
+    (<span class=keyword>if</span> (<span class=variable>=</span> <span class=variable>n</span> <span class=selfeval>0</span>) <span class=selfeval>#f</span>
+        (<span class=variable>is-even?</span> (<span class=variable>-</span> <span class=variable>n</span> <span class=selfeval>1</span>)))))
+</pre><p></p>
+<p>
+<a name="node_idx_284"></a><a name="node_idx_286"></a></p>
+<p>这里的过程定义仅是一个简单的互递归的例子。Scheme 已经提供了基本谓词 <code class=scheme><span class=variable>even?</span></code> 和 <code class=scheme><span class=variable>odd?</span></code>。</p>
+<p>
+<a name="node_idx_288"></a><a name="node_idx_290"></a></p>
+<p>
+</p>
+<a name="node_sec_6.1"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_6.1">6.1&nbsp;&nbsp;<code class=scheme><span class=keyword>letrec</span></code></a></h2>
+<p>如果我们想让上面的过程作为一个局部变量，我们可以尝试使用 <code class=scheme><span class=keyword>let</span></code> 形式。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>let</span> ((<span class=variable>local-even?</span> (<span class=keyword>lambda</span> (<span class=variable>n</span>)
+                     (<span class=keyword>if</span> (<span class=variable>=</span> <span class=variable>n</span> <span class=selfeval>0</span>) <span class=selfeval>#t</span>
+                         (<span class=variable>local-odd?</span> (<span class=variable>-</span> <span class=variable>n</span> <span class=selfeval>1</span>)))))
+      (<span class=variable>local-odd?</span> (<span class=keyword>lambda</span> (<span class=variable>n</span>)
+                    (<span class=keyword>if</span> (<span class=variable>=</span> <span class=variable>n</span> <span class=selfeval>0</span>) <span class=selfeval>#f</span>
+                        (<span class=variable>local-even?</span> (<span class=variable>-</span> <span class=variable>n</span> <span class=selfeval>1</span>))))))
+  (<span class=variable>list</span> (<span class=variable>local-even?</span> <span class=selfeval>23</span>) (<span class=variable>local-odd?</span> <span class=selfeval>23</span>)))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>这个过程不大有用，因为 <code class=scheme><span class=variable>local-even?</span></code> 和 <code class=scheme><span class=variable>local-odd?</span></code> 在初始化时并没有指向词变量（lexical variables）本身。把 <code class=scheme><span class=keyword>let</span></code> 改成<code class=scheme><span class=keyword>let*</span></code> 也不奏效，因为当 <code class=scheme><span class=variable>local-odd?</span></code> 中的 <code class=scheme><span class=variable>local-even?</span></code> 指向了正确的过程值的时候，在 <code class=scheme><span class=variable>local-even?</span></code> 中的 <code class=scheme><span class=variable>local-odd?</span></code> 还在指向其它的地方。</p>
+<p>要解决类似的问题，Scheme 提供了形式 <code class=scheme><span class=keyword>letrec</span></code>：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>letrec</span> ((<span class=variable>local-even?</span> (<span class=keyword>lambda</span> (<span class=variable>n</span>)
+                        (<span class=keyword>if</span> (<span class=variable>=</span> <span class=variable>n</span> <span class=selfeval>0</span>) <span class=selfeval>#t</span>
+                            (<span class=variable>local-odd?</span> (<span class=variable>-</span> <span class=variable>n</span> <span class=selfeval>1</span>)))))
+         (<span class=variable>local-odd?</span> (<span class=keyword>lambda</span> (<span class=variable>n</span>)
+                       (<span class=keyword>if</span> (<span class=variable>=</span> <span class=variable>n</span> <span class=selfeval>0</span>) <span class=selfeval>#f</span>
+                           (<span class=variable>local-even?</span> (<span class=variable>-</span> <span class=variable>n</span> <span class=selfeval>1</span>))))))
+  (<span class=variable>list</span> (<span class=variable>local-even?</span> <span class=selfeval>23</span>) (<span class=variable>local-odd?</span> <span class=selfeval>23</span>)))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>被 <code class=scheme><span class=keyword>letrec</span></code> 引进的词变量不仅可以在 <code class=scheme><span class=keyword>letrec</span></code> 过程体中是可见，在初始化时也是可见的。所以 <code class=scheme><span class=keyword>letrec</span></code> 是为定义递归和互递归的局部过程而特制的。</p>
+<p>
+<a name="node_idx_292"></a><a name="node_idx_294"></a></p>
+<p>
+</p>
+<a name="node_sec_6.2"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_6.2">6.2&nbsp;&nbsp;命名 <code class=scheme><span class=keyword>let</span></code></a></h2>
+<p>用 <code class=scheme><span class=keyword>letrec</span></code> 定义的递归过程可以表示出一个循环。比如我们想输出从 <code class=scheme><span class=selfeval>10</span></code> 开始的倒数：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>letrec</span> ((<span class=variable>countdown</span> (<span class=keyword>lambda</span> (<span class=variable>i</span>)
+                      (<span class=keyword>if</span> (<span class=variable>=</span> <span class=variable>i</span> <span class=selfeval>0</span>) <span class=keyword>'</span><span class=variable>liftoff</span>
+                          (<span class=keyword>begin</span>
+                            (<span class=variable>display</span> <span class=variable>i</span>)
+                            (<span class=variable>newline</span>)
+                            (<span class=variable>countdown</span> (<span class=variable>-</span> <span class=variable>i</span> <span class=selfeval>1</span>)))))))
+  (<span class=variable>countdown</span> <span class=selfeval>10</span>))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>这个过程输出把 <code class=scheme><span class=selfeval>10</span></code> 到 <code class=scheme><span class=selfeval>1</span></code> 的数字输出到了控制台，然后返回结果 <code class=scheme><span class=variable>liftoff</span></code>。</p>
+<p>Scheme 允许 <code class=scheme><span class=keyword>let</span></code> 的一个叫命名 <code class=scheme><span class=keyword> let</span></code>（<em>named</em> <code class=scheme><span class=keyword>let</span></code>）的变体来更简洁地输出这类循环：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>let</span> <span class=variable>countdown</span> ((<span class=variable>i</span> <span class=selfeval>10</span>))
+  (<span class=keyword>if</span> (<span class=variable>=</span> <span class=variable>i</span> <span class=selfeval>0</span>) <span class=keyword>'</span><span class=variable>liftoff</span>
+      (<span class=keyword>begin</span>
+        (<span class=variable>display</span> <span class=variable>i</span>)
+        (<span class=variable>newline</span>)
+        (<span class=variable>countdown</span> (<span class=variable>-</span> <span class=variable>i</span> <span class=selfeval>1</span>)))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>注意紧跟在 <code class=scheme><span class=keyword>let</span></code> 之后那个表示循环变量的表示方法。这个程序和那个使用 <code class=scheme><span class=keyword>letrec</span></code> 的是等价的。你可以考虑把命名 <code class=scheme><span class=keyword>let</span></code> 当成一个宏（第 <a href="t-y-scheme-Z-H-10.html#node_chap_8">8</a> 章） 扩展成为 <code class=scheme><span class=keyword>letrec</span></code> 的形式。</p>
+<p>
+<a name="node_idx_296"></a><a name="node_idx_298"></a><a name="node_idx_300"></a><a name="node_idx_302"></a><a name="node_idx_304"></a><a name="node_idx_306"></a><a name="node_idx_308"></a><a name="node_idx_310"></a></p>
+<p>
+</p>
+<a name="node_sec_6.3"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_6.3">6.3&nbsp;&nbsp;迭代</a></h2>
+<p>上面定义的 <code class=scheme><span class=variable>countdown</span></code> 是一个真正的递归过程。Scheme 只能通过递归来定义循环。没有特殊的循环或者迭代的结构。</p>
+<p>然而，上面定义的循环是一个<em>真正的</em>循环，同其它语言的循环是一模一样的。也就是说，Scheme 使用了特殊的方法来保证上面那个类型的递归不会过度地产生过程的调用和返回。</p>
+
+<p>Scheme 是使用一个称为<em>尾调用消除</em>（<em>tail-call elimination</em>）的过程来实现的。如果你细看 <code class=scheme><span class=variable>countdown</span></code> 过程，你会发现当这个递归调用发生在  <code class=scheme><span class=variable>countdown</span></code> 的过程体中时，它就是<em>尾调用</em>，也就是过程最后一个执行的动作&#8212;每个对 <code class=scheme><span class=variable>countdown</span></code> 的调用要么不调用它自身，要么当它调用的时候它是执行的最后一个动作。对于一个 Scheme 的实现而言，它使得递归和迭代难以辨别。所以可以随便使用，使用递归来写一个循环。它很安全。</p>
+<p>下面是另一个有用的尾递归：</p>
+<p>
+<a name="node_idx_312"></a></p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>list-position</span>
+  (<span class=keyword>lambda</span> (<span class=variable>o</span> <span class=variable>l</span>)
+    (<span class=keyword>let</span> <span class=variable>loop</span> ((<span class=variable>i</span> <span class=selfeval>0</span>) (<span class=variable>l</span> <span class=variable>l</span>))
+      (<span class=keyword>if</span> (<span class=variable>null?</span> <span class=variable>l</span>) <span class=selfeval>#f</span>
+          (<span class=keyword>if</span> (<span class=variable>eqv?</span> (<span class=variable>car</span> <span class=variable>l</span>) <span class=variable>o</span>) <span class=variable>i</span>
+              (<span class=variable>loop</span> (<span class=variable>+</span> <span class=variable>i</span> <span class=selfeval>1</span>) (<span class=variable>cdr</span> <span class=variable>l</span>)))))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent><code class=scheme><span class=variable>list-position</span></code> 在表 <code class=scheme><span class=variable>l</span></code> 中查找第一个出现的对象 <code class=scheme><span class=variable>o</span></code> 的下标。如果对象不存在，过程返回 <code class=scheme><span class=selfeval>#f</span></code>。</p>
+<p>下面也是一个尾递归过程。这个过程就在原来的位置上翻转它的参数，也就是交换已存在表的内容，而不新建：</p>
+<p>
+<a name="node_idx_314"></a></p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>reverse!</span>
+  (<span class=keyword>lambda</span> (<span class=variable>s</span>)
+    (<span class=keyword>let</span> <span class=variable>loop</span> ((<span class=variable>s</span> <span class=variable>s</span>) (<span class=variable>r</span> <span class=keyword>'</span>()))
+      (<span class=keyword>if</span> (<span class=variable>null?</span> <span class=variable>s</span>) <span class=variable>r</span>
+	  (<span class=keyword>let</span> ((<span class=variable>d</span> (<span class=variable>cdr</span> <span class=variable>s</span>)))
+            (<span class=variable>set-cdr!</span> <span class=variable>s</span> <span class=variable>r</span>)
+	    (<span class=variable>loop</span> <span class=variable>d</span> <span class=variable>s</span>))))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>（<code class=scheme><span class=variable>reverse!</span></code> 是一个如此有用的过程，在众多的 Scheme 方言，比如 MzScheme 和 Guile 中都当成了基本过程。）</p>
+<p>一些数字的递归的（包括迭代的）例子，参见附录&nbsp;<a href="t-y-scheme-Z-H-22.html#node_chap_C">C</a>。</p>
+<p>
+<a name="node_idx_316"></a><a name="node_idx_318"></a></p>
+<p>
+</p>
+<a name="node_sec_6.4"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_6.4">6.4&nbsp;&nbsp;对整个表进行映射</a></h2>
+<p>一种特殊的迭代方式涉及到了对一个表中的每一个元素都进行同样的操作。Scheme 为这种情况提供了两个过程：<code class=scheme><span class=variable>map</span></code> 和 <code class=scheme><span class=variable>for-each</span></code>。</p>
+<p><code class=scheme><span class=variable>map</span></code> 过程将给定的过程作用在给定表中的每一个元素上，然后返回结果的表，比如：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>map</span> <span class=variable>add2</span> <span class=keyword>'</span>(<span class=selfeval>1</span> <span class=selfeval>2</span> <span class=selfeval>3</span>))
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  (<span class=selfeval>3</span> <span class=selfeval>4</span> <span class=selfeval>5</span>)
+</pre><p></p>
+<p><code class=scheme><span class=variable>for-each</span></code> 过程也是将一个过程作用在表中的每一个元素上，但返回空值。这个过程纯粹是使用了过程产生的副作用。例如，</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>for-each</span> <span class=variable>display</span>
+  (<span class=variable>list</span> <span class=selfeval>&quot;one &quot;</span> <span class=selfeval>&quot;two &quot;</span> <span class=selfeval>&quot;buckle my shoe&quot;</span>))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>有在控制台打印字符串（按顺序）的副作用。</p>
+<p><code class=scheme><span class=variable>map</span></code> 和 <code class=scheme><span class=variable>for-each</span></code> 作用的过程并非是只带一个参数的过程。例如，给了接受 <code class=scheme><span class=variable>n</span></code> 个参数的过程，<code class=scheme><span class=variable>map</span></code> 接收 <code class=scheme><span class=variable>n</span></code> 个表，然后把过程作用在整个表中 <code class=scheme><span class=variable>n</span></code> 个参数的每个参数上，例如：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>map</span> <span class=variable>cons</span> <span class=keyword>'</span>(<span class=selfeval>1</span> <span class=selfeval>2</span> <span class=selfeval>3</span>) <span class=keyword>'</span>(<span class=selfeval>10</span> <span class=selfeval>20</span> <span class=selfeval>30</span>))
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  ((<span class=selfeval>1</span> . <span class=selfeval>10</span>) (<span class=selfeval>2</span> . <span class=selfeval>20</span>) (<span class=selfeval>3</span> . <span class=selfeval>30</span>))
+
+(<span class=variable>map</span> <span class=variable>+</span> <span class=keyword>'</span>(<span class=selfeval>1</span> <span class=selfeval>2</span> <span class=selfeval>3</span>) <span class=keyword>'</span>(<span class=selfeval>10</span> <span class=selfeval>20</span> <span class=selfeval>30</span>))
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  (<span class=selfeval>11</span> <span class=selfeval>22</span> <span class=selfeval>33</span>)
+</pre><p>
+</p>
+<p>
+</p>
+<div class=smallskip></div>
+<p style="margin-top: 0pt; margin-bottom: 0pt">
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-7.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-9.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+</p>
+<p></p>
+</div>
+</body>
+</html>

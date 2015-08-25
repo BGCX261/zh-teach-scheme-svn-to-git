@@ -1,0 +1,728 @@
+<!doctype html public "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!--
+
+Generated from t-y-scheme.tex by tex2page, v 20070609
+(running on MzScheme 4.2.1, unix), 
+(c) Dorai Sitaram, 
+http://www.ccs.neu.edu/~dorai/tex2page/tex2page-doc.html
+
+-->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+Teach Yourself Scheme in Fixnum Days 中文版
+</title>
+<link rel="stylesheet" type="text/css" href="t-y-scheme-Z-S.css" title=default>
+<meta name="robots" content="index,follow">
+<meta name=description content="A practical
+introduction to the programming language Scheme">
+
+<meta name=author content="Dorai Sitaram">
+
+<link rev=made href="mailto:dorai @ ccs.neu.edu">
+</head>
+<body>
+<div id=slidecontent>
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-3.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-5.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+<p></p>
+<a name="node_chap_2"></a>
+<h1 class=chapter>
+<div class=chapterheading><a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_2">Chapter 2</a></div><br>
+<a href="t-y-scheme-Z-H-1.html#node_toc_node_chap_2">数据类型</a></h1>
+<p><a name="node_idx_38"></a>一种<em>数据类型</em>是一组相关数据的集合。这些集合不需彼此独立，并且它们常常是分层次的。Scheme 有着丰富的数据类型集合：一些是简单的数据类型（不可再分割），而其余则是由其他的数据类型组合起来的复合数据类型。</p>
+<p>
+<a name="node_idx_40"></a></p>
+<p>
+</p>
+<a name="node_sec_2.1"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_2.1">2.1&nbsp;&nbsp;简单数据类型</a></h2>
+<p>Scheme 的简单数据类型包括布尔型（booleans），数字（numbers），字符（characters）和符号（symbols）。</p>
+<p>
+<a name="node_idx_42"></a></p>
+<p>
+</p>
+<a name="node_sec_2.1.1"></a>
+<h3 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_2.1.1">2.1.1&nbsp;&nbsp;布尔型</a></h3>
+<p></p>
+<p>
+<a name="node_idx_44"></a><a name="node_idx_46"></a><a name="node_idx_48"></a><a name="node_idx_50"></a><a name="node_idx_52"></a>Scheme 的布尔型用 <code class=scheme><span class=selfeval>#t</span></code> 代表 true，用 <code class=scheme><span class=selfeval>#f</span></code> 代表 false。Scheme 用一个谓词 <code class=scheme><span class=variable>boolean?</span></code> 来检测它的参数是否是布尔型。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>boolean?</span> <span class=selfeval>#t</span>)              <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+(<span class=variable>boolean?</span> <span class=selfeval>&quot;Hello, World!&quot;</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#f</span>
+</pre><p></p>
+<p>
+<a name="node_idx_54"></a></p>
+<p>
+</p>
+
+<p class=noindent>过程 <code class=scheme><span class=variable>not</span></code> 将它的参数认为是布尔型，并且对其取反。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>not</span> <span class=selfeval>#f</span>)              <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+(<span class=variable>not</span> <span class=selfeval>#t</span>)              <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#f</span>
+(<span class=variable>not</span> <span class=selfeval>&quot;Hello, World!&quot;</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#f</span>
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>最后一个表达式说明了 Scheme 的一个便利之处：在一个需要布尔型的环境中，Scheme 会把任何不是 <code class=scheme><span class=selfeval>#f</span></code> 看成是真。</p>
+<p>
+<a name="node_idx_56"></a></p>
+<p>
+</p>
+<a name="node_sec_2.1.2"></a>
+<h3 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_2.1.2">2.1.2&nbsp;&nbsp;数字</a></h3>
+<p>Scheme 数字类型可以是整数（例如 <code class=scheme><span class=selfeval>42</span></code>），有理数（<code class=scheme><span class=selfeval>22/7</span></code>），实数（<code class=scheme><span class=selfeval>3.1416</span></code>）或者是复数（<code class=scheme><span class=selfeval>2+3i</span></code>）。一个整数是一个有理数，一个有理数是一个实数，一个实数是一个复数，一个复数即为一个数（number）。存在许多的谓词来测试它们：</p>
+<p>
+<a name="node_idx_58"></a><a name="node_idx_60"></a><a name="node_idx_62"></a><a name="node_idx_64"></a><a name="node_idx_66"></a></p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>number?</span> <span class=selfeval>42</span>)       <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+(<span class=variable>number?</span> <span class=selfeval>#t</span>)       <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#f</span>
+(<span class=variable>complex?</span> <span class=selfeval>2+3i</span>)    <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+(<span class=variable>real?</span> <span class=selfeval>2+3i</span>)       <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#f</span>
+(<span class=variable>real?</span> <span class=selfeval>3.1416</span>)     <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+(<span class=variable>real?</span> <span class=selfeval>22/7</span>)       <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+(<span class=variable>real?</span> <span class=selfeval>42</span>)         <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+(<span class=variable>rational?</span> <span class=selfeval>2+3i</span>)   <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#f</span>
+(<span class=variable>rational?</span> <span class=selfeval>3.1416</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+(<span class=variable>rational?</span> <span class=selfeval>22/7</span>)   <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+(<span class=variable>integer?</span> <span class=selfeval>22/7</span>)    <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#f</span>
+(<span class=variable>integer?</span> <span class=selfeval>42</span>)      <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+</pre><p></p>
+<p>
+<a name="node_idx_68"></a><a name="node_idx_70"></a><a name="node_idx_72"></a><a name="node_idx_74"></a></p>
+<p>
+</p>
+
+<p class=noindent>Scheme 整数不需要指定为十进制格式。它们可以用前缀 <code class=scheme><span class=selfeval>#b</span></code> 来指定为二进制。所以 <code class=scheme><span class=selfeval>#b1100</span></code> 是数字 12 。八进制前缀是 <code class=scheme><span class=selfeval>#o</span></code>。十六进制前缀是 <code class=scheme><span class=selfeval>#x</span></code>。（可选的十进制前缀是 <code class=scheme><span class=selfeval>#d</span></code>。）</p>
+<p>
+<a name="node_idx_76"></a></p>
+<p>
+数字可以用通用谓词 <code class=scheme><span class=variable>eqv?</span></code> 来测试相等性。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>eqv?</span> <span class=selfeval>42</span> <span class=selfeval>42</span>)   <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+(<span class=variable>eqv?</span> <span class=selfeval>42</span> <span class=selfeval>#f</span>)   <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#f</span>
+(<span class=variable>eqv?</span> <span class=selfeval>42</span> <span class=selfeval>42.0</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#f</span>
+</pre><p></p>
+<p>
+<a name="node_idx_78"></a></p>
+<p>
+</p>
+
+<p class=noindent>不过，如果你已经知道要比较的是参数是数字，就可以使用更适合的特殊谓词 <code class=scheme><span class=variable>=</span></code>。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>=</span> <span class=selfeval>42</span> <span class=selfeval>42</span>)   <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+(<span class=variable>=</span> <span class=selfeval>42</span> <span class=selfeval>#f</span>)   <span style="color: red"><tt><strong><i>--&gt;ERROR!!!</i></strong></tt></span>
+(<span class=variable>=</span> <span class=selfeval>42</span> <span class=selfeval>42.0</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+</pre><p></p>
+<p>
+<a name="node_idx_80"></a><a name="node_idx_82"></a><a name="node_idx_84"></a><a name="node_idx_86"></a></p>
+<p>
+</p>
+
+<p class=noindent>其他的数字比较可以使用
+<code class=scheme><span class=variable>&lt;</span></code>, <code class=scheme><span class=variable>&lt;=</span></code>, <code class=scheme><span class=variable>&gt;</span></code>, <code class=scheme><span class=variable>&gt;=</span></code>.</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>&lt;</span> <span class=selfeval>3</span> <span class=selfeval>2</span>)    <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#f</span>
+(<span class=variable>&gt;=</span> <span class=selfeval>4.5</span> <span class=selfeval>3</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+</pre><p></p>
+<p>
+<a name="node_idx_88"></a><a name="node_idx_90"></a><a name="node_idx_92"></a><a name="node_idx_94"></a><a name="node_idx_96"></a></p>
+<p>
+</p>
+
+<p class=noindent>算术过程 <code class=scheme><span class=variable>+</span></code>, <code class=scheme><span class=variable>-</span></code>, <code class=scheme><span class=variable>*</span></code>, <code class=scheme><span class=variable>/</span></code>, <code class=scheme><span class=variable>expt</span></code> 和我们预料的一样：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>+</span> <span class=selfeval>1</span> <span class=selfeval>2</span> <span class=selfeval>3</span>)    <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>6</span>
+(<span class=variable>-</span> <span class=selfeval>5.3</span> <span class=selfeval>2</span>)    <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>3.3</span>
+(<span class=variable>-</span> <span class=selfeval>5</span> <span class=selfeval>2</span> <span class=selfeval>1</span>)    <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>2</span>
+(<span class=variable>*</span> <span class=selfeval>1</span> <span class=selfeval>2</span> <span class=selfeval>3</span>)    <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>6</span>
+(<span class=variable>/</span> <span class=selfeval>6</span> <span class=selfeval>3</span>)      <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>2</span>
+(<span class=variable>/</span> <span class=selfeval>22</span> <span class=selfeval>7</span>)     <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>22/7</span>
+(<span class=variable>expt</span> <span class=selfeval>2</span> <span class=selfeval>3</span>)   <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>8</span>
+(<span class=variable>expt</span> <span class=selfeval>4</span> <span class=selfeval>1/2</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>2.0</span>
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>对于单个参数，<code class=scheme><span class=variable>-</span></code> 和 <code class=scheme><span class=variable>/</span></code> 分别返回参数的相反数和倒数：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>-</span> <span class=selfeval>4</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>-4</span>
+(<span class=variable>/</span> <span class=selfeval>4</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>1/4</span>
+</pre><p></p>
+<p>
+<a name="node_idx_98"></a><a name="node_idx_100"></a></p>
+<p>
+</p>
+
+<p class=noindent>过程 <code class=scheme><span class=variable>max</span></code> 和 <code class=scheme><span class=variable>min</span></code> 分别返回其数字参数的最大值和最小值。它们可以接收任意个数字参数。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>max</span> <span class=selfeval>1</span> <span class=selfeval>3</span> <span class=selfeval>4</span> <span class=selfeval>2</span> <span class=selfeval>3</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>4</span>
+(<span class=variable>min</span> <span class=selfeval>1</span> <span class=selfeval>3</span> <span class=selfeval>4</span> <span class=selfeval>2</span> <span class=selfeval>3</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>1</span>
+</pre><p></p>
+<p>
+<a name="node_idx_102"></a></p>
+<p>
+</p>
+
+<p class=noindent>过程 <code class=scheme><span class=variable>abs</span></code> 返回参数的绝对值。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>abs</span>  <span class=selfeval>3</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>3</span>
+(<span class=variable>abs</span> <span class=selfeval>-4</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>4</span>
+</pre><p></p>
+<p>
+<a name="node_idx_104"></a><a name="node_idx_106"></a><a name="node_idx_108"></a></p>
+<p>
+</p>
+
+<p class=noindent>这仅仅只是冰山一角而已。Scheme 提供了大量的算数和三角函数的过程。例如 <code class=scheme><span class=variable>atan</span></code>，<code class=scheme><span class=variable>exp</span></code> 和 <code class=scheme><span class=variable>sqrt</span></code> 分别返回参数的反正切、自然逆对数和平方根。更多细节请查看 R5RS [<a href="t-y-scheme-Z-H-24.html#node_bib_23">23</a>]。</p>
+<p>
+<a name="node_idx_110"></a></p>
+<p>
+</p>
+<a name="node_sec_2.1.3"></a>
+<h3 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_2.1.3">2.1.3&nbsp;&nbsp;字符</a></h3>
+<p><a name="node_idx_112"></a>Scheme 中的数据用前缀 <code class=verbatim>#\</code> 来表示。所以 <code class=scheme><span class=selfeval>#\c</span></code> 为字符 <code class=verbatim>c</code>。一些非图形字符有其描述性的名称，例如 <code class=scheme><span class=selfeval>#\newline</span></code>， <code class=scheme><span class=selfeval>#\tab</span></code>。空格可以写成 <code class=scheme><span class=selfeval>#\ </span></code>&nbsp;，或者是更具可读性的 <code class=scheme><span class=selfeval>#\space</span></code>。</p>
+<p>
+<a name="node_idx_114"></a></p>
+<p>字符的判断谓词为 <code class=scheme><span class=variable>char?</span></code>：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>char?</span> <span class=selfeval>#\c</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+(<span class=variable>char?</span> <span class=selfeval>1</span>)   <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#f</span>
+(<span class=variable>char?</span> <span class=selfeval>#\;</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>注意一个分号字符在这里是不会被当成注释。</p>
+<p>
+<a name="node_idx_116"></a><a name="node_idx_118"></a><a name="node_idx_120"></a><a name="node_idx_122"></a><a name="node_idx_124"></a></p>
+<p>字符数据类型有一个它自己的比较谓词集合 <code class=scheme><span class=variable>char=?</span></code>、<code class=scheme><span class=variable>char&lt;?</span></code>、<code class=scheme><span class=variable>char&lt;=?</span></code>、<code class=scheme><span class=variable>char&gt;?</span></code>、<code class=scheme><span class=variable>char&gt;=?</span></code>。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>char=?</span> <span class=selfeval>#\a</span> <span class=selfeval>#\a</span>)  <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+(<span class=variable>char&lt;?</span> <span class=selfeval>#\a</span> <span class=selfeval>#\b</span>)  <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+(<span class=variable>char&gt;=?</span> <span class=selfeval>#\a</span> <span class=selfeval>#\b</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#f</span>
+</pre><p></p>
+<p>
+<a name="node_idx_126"></a><a name="node_idx_128"></a><a name="node_idx_130"></a><a name="node_idx_132"></a><a name="node_idx_134"></a></p>
+<p>
+</p>
+
+<p class=noindent>用 <code class=scheme><span class=variable>char-ci</span></code> 代替 <code class=scheme><span class=variable>char</span></code> 来比较大小写不敏感的字符：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>char-ci=?</span> <span class=selfeval>#\a</span> <span class=selfeval>#\A</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+(<span class=variable>char-ci&lt;?</span> <span class=selfeval>#\a</span> <span class=selfeval>#\B</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+</pre><p></p>
+<p>
+<a name="node_idx_136"></a><a name="node_idx_138"></a></p>
+<p>
+</p>
+
+<p class=noindent>大小写转换过程为 <code class=scheme><span class=variable>char-downcase</span></code> 和 <code class=scheme><span class=variable>char-upcase</span></code>：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>char-downcase</span> <span class=selfeval>#\A</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#\a</span>
+(<span class=variable>char-upcase</span> <span class=selfeval>#\a</span>)   <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#\A</span>
+</pre><p></p>
+<p>
+<a name="node_idx_140"></a></p>
+<p>
+</p>
+<a name="node_sec_2.1.4"></a>
+<h3 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_2.1.4">2.1.4&nbsp;&nbsp;符号</a></h3>
+<p><a name="node_idx_142"></a>以上我们看到的简单数据类型是自求值的（<em>self-evaluating</em>）。即，如果你在监听器中键入任何以上类型的对象，经监听器求值后得到的结果和你键入的是一样的。</p>
+<p>
+</p>
+<pre class=scheme><span class=selfeval>#t</span>  <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+<span class=selfeval>42</span>  <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>42</span>
+<span class=selfeval>#\c</span> <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#\c</span>
+</pre><p></p>
+<p>
+<a name="node_idx_144"></a><a name="node_idx_146"></a></p>
+<p>
+</p>
+
+<p class=noindent>符号则与此不同。这是因为符号被 Scheme 用来作<em>变量</em>的<em>标识符</em>，其求值时将得到变量的值。尽管如此，符号类型是一个简单的数据类型，符号本身是 Scheme 可以使用的合法值，这和字符、数字等类型是一样的。</p>
+<p>
+<a name="node_idx_148"></a></p>
+<p>为了指定一个不让 Scheme 认为它是变量的符号，你应该引用（<em>quote</em>）这个变量：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>quote</span> <span class=variable>xyz</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=variable>xyz</span>
+</pre><p></p>
+<p>
+<a name="node_idx_150"></a></p>
+<p>因为这种引用方式在 Scheme 中很常见，所以提供了一种方便的缩写形式。表达式</p>
+<p>
+</p>
+<pre class=scheme><span class=keyword>'</span><span class=variable>E</span>
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>将被 Scheme 视为和下面的形式等价</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>quote</span> <span class=variable>E</span>)
+</pre><p></p>
+<p>
+<a name="node_idx_152"></a></p>
+<p>
+</p>
+
+<p class=noindent>Scheme 符号用一系列字符来命名。对于符号命名的唯一限制是名字不能被当作其它的数据类型，比如字符型、布尔型、数字或者是复合数据类型。所以 <code class=scheme><span class=variable>this-is-a-symbol</span></code>、
+<code class=scheme><span class=variable>i18n</span></code>、<code class=scheme><span class=variable>&lt;=&gt;</span></code> 和 <code class=scheme><span class=variable>$!#*</span></code> 都是符号类型； <code class=scheme><span class=selfeval>16</span></code>、 <code class=scheme><span class=selfeval>-i</span></code>（一个复数）<code class=scheme><span class=selfeval>#t</span></code>、 <code class=scheme><span class=selfeval>&quot;this-is-a-string&quot;</span></code> 和 <code class=scheme>(<span class=variable>barf</span>)</code>（一个表）就不是符号类型。判断是否为符号的谓词是 <code class=scheme><span class=variable>symbol?</span></code>：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>symbol?</span> <span class=keyword>'</span><span class=variable>xyz</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+(<span class=variable>symbol?</span> <span class=selfeval>42</span>)   <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#f</span>
+</pre><p></p>
+<p>
+<a name="node_idx_154"></a></p>
+<p>
+</p>
+
+<p class=noindent>Scheme 符号类型通常是大小写不敏感的。所以符号 <code class=scheme><span class=variable>Calorie</span></code> and <code class=scheme><span class=variable>calorie</span></code> 是一样的：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>eqv?</span> <span class=keyword>'</span><span class=variable>Calorie</span> <span class=keyword>'</span><span class=variable>calorie</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+</pre><p></p>
+<p>
+<a name="node_idx_156"></a><a name="node_idx_158"></a></p>
+<p>
+</p>
+
+<p class=noindent>我们可以使用形式 <code class=scheme><span class=keyword>define</span></code> 来把符号 <code class=scheme><span class=variable>xyz</span></code> 定义为全局变量：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>xyz</span> <span class=selfeval>9</span>)
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>这就是说变量 <code class=scheme><span class=variable>xyz</span></code> 的值是 <code class=scheme><span class=selfeval>9</span></code>。如果我们在监听器下输入 <code class=scheme><span class=variable>xyz</span></code>，结果是将是 <code class=scheme><span class=variable>xyz</span></code> 的值:</p>
+<p>
+</p>
+<pre class=scheme><span class=variable>xyz</span>
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>9</span>
+</pre><p></p>
+<p>
+<a name="node_idx_160"></a></p>
+
+<p class=noindent>我们可以使用形式 <code class=scheme><span class=keyword>set!</span></code> 来改变（<em>change</em>）一个变量的值：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>set!</span> <span class=variable>xyz</span> <span class=selfeval>#\c</span>)
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>现在</p>
+<p>
+</p>
+<pre class=scheme><span class=variable>xyz</span>
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#\c</span>
+</pre><p></p>
+<p>
+<a name="node_idx_162"></a></p>
+<p>
+</p>
+<a name="node_sec_2.2"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_2.2">2.2&nbsp;&nbsp;复合数据类型</a></h2>
+<p>复合数据类型是用其他的数据类型的值构造起来的。</p>
+<p>
+<a name="node_idx_164"></a></p>
+<p>
+</p>
+<a name="node_sec_2.2.1"></a>
+<h3 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_2.2.1">2.2.1&nbsp;&nbsp;字符串</a></h3>
+<p>字符串是字符的序列（不要和符号类型弄混了，符号类型是把字符序列作为名字的简单数据类型）。你可以使用双引号把一串字符定义为字符串。字符串求值是它们本省。</p>
+<p>
+</p>
+<pre class=scheme><span class=selfeval>&quot;Hello, World!&quot;</span>
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>&quot;Hello, World!&quot;</span>
+</pre><p></p>
+<p>
+<a name="node_idx_166"></a></p>
+<p>
+</p>
+
+<p class=noindent>过程 <code class=scheme><span class=variable>string</span></code> 以一串字符为参数并返回由它们生成的字符串：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>string</span> <span class=selfeval>#\h</span> <span class=selfeval>#\e</span> <span class=selfeval>#\l</span> <span class=selfeval>#\l</span> <span class=selfeval>#\o</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>&quot;hello&quot;</span>
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>让我们现在定义一个全局变量 <code class=scheme><span class=variable>greeting</span></code>。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>greeting</span> <span class=selfeval>&quot;Hello; Hello!&quot;</span>)
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>注意位于字符串中的分号不会被解释为注释。</p>
+<p>
+<a name="node_idx_168"></a></p>
+<p>字符串中的字符可以被单独访问并修改。过程 <code class=scheme><span class=variable>string-ref</span></code> 以一个字符串和一个下标（从 0 开始）为参数，返回位于下标处的字符：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>string-ref</span> <span class=variable>greeting</span> <span class=selfeval>0</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#\H</span>
+</pre><p></p>
+<p>
+<a name="node_idx_170"></a></p>
+<p>
+</p>
+
+<p class=noindent>新字符串可以用添加其它字符串的方式产生：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>string-append</span> <span class=selfeval>&quot;E &quot;</span>
+               <span class=selfeval>&quot;Pluribus &quot;</span>
+               <span class=selfeval>&quot;Unum&quot;</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>&quot;E Pluribus Unum&quot;</span>
+</pre><p></p>
+<p>
+<a name="node_idx_172"></a></p>
+<p>你可以生成一个指定长度的字符串，然后可以稍后填充想要的字符。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>a-3-char-long-string</span> (<span class=variable>make-string</span> <span class=selfeval>3</span>))
+</pre><p></p>
+<p>
+<a name="node_idx_174"></a></p>
+<p>检测是否为字符串的谓词为 <code class=scheme><span class=variable>string?</span></code>。</p>
+<p>
+<a name="node_idx_176"></a></p>
+<p>
+那些通过调用 <code class=scheme><span class=variable>string</span></code>, <code class=scheme><span class=variable>make-string</span></code>, 和 <code class=scheme><span class=variable>string-append</span></code> 得到的字符串是可以修改的。过程 <code class=scheme><span class=variable>string-set!</span></code> 替换位于指定索引处的字符：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>hello</span> (<span class=variable>string</span> <span class=selfeval>#\H</span> <span class=selfeval>#\e</span> <span class=selfeval>#\l</span> <span class=selfeval>#\l</span> <span class=selfeval>#\o</span>)) 
+<span class=variable>hello</span>
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>&quot;Hello&quot;</span>
+
+(<span class=variable>string-set!</span> <span class=variable>hello</span> <span class=selfeval>1</span> <span class=selfeval>#\a</span>)
+<span class=variable>hello</span>
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>&quot;Hallo&quot;</span>
+</pre><p>
+<a name="node_idx_178"></a></p>
+<p>
+</p>
+<a name="node_sec_2.2.2"></a>
+<h3 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_2.2.2">2.2.2&nbsp;&nbsp;向量</a></h3>
+<p>向量与字符串类似，但是向量中的元素可以是任何东西而不仅仅是字符。甚至向量的元素可以是向量本身，而这正是产生多维向量的一种好方法。</p>
+<p>
+<a name="node_idx_180"></a></p>
+<p>下面的方法创建了一个包含前 5 个非负整数的向量。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>vector</span> <span class=selfeval>0</span> <span class=selfeval>1</span> <span class=selfeval>2</span> <span class=selfeval>3</span> <span class=selfeval>4</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#</span>(<span class=selfeval>0</span> <span class=selfeval>1</span> <span class=selfeval>2</span> <span class=selfeval>3</span> <span class=selfeval>4</span>)
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>注意 Scheme 表示向量值的方式：一个 <code class=verbatim>#</code> 字符紧跟着用圆括号括起的向量内容</p>
+<p>
+<a name="node_idx_182"></a></p>
+<p>
+和 <code class=scheme><span class=variable>make-string</span></code> 相比，<code class=scheme><span class=variable>make-vector</span></code> 过程产生了一个指定长度的向量：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>v</span> (<span class=variable>make-vector</span> <span class=selfeval>5</span>))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent> 过程 <code class=scheme><span class=variable>vector-ref</span></code> 和 <code class=scheme><span class=variable>vector-set!</span></code> 获取并修改向量中的元素。向量的判定谓词是 <code class=scheme><span class=variable>vector?</span></code>。</p>
+<p>
+<a name="node_idx_184"></a><a name="node_idx_186"></a><a name="node_idx_188"></a><a name="node_idx_190"></a><a name="node_idx_192"></a></p>
+<p>
+</p>
+<a name="node_sec_2.2.3"></a>
+<h3 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_2.2.3">2.2.3&nbsp;&nbsp;点对和表</a></h3>
+<p>一个点对（<em>dotted pair</em>） 是任意两个值有序组合而成的复合值。第一个元素是 <em>car</em>，第二个是 <em>cdr</em>，而组合过程是 <code class=scheme><span class=variable>cons</span></code>。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>cons</span> <span class=selfeval>1</span> <span class=selfeval>#t</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  (<span class=selfeval>1</span> . <span class=selfeval>#t</span>)
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>点对不能自求值，因此把定点指定为值的时候（比如，不使用过程 <code class=scheme><span class=variable>cons</span></code>），一定要用显示的单引号把点对引起来：</p>
+<p>
+</p>
+<pre class=scheme><span class=keyword>'</span>(<span class=selfeval>1</span> . <span class=selfeval>#t</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  (<span class=selfeval>1</span> . <span class=selfeval>#t</span>)
+
+(<span class=selfeval>1</span> . <span class=selfeval>#t</span>)  <span style="color: red"><tt><strong><i>--&gt;ERROR!!!</i></strong></tt></span>
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>点对的存取过程是 <code class=scheme><span class=variable>car</span></code> 和 <code class=scheme><span class=variable>cdr</span></code>：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>x</span> (<span class=variable>cons</span> <span class=selfeval>1</span> <span class=selfeval>#t</span>))
+
+(<span class=variable>car</span> <span class=variable>x</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>1</span>
+
+(<span class=variable>cdr</span> <span class=variable>x</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+</pre><p></p>
+<p>
+<a name="node_idx_194"></a><a name="node_idx_196"></a></p>
+<p>
+</p>
+
+<p class=noindent>点对中的元素可以用过程 <code class=scheme><span class=variable>set-car!</span></code> 和 <code class=scheme><span class=variable>set-cdr!</span></code> 进行更改：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>set-car!</span> <span class=variable>x</span> <span class=selfeval>2</span>)
+
+(<span class=variable>set-cdr!</span> <span class=variable>x</span> <span class=selfeval>#f</span>)
+
+<span class=variable>x</span>
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  (<span class=selfeval>2</span> . <span class=selfeval>#f</span>)
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>点对中可以包含其他的点对。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>y</span> (<span class=variable>cons</span> (<span class=variable>cons</span> <span class=selfeval>1</span> <span class=selfeval>2</span>) <span class=selfeval>3</span>))
+
+<span class=variable>y</span>
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  ((<span class=selfeval>1</span> . <span class=selfeval>2</span>) . <span class=selfeval>3</span>)
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>这个表的 <code class=scheme><span class=variable>car</span></code> 的 <code class=scheme><span class=variable>car</span></code> 是 <code class=scheme><span class=selfeval>1</span></code>。<code class=scheme><span class=variable>car</span></code> 的 <code class=scheme><span class=variable>cdr</span></code> 是 <code class=scheme><span class=selfeval>2</span></code>。如下：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>car</span> (<span class=variable>car</span> <span class=variable>y</span>))
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>1</span>
+
+(<span class=variable>cdr</span> (<span class=variable>car</span> <span class=variable>y</span>))
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>2</span>
+</pre><p></p>
+<p>
+<a name="node_idx_198"></a></p>
+<p>
+</p>
+
+<p class=noindent>Scheme 为 <code class=scheme><span class=variable>car</span></code> 和 <code class=scheme><span class=variable>cdr</span></code> 过程的系列组合提供了缩写。于是 <code class=scheme><span class=variable>caar</span></code> 代表 “<code class=scheme><span class=variable>car</span></code> 的 <code class=scheme><span class=variable>car</span></code>”，而<code class=scheme><span class=variable>cdar</span></code> 代表 <code class=scheme><span class=variable>car</span></code> 的 <code class=scheme><span class=variable>cdr</span></code>，等等。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>caar</span> <span class=variable>y</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>1</span>
+
+(<span class=variable>cdar</span> <span class=variable>y</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>2</span>
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent><code class=scheme><span class=variable>c...r</span></code>缩写式的风格只保证向上级联到 4 级。因此 <code class=scheme><span class=variable>cadr</span></code>，<code class=scheme><span class=variable>cdadr</span></code> 和 <code class=scheme><span class=variable>cdaddr</span></code> 是有效的。而 <code class=scheme><span class=variable>cdadadr</span></code> 则可能无效。</p>
+<p>当嵌套的点只发生在在第二个元素处的时候，Scheme 使用一种特殊记法来表示结果：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>cons</span> <span class=selfeval>1</span> (<span class=variable>cons</span> <span class=selfeval>2</span> (<span class=variable>cons</span> <span class=selfeval>3</span> (<span class=variable>cons</span> <span class=selfeval>4</span> <span class=selfeval>5</span>))))
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  (<span class=selfeval>1</span> <span class=selfeval>2</span> <span class=selfeval>3</span> <span class=selfeval>4</span> . <span class=selfeval>5</span>)
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>比如 <code class=scheme>(<span class=selfeval>1</span> <span class=selfeval>2</span> <span class=selfeval>3</span> <span class=selfeval>4</span> . <span class=selfeval>5</span>)</code> 是 <code class=scheme>(<span class=selfeval>1</span> . (<span class=selfeval>2</span> . (<span class=selfeval>3</span> . (<span class=selfeval>4</span> . <span class=selfeval>5</span>))))</code> 的缩写。表达式的最后一个 cdr 是 <code class=scheme><span class=selfeval>5</span></code>。</p>
+<p>
+<a name="node_idx_200"></a></p>
+<p>当最后一个 cdr 是一个被称为空表（<em>empty list</em>）的特殊对象时，Scheme 为其提供进一步的缩写，用 <code class=scheme>()</code> 表示。空表不会自求值，所以在程序中使用它时应该用单引号引起来：</p>
+<p>
+</p>
+<pre class=scheme><span class=keyword>'</span>() <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  ()
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent><code class=scheme>(<span class=selfeval>1</span> . (<span class=selfeval>2</span> . (<span class=selfeval>3</span> . (<span class=selfeval>4</span> . ()))))</code> 的点对的缩写是</p>
+<p>
+</p>
+<pre class=scheme>(<span class=selfeval>1</span> <span class=selfeval>2</span> <span class=selfeval>3</span> <span class=selfeval>4</span>)
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent><a name="node_idx_202"></a>这种特殊的嵌套点对叫做表（<em>list</em>）。上面的表有 4 个元素。它可以这样创建：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>cons</span> <span class=selfeval>1</span> (<span class=variable>cons</span> <span class=selfeval>2</span> (<span class=variable>cons</span> <span class=selfeval>3</span> (<span class=variable>cons</span> <span class=selfeval>4</span> <span class=keyword>'</span>()))))
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>但 Scheme 提供了一个叫 <code class=scheme><span class=variable>list</span></code> 的过程，它可以更方便地创建表。<code class=scheme><span class=variable>list</span></code> 过程可以接受任意数量的参数并返回包含它们的表：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>list</span> <span class=selfeval>1</span> <span class=selfeval>2</span> <span class=selfeval>3</span> <span class=selfeval>4</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  (<span class=selfeval>1</span> <span class=selfeval>2</span> <span class=selfeval>3</span> <span class=selfeval>4</span>)
+</pre><p></p>
+<p>实际上，如果我们知道要创建的所有元素，那么可以使用单引号（<code class=scheme><span class=keyword>quote</span></code>）来指定表：</p>
+<p>
+</p>
+<pre class=scheme><span class=keyword>'</span>(<span class=selfeval>1</span> <span class=selfeval>2</span> <span class=selfeval>3</span> <span class=selfeval>4</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  (<span class=selfeval>1</span> <span class=selfeval>2</span> <span class=selfeval>3</span> <span class=selfeval>4</span>)
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent><a name="node_idx_204"></a><a name="node_idx_206"></a>表中的元素可以通过索引来访问。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=keyword>define</span> <span class=variable>y</span> (<span class=variable>list</span> <span class=selfeval>1</span> <span class=selfeval>2</span> <span class=selfeval>3</span> <span class=selfeval>4</span>))
+
+(<span class=variable>list-ref</span> <span class=variable>y</span> <span class=selfeval>0</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>1</span>
+(<span class=variable>list-ref</span> <span class=variable>y</span> <span class=selfeval>3</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>4</span>
+
+(<span class=variable>list-tail</span> <span class=variable>y</span> <span class=selfeval>1</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  (<span class=selfeval>2</span> <span class=selfeval>3</span> <span class=selfeval>4</span>)
+(<span class=variable>list-tail</span> <span class=variable>y</span> <span class=selfeval>3</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  (<span class=selfeval>4</span>)
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent><code class=scheme><span class=variable>list-tail</span></code> 返回从表的尾部（<em>tail</em>）开始索引的元素。</p>
+<p>
+<a name="node_idx_208"></a><a name="node_idx_210"></a><a name="node_idx_212"></a></p>
+<p>判断谓词 <code class=scheme><span class=variable>pair?</span></code>，<code class=scheme><span class=variable>list?</span></code> 和  <code class=scheme><span class=variable>null?</span></code> 分别检查它们的参数是否为点对，表，或是空表：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>pair?</span> <span class=keyword>'</span>(<span class=selfeval>1</span> . <span class=selfeval>2</span>)) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+(<span class=variable>pair?</span> <span class=keyword>'</span>(<span class=selfeval>1</span> <span class=selfeval>2</span>))   <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+(<span class=variable>pair?</span> <span class=keyword>'</span>())      <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#f</span>
+(<span class=variable>list?</span> <span class=keyword>'</span>())      <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+(<span class=variable>null?</span> <span class=keyword>'</span>())      <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+(<span class=variable>list?</span> <span class=keyword>'</span>(<span class=selfeval>1</span> <span class=selfeval>2</span>))   <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#t</span>
+(<span class=variable>list?</span> <span class=keyword>'</span>(<span class=selfeval>1</span> . <span class=selfeval>2</span>)) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#f</span>
+(<span class=variable>null?</span> <span class=keyword>'</span>(<span class=selfeval>1</span> <span class=selfeval>2</span>))   <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#f</span>
+(<span class=variable>null?</span> <span class=keyword>'</span>(<span class=selfeval>1</span> . <span class=selfeval>2</span>)) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#f</span>
+</pre><p></p>
+<p>
+</p>
+<a name="node_sec_2.2.4"></a>
+<h3 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_2.2.4">2.2.4&nbsp;&nbsp;数据类型的转换</a></h3>
+<p><a name="node_idx_214"></a><a name="node_idx_216"></a><a name="node_idx_218"></a><a name="node_idx_220"></a><a name="node_idx_222"></a><a name="node_idx_224"></a><a name="node_idx_226"></a><a name="node_idx_228"></a><a name="node_idx_230"></a>Scheme 提供了许多过程来进行数据类型间的转换。我们已经知道了如何使用 <code class=scheme><span class=variable>char-downcase</span></code> 和 <code class=scheme><span class=variable>char-upcase</span></code> 进行字符的大小写转换。通过 <code class=scheme><span class=variable>char-&gt;integer</span></code> 过程字符可以转换为整数，而通过 <code class=scheme><span class=variable>integer-&gt;char</span></code> 过程整数可以转换为字符。（和字符相关的整数通常是它的 ascii 码。）</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>char-&gt;integer</span> <span class=selfeval>#\d</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>100</span>
+(<span class=variable>integer-&gt;char</span> <span class=selfeval>50</span>)  <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#\2</span>
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>字符串可以被转换为对应的由字符组成的表。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>string-&gt;list</span> <span class=selfeval>&quot;hello&quot;</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  (<span class=selfeval>#\h</span> <span class=selfeval>#\e</span> <span class=selfeval>#\l</span> <span class=selfeval>#\l</span> <span class=selfeval>#\o</span>)
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>其它类似的转换过程有 <code class=scheme><span class=variable>list-&gt;string</span></code>，<code class=scheme><span class=variable>vector-&gt;list</span></code>，和 <code class=scheme><span class=variable>list-&gt;vector</span></code>。</p>
+<p>
+数字可以被转换为字符串：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>number-&gt;string</span> <span class=selfeval>16</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>&quot;16&quot;</span>
+</pre><p></p>
+<p>字符串可以被转换成数字。如果字符串对应的不是数字，返回 <code class=scheme><span class=selfeval>#f</span></code>。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>string-&gt;number</span> <span class=selfeval>&quot;16&quot;</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>16</span>
+
+(<span class=variable>string-&gt;number</span> <span class=selfeval>&quot;Am I a hot number?&quot;</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>#f</span>
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent><code class=scheme><span class=variable>string-&gt;number</span></code> 的第二个参数为可选参数，代表进制数。</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>string-&gt;number</span> <span class=selfeval>&quot;16&quot;</span> <span class=selfeval>8</span>) <span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>14</span>
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>因为 8 进制的 <code class=scheme><span class=selfeval>16</span></code> 就是 14。</p>
+<p>符号可以转换为字符串，反之也可以：</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>symbol-&gt;string</span> <span class=keyword>'</span><span class=variable>symbol</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=selfeval>&quot;symbol&quot;</span>
+
+(<span class=variable>string-&gt;symbol</span> <span class=selfeval>&quot;string&quot;</span>)
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=variable>string</span>
+</pre><p></p>
+<p>
+</p>
+<a name="node_sec_2.3"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_2.3">2.3&nbsp;&nbsp;其它数据类型</a></h2>
+<p><a name="node_idx_232"></a>Scheme 还包含一些其它的数据类型。其中一个是过程类型（<em>procedure</em>）。我们已经看过了许多过程，比如 <code class=scheme><span class=variable>display</span></code>，<code class=scheme><span class=variable>+</span></code>，<code class=scheme><span class=variable>cons</span></code>。实际上，这些是值为过程的变量，只不过他们不像数字或字符一样可见而已：</p>
+<p>
+</p>
+<pre class=scheme><span class=variable>cons</span>
+<span style="color: teal"><tt><strong>=&gt;</strong></tt></span>  <span class=variable>&lt;procedure&gt;</span>
+</pre><p></p>
+<p>
+</p>
+
+<p class=noindent>到目前为止我们看到的过程都是原语（<em>primitive</em>）过程，他们都是由标准全局变量来保存。用户可以创建额外的过程。</p>
+<p>
+<a name="node_idx_234"></a></p>
+<p>另外一种数据类型是端口类型（<em>port</em>）。一个端口是执行执行输入输出时的管道。端口常与文件和控制台相关。</p>
+<p>在我们的 “Hello, World!” 程序中，我们使用了过程 <code class=scheme><span class=variable>display</span></code> 来向控制台输出字符串。 <code class=scheme><span class=variable>display</span></code> 可以带两个参数，一个是要显示的值，另一个是在哪个端口显示。</p>
+<p>在我们的程序中 <code class=scheme><span class=variable>display</span></code> 的第二个参数是隐式的。默认的输出端口是标准输出。我们可以使用 <code class=scheme>(<span class=variable>current-output-port</span>)</code> 来得到当前的标准输出端口。我们可以更显式地写成</p>
+<p>
+</p>
+<pre class=scheme>(<span class=variable>display</span> <span class=selfeval>&quot;Hello, World!&quot;</span> (<span class=variable>current-output-port</span>))
+</pre><p></p>
+<p>
+<a name="node_idx_236"></a></p>
+<p>
+</p>
+<a name="node_sec_2.4"></a>
+<h2 class=section><a href="t-y-scheme-Z-H-1.html#node_toc_node_sec_2.4">2.4&nbsp;&nbsp;S 表达式</a></h2>
+<p>所有在这里讨论的数据类型都可以集中在一起成为一个单一的包含所有的数据类型的单独数据类型，称为 s 表达式（<em>s-expression</em>，<em>s</em> 代表 <em>symbolic</em>）。所以 <code class=scheme><span class=selfeval>42</span></code>，<code class=scheme><span class=selfeval>#\c</span></code>，<code class=scheme>(<span class=selfeval>1</span> . <span class=selfeval>2</span>)</code>, <code class=scheme><span class=selfeval>#</span>(<span class=variable>a</span> <span class=variable>b</span> <span class=variable>c</span>)</code>，<code class=scheme><span class=selfeval>&quot;Hello&quot;</span></code>, <code class=scheme>(<span class=keyword>quote</span> <span class=variable>xyz</span>)</code>，<code class=scheme>(<span class=variable>string-&gt;number</span> <span class=selfeval>&quot;16&quot;</span>)</code> 和 <code class=scheme>(<span class=keyword>begin</span> (<span class=variable>display</span> <span class=selfeval>&quot;Hello, World!&quot;</span>) (<span class=variable>newline</span>))</code> 都是 s 表达式。</p>
+<p>
+</p>
+<div class=smallskip></div>
+<p style="margin-top: 0pt; margin-bottom: 0pt">
+<div align=right class=navigation>[Go to <span><a href="t-y-scheme.html">first</a>, <a href="t-y-scheme-Z-H-3.html">previous</a></span><span>, <a href="t-y-scheme-Z-H-5.html">next</a></span> page<span>; &nbsp;&nbsp;</span><span><a href="t-y-scheme-Z-H-1.html#node_toc_start">contents</a></span><span><span>; &nbsp;&nbsp;</span><a href="t-y-scheme-Z-H-25.html#node_index_start">index</a></span>]</div>
+</p>
+<p></p>
+</div>
+</body>
+</html>
